@@ -1,0 +1,12 @@
+services:
+  hexo:
+    container_name: keeb.dev
+    restart: always
+    image: keeb/keeb.dev
+    volumes:
+      - ./overlay/writing:/hexo/keeb.dev/source/_posts
+    ports:
+      - 4000:4000
+
+
+    
