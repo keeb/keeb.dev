@@ -177,6 +177,9 @@ gravatar:
   email: 
   hash: 
 
+error_404:
+  enabled: false
+
 # loads libraries and styles from CDN instead or relying on local files
 cdn:
   enable: true

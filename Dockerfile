@@ -20,12 +20,8 @@ RUN npm i -s hexo-asset-link
 RUN git clone https://github.com/probberechts/hexo-theme-cactus.git themes/cactus
 
 # add in my customizations (should be a volume?)
-COPY ./overlay/themes/cactus/_config.yml /hexo/keeb.dev/themes/cactus/_config.yml
 COPY ./overlay/_config.yml /hexo/keeb.dev/_config.yml
-COPY ./overlay/themes/cactus/languages/ /hexo/keeb.dev/themes/cactus/languages/
-COPY ./overlay/themes/cactus/layout/ /hexo/keeb.dev/themes/cactus/layout/
-COPY ./overlay/themes/cactus/layout/_partial /hexo/keeb.dev/themes/cactus/layout/_partial
-COPY ./overlay/themes/cactus/source/css/ /hexo/keeb.dev/themes/cactus/source/css/
+COPY ./overlay/themes/cactus/ /hexo/keeb.dev/themes/cactus
 
 
 # the build step
