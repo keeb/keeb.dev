@@ -34,5 +34,5 @@ If there are no errors, congrats, GPU's are now available within your containers
 
 ## Bonus - Run Stable Diffusion
 
-Follow the instructions [here](https://github.com/AbdBarho/stable-diffusion-webui-docker/wiki/Setup)
+Follow the instructions available on github [here](https://github.com/AbdBarho/stable-diffusion-webui-docker/wiki/Setup)
 

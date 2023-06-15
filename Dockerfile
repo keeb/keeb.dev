@@ -34,14 +34,7 @@ RUN rm /hexo/keeb.dev/source/_posts/hello-world.md
 # time for content
 COPY ./overlay/writing/ /hexo/keeb.dev/source/_posts
 
-
-# The generated site output
-VOLUME "/hexo/keeb.dev/public"
-
 WORKDIR "/hexo/keeb.dev"
-
-FROM base-hexo-image as new
-
 
 FROM base-hexo-image as generate
 RUN hexo generate
