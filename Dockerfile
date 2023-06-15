@@ -46,4 +46,8 @@ FROM base-hexo-image as new
 FROM base-hexo-image as generate
 RUN hexo generate
 
+FROM base-hexo-image as serve
+EXPOSE 4000
+CMD ["hexo", "serve"]
+
 

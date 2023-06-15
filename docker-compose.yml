@@ -4,7 +4,7 @@ services:
     profiles: ["serve"]
     container_name: keeb.dev
     restart: always
-    image: keeb/keeb.dev
+    image: keeb/keeb.dev:serve
     volumes:
       - ./overlay/writing:/hexo/keeb.dev/source/_posts
     ports:
