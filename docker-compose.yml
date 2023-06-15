@@ -1,5 +1,7 @@
+version: '3.9'
 services:
-  hexo:
+  serve:
+    profiles: ["serve"]
     container_name: keeb.dev
     restart: always
     image: keeb/keeb.dev
@@ -7,6 +9,8 @@ services:
       - ./overlay/writing:/hexo/keeb.dev/source/_posts
     ports:
       - 4000:4000
+    
+  
 
 
     
