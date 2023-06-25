@@ -26,4 +26,7 @@ To preview any chages
 `docker-compose --profile serve up`
 
 
-# 
+# deployment
+
+Run ./scripts/deploy.sh
+
