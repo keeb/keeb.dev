@@ -12,13 +12,13 @@ It wasn't too long after this, my parents, who were vehemently against this new 
 
 My parents none the wiser, 8 year old me and my siblings had unfettered and unmonitored access to the Web. And what a wonderful thing it was.
 
-![AOL Loading GIF](The-beginning/aol.gif)
+![AOL Loading GIF](The-lore/aol.gif)
 
 ## Early AOL Days - A/S/L??
 
 What made AOL unique was the easy access to a variety of chat rooms, both public and private. This was entirely the point of AOL. On AOL, the internet was primarily accesed through `keywords` instead of URLs. The experience, however, was ceneted around email, chat rooms, and instant  messaging. This meant that you would be quickly immersed and interacting with people from all walks of life.
 
-![AOL Landing Page](The-beginning/aol.webp)
+![AOL Landing Page](The-lore/aol.webp)
 
 Sucked into this new found hobby, chatting away with anyone and everyone, a few trends start to make themselves. Really obvious ones like the now infamous `A/S/L?` (which stood for `age/sex/location`,) but also some more subtle ones such as new fields and colors in peoples profiles, people setting themselves as away with auto responders, anti idle tools to keep themselves online, and the infamous `PUNTER`. 
 
@@ -26,7 +26,7 @@ Connecting to AOL was a pain in the ass, required a computer modem to dial anoth
 
 Of course, figuring out how to do this was step #1. What is `Fate X by MaGuS & FuNGii` or `AOHell`? The path of finding out consumed me. Then later, after using them and finding my way to Private Room: VB, I became addicted. It turns out [I was not alone.](https://github.com/readme/featured/aol-programming-culture)
 
-![FateX 2.5](The-beginning/fatex.png) 
+![FateX 2.5](The-lore/fatex.png) 
 
 ## Decompiling
 
@@ -44,13 +44,13 @@ If you were really cool, you published your own ActiveX control which hid the im
 
 Probably the most common method in all `.bas` files was some variation of `SendChat` or one of its aliases, *AOL25_Send_Chat*, *SendMessage* and the like did exactly what the method describes - sends some text to the chat.
 
-![SendChat Example](The-beginning/bas-methods.webp)
+![SendChat Example](The-lore/bas-methods.webp)
 
 Reading about some peoples nostalgic experiences, they mistakenly thought the way to do this was using the native windows `SendKeys` command. This was prone to error because the API sends keys to the active window only. Only the noobest of noobs used this method and would get your prog laughed out of the room. The tradeoff is that progs were not portable across AOL versions due to the way the client was updated. No one ever thought to make these things generic, so we just made version specific methods instead.
 
 At this time, *Open Source* was not really as prevalent or as common of a term as it is today. In the progs scene, it became increasingly embarassing to be accused of or to engage in decompiling other peoples progs. Not cool. Copying and working on your own version of ideas was fair game, and [sites started to pop up](https://members.tripod.com/~poLAr_/bas/bas.htm) with famous prog authors `.bas` [files.](https://psackley.tripod.com/vb/files.html) Sites like this kicked off a whole slew of innovation, hackers were making a name for themselves, you could show your code was not stolen, sharing started to become a way to show off, and indirectly to push the envelope.
 
-I think the most famous `.bas` and elite coder of the time was [dos32.bas](The-beginning/dos32.bas). DoS was a pioneer and someone all of us in the hacker scene owe a huge debt of gratitude. He provided good, clean reliable code that just worked and were one of the first publishers of code for doing `ccom` - or chat commands. A craze that really changed the entire dynamic of hacker subculture on AOL.
+I think the most famous `.bas` and elite coder of the time was [dos32.bas](The-lore/dos32.bas). DoS was a pioneer and someone all of us in the hacker scene owe a huge debt of gratitude. He provided good, clean reliable code that just worked and were one of the first publishers of code for doing `ccom` - or chat commands. A craze that really changed the entire dynamic of hacker subculture on AOL.
 
 ## keeb is born ##
 
@@ -66,7 +66,7 @@ Now instead of having to click a button on a ui `punt` then enter someones name 
 
 After a while AOL VB chat basically devolved into people developing these progs in the open, mostly interacting with their commands as they were tinkering with them. 
 
-![Commands in chat](The-beginning/commands.png)
+![Commands in chat](The-lore/commands.png)
 
 ## Things I made
 
