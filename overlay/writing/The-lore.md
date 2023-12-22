@@ -1,5 +1,5 @@
 ---
-title: Child of the internet
+title: The Lore
 date: 2022-05-28 00:20:00
 tags: hacking, people, journey
 ---
