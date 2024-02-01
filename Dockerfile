@@ -39,6 +39,14 @@ WORKDIR "/hexo/keeb.dev"
 FROM base-hexo-image as generate
 RUN hexo generate
 
+FROM generate as deploy
+RUN apk add minio-client
+# move to env vars
+RUN mcli alias set site http://10.0.0.59:9000 7plruDkcaX0pmOn51wgC 7AxbkPnuhXed7DUFPk6Hwwo4vgfqIjvz4o9Cir6T
+RUN mcli rm --bypass site/keeb.dev/public
+RUN mcli cp -r public site/keeb.dev/
+
+
 FROM base-hexo-image as serve
 EXPOSE 4000
 CMD ["hexo", "serve"]
