@@ -1,32 +1,38 @@
-FROM alpine
+FROM node:20-alpine
 LABEL maintainer="keeb"
 
-# install npm
-RUN apk add npm git nginx
+# Install system dependencies
+RUN apk add --no-cache git
 
-# intall and initialize hexo
-RUN npm install hexo-cli -g && mkdir /hexo
-WORKDIR /hexo
-RUN hexo init keeb.dev
-WORKDIR /hexo/keeb.dev
+# Install hexo globally
+RUN npm install -g hexo-cli
 
-# install hexo-asset-link
-# thank you to (https://chrismroberts.com/2020/01/06/using-markdown-in-hexo-to-add-images/)
-RUN npm i -s hexo-asset-link \
-  && git clone https://probberechts.github.io/hexo-theme-cactus.git themes/cactus \
-  && rm /hexo/keeb.dev/source/_posts/hello-world.md
+# Create working directory
+WORKDIR /app
 
-# add in my customizations 
-COPY ./overlay/_config.yml /hexo/keeb.dev/_config.yml
-COPY ./overlay/themes/cactus/ /hexo/keeb.dev/themes/cactus
+# Initialize hexo project
+RUN hexo init . && npm install
 
+# Install additional dependencies
+RUN npm install hexo-asset-link chalk
 
-# time for content
-COPY ./overlay/writing/ /hexo/keeb.dev/source/_posts
+# Clone and setup theme
+RUN git clone https://github.com/probberechts/hexo-theme-cactus.git themes/cactus \
+  && rm source/_posts/hello-world.md
 
-WORKDIR "/hexo/keeb.dev"
+# Copy configuration and theme customizations
+COPY app/web/overlay/_config.yml ./_config.yml
+COPY app/web/overlay/themes/cactus/ ./themes/cactus/
+
+# Copy content
+COPY app/web/overlay/writing/ ./source/_posts/
+
+# Generate static files for production
+RUN hexo generate
 
 EXPOSE 4000
+
+# Default to serving, but allow overriding for other commands
 CMD ["hexo", "serve"]
 
 

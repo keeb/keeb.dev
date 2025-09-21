@@ -4,15 +4,11 @@ Powers https://keeb.dev
 
 # Creating a new post
 
-Creating a new post requires an image built from the Dockerfile with the `--target` of new saved as `keeb/hexo-new-base`
+Build the Docker image:
 
-Generate this by running
+`docker build -t keeb/keeb.dev .`
 
-`docker build -t keeb/hexo-new-base --target new .`
-
-in the root directory.
-
-Once this is done, generate a new post by executing the `new.sh` script.
+Generate a new post by executing the `new.sh` script.
 
 From the root directory
 
