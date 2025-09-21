@@ -14,15 +14,14 @@ WORKDIR /app
 RUN hexo init . && npm install
 
 # Install additional dependencies
-RUN npm install hexo-asset-link chalk
+RUN npm install hexo-asset-link chalk@4
 
-# Clone and setup theme
-RUN git clone https://github.com/probberechts/hexo-theme-cactus.git themes/cactus \
-  && rm source/_posts/hello-world.md
+# Remove default post
+RUN rm source/_posts/hello-world.md
 
-# Copy configuration and theme customizations
+# Copy configuration and theme
 COPY app/web/overlay/_config.yml ./_config.yml
-COPY app/web/overlay/themes/cactus/ ./themes/cactus/
+COPY app/themes/cactus/ ./themes/cactus/
 
 # Copy content
 COPY app/web/overlay/writing/ ./source/_posts/
