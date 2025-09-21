@@ -47,14 +47,14 @@
 
 #ascii-art
   position: relative
-  animation: wave-animation 3s ease-in-out infinite
+  animation: wave-animation 8s ease-in-out infinite
 
 #terminal-cursor
   color: $color-accent-1
   animation: cursor-blink 1s infinite
   font-size: 1em
   font-family: monospace
-  vertical-align: bottom
+  vertical-align: top
   margin-left: 0.2em
 
 @keyframes cursor-blink
@@ -66,53 +66,30 @@
 @keyframes wave-animation
   0%
     color: $color-text
+  5%
+    background: linear-gradient(90deg, $color-accent-1 -20%, $color-accent-1 0%, $color-text 15%, $color-text 100%)
+    -webkit-background-clip: text
+    background-clip: text
+    color: transparent
   10%
-    background: linear-gradient(90deg, $color-accent-1 0%, $color-accent-1 10%, $color-text 20%, $color-text 100%)
+    background: linear-gradient(90deg, $color-text 0%, $color-accent-1 10%, $color-accent-1 25%, $color-text 40%, $color-text 100%)
+    -webkit-background-clip: text
+    background-clip: text
+    color: transparent
+  15%
+    background: linear-gradient(90deg, $color-text 0%, $color-text 20%, $color-accent-1 35%, $color-accent-1 50%, $color-text 65%, $color-text 100%)
     -webkit-background-clip: text
     background-clip: text
     color: transparent
   20%
-    background: linear-gradient(90deg, $color-text 0%, $color-accent-1 10%, $color-accent-1 20%, $color-text 30%, $color-text 100%)
+    background: linear-gradient(90deg, $color-text 0%, $color-text 45%, $color-accent-1 60%, $color-accent-1 75%, $color-text 90%, $color-text 100%)
     -webkit-background-clip: text
     background-clip: text
     color: transparent
-  30%
-    background: linear-gradient(90deg, $color-text 0%, $color-text 10%, $color-accent-1 20%, $color-accent-1 30%, $color-text 40%, $color-text 100%)
+  25%
+    background: linear-gradient(90deg, $color-text 0%, $color-text 70%, $color-accent-1 85%, $color-accent-1 100%, $color-text 115%)
     -webkit-background-clip: text
     background-clip: text
     color: transparent
-  40%
-    background: linear-gradient(90deg, $color-text 0%, $color-text 20%, $color-accent-1 30%, $color-accent-1 40%, $color-text 50%, $color-text 100%)
-    -webkit-background-clip: text
-    background-clip: text
-    color: transparent
-  50%
-    background: linear-gradient(90deg, $color-text 0%, $color-text 30%, $color-accent-1 40%, $color-accent-1 50%, $color-text 60%, $color-text 100%)
-    -webkit-background-clip: text
-    background-clip: text
-    color: transparent
-  60%
-    background: linear-gradient(90deg, $color-text 0%, $color-text 40%, $color-accent-1 50%, $color-accent-1 60%, $color-text 70%, $color-text 100%)
-    -webkit-background-clip: text
-    background-clip: text
-    color: transparent
-  70%
-    background: linear-gradient(90deg, $color-text 0%, $color-text 50%, $color-accent-1 60%, $color-accent-1 70%, $color-text 80%, $color-text 100%)
-    -webkit-background-clip: text
-    background-clip: text
-    color: transparent
-  80%
-    background: linear-gradient(90deg, $color-text 0%, $color-text 60%, $color-accent-1 70%, $color-accent-1 80%, $color-text 90%, $color-text 100%)
-    -webkit-background-clip: text
-    background-clip: text
-    color: transparent
-  90%
-    background: linear-gradient(90deg, $color-text 0%, $color-text 70%, $color-accent-1 80%, $color-accent-1 90%, $color-text 100%)
-    -webkit-background-clip: text
-    background-clip: text
-    color: transparent
-  100%
-    background: linear-gradient(90deg, $color-text 0%, $color-text 80%, $color-accent-1 90%, $color-accent-1 100%)
-    -webkit-background-clip: text
-    background-clip: text
-    color: transparent
+  30%, 100%
+    color: $color-text
