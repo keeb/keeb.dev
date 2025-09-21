@@ -60,3 +60,11 @@ The main Hexo config is at `app/web/overlay/_config.yml`. The project uses:
 - Development stage for creating new posts
 - Production stage for serving content
 - Volume mounting for live content editing during development
+
+## Theme Customization
+
+The project uses a heavily customized version of the Cactus theme with:
+- Custom visual effects and styling modifications
+- Enhanced layout components for archive and index pages
+- Modified CSS variables and styling partials
+- Responsive design improvements
