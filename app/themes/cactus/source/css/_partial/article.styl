@@ -1,4 +1,19 @@
 article
+  background: linear-gradient(135deg, rgba(0,255,255,0.003) 0%, transparent 50%, rgba(255,0,150,0.003) 100%)
+  padding: 3rem
+  margin: 1rem 0
+  position: relative
+  
+  &:before
+    content: ""
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    height: 1px
+    background: linear-gradient(90deg, transparent, rgba(0,255,255,0.2), rgba(212,128,170,0.2), transparent)
+    animation: cyber-scan 4s ease-in-out infinite
+
   header
     .posttitle
       margin-top: 0
@@ -6,6 +21,7 @@ article
       text-transform: none
       font-size: 3em
       line-height: 1.25
+      text-shadow: 0 0 10px rgba(212, 128, 170, 0.1)
 
     .meta
       margin-top: 0
@@ -58,10 +74,13 @@ article
     blockquote
       margin: 1rem 10px
       padding: .5em 10px
-      background: inherit
+      background: linear-gradient(135deg, rgba(0,255,255,0.02) 0%, rgba(204,255,182,0.02) 100%)
+      border-left: 3px solid rgba(204,255,182,0.4)
+      border-radius: 4px
       color: $color-quote
       quotes: "\201C" "\201D" "\2018" "\2019"
       font-weight: bold
+      box-shadow: 0 0 10px rgba(204,255,182,0.05)
 
       p
         margin: 0
