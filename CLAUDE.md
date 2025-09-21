@@ -41,7 +41,7 @@ This script pulls the latest image, generates static files, and creates a timest
 ## Key Directories
 
 - `app/web/overlay/writing/` - Blog posts and associated assets
-- `app/web/overlay/themes/cactus/` - Custom theme files
+- `app/themes/cactus/` - Custom theme files
 - `app/web/config/nginx.conf` - Main Nginx configuration
 - `app/web/config/sites/` - Individual site configurations
 - `app/static/` - Static assets served directly
