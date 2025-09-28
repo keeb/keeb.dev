@@ -1,7 +1,10 @@
 ---
 title: 'Virtualization from scratch: Setting up a new vmhost'
 date: 2023-07-03 05:07:31
-tags: qemu, virtualization, linux
+tags:
+  - qemu
+  - virtualization
+  - linux
 ---
 
 Disclaimer: You really should use something like [Proxmox](https://www.proxmox.com/en/) or VMWare or whatever other out of box hypervisor. Proxmox is the standard for the homelab environment, given its powerful features and zero cost.

@@ -1,7 +1,10 @@
 ---
 title: HashiCorp’s “AI Agents” Are Just Terraform With Glitter 
 date: 2025-09-25 
-tags: iac, terraform, ai
+tags:
+  - iac
+  - terraform
+  - ai
 ---
 
 HashiCorp [wants you to believe something significant happened](https://newsroom.ibm.com/2025-09-25-hashicorp-previews-the-future-of-agentic-infrastructure-automation-with-project-infragraph) at [HashiConf](https://www.hashicorp.com/en/conferences/hashiconf) this week. They rolled out `Project Infragraph,` promised AI agents, and sprinkled their Cloud Platform with new integrations and beta servers. It sounds promising, until you scratch the surface.

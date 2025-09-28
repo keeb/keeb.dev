@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: keeb-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - ../app/web/overlay/public:/usr/share/nginx/html:ro
+      - ../app/static:/usr/share/nginx/static:ro
+      - ../app/web/overlay/slate:/usr/share/nginx/slate:ro
+      - ../app/web/overlay/bio:/usr/share/nginx/bio:ro
+      - ../app/web/overlay/start:/usr/share/nginx/start:ro
+    environment:
+      - CADDY_EMAIL=admin@keeb.dev
+    networks:
+      - web
+
+networks:
+  web:
+    external: false
+
+volumes:
+  caddy_data:
+    external: true
+  caddy_config:

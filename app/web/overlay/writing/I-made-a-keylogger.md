@@ -1,7 +1,8 @@
 ---
 title: I made a keylogger
 date: 2022-06-12 16:07:22
-tags: windows
+tags:
+  - windows
 ---
 
 It's true. But it's for a good reason, promise.
