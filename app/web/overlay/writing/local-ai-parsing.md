@@ -110,7 +110,7 @@ Two specialized prompts, each focused on one transformation, connected by struct
 Keep each prompt focused and testable. Provide rules, not structure. Be explicit. See x? Do y. When something breaks, you know exactly which step failed and can fix it without touching the rest of the system.
 
 
-# Why Local?
+# Why local?
 
 With the parsing system working well, the next question was where to run it. Cloud APIs are the obvious choice, but I have a lot of hardware and it brings me great joy to use it and to understand, at some fundamental level, how it all works.
 
