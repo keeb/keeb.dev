@@ -1,6 +1,8 @@
 #!/usr/bin/sh
 
-unlink site-active
+cd "$(dirname "$0")" || exit 1
+
+unlink site-active 2>/dev/null
 docker pull keeb/keeb.dev
 docker run --name tmp-keeb-dev-deploy keeb/keeb.dev echo true
 # || docker rm tmp-keeb-dev-deploy
