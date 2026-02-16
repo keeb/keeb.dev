@@ -1,0 +1,34 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/lib/promtail/positions.yaml
+
+clients:
+  - url: http://100.92.243.19:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: syslog
+    static_configs:
+      - targets: [localhost]
+        labels:
+          host: keeb-dev
+          job: syslog
+          __path__: /var/log/syslog
+
+  - job_name: auth
+    static_configs:
+      - targets: [localhost]
+        labels:
+          host: keeb-dev
+          job: auth
+          __path__: /var/log/auth.log
+
+  - job_name: logs
+    static_configs:
+      - targets: [localhost]
+        labels:
+          host: keeb-dev
+          job: logs
+          __path__: /var/log/*.log

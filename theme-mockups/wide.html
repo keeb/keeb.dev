@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — Cinematic Breathing Room</title>
+<style>
+  /* ===== RESET ===== */
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* ===== BASE ===== */
+  html {
+    font-size: 18px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    background-color: #1d1f21;
+    color: #c9cacc;
+    line-height: 2.0;
+    overflow-x: hidden;
+    padding: 0 8%;
+  }
+
+  /* ===== SCANLINES (very subtle / luxurious) ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.015) 3px,
+      rgba(0, 0, 0, 0.015) 4px
+    );
+  }
+
+  /* ===== WAVE ANIMATION ===== */
+  @keyframes wave-animation {
+    0%, 30%, 100% { color: #c9cacc; }
+    5% {
+      background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    10% {
+      background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    15% {
+      background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    20% {
+      background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    25% {
+      background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
+  /* ===== CURSOR BLINK ===== */
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  #terminal-cursor {
+    animation: blink 1s step-end infinite;
+    color: #d480aa;
+  }
+
+  /* ===== HEADER / ASCII ART ===== */
+  .header-area {
+    padding-top: 4rem;
+    padding-bottom: 2rem;
+    text-align: center;
+  }
+
+  #ascii-art {
+    color: #d5a1aa;
+    animation: wave-animation 8s ease-in-out infinite;
+    display: inline-block;
+    text-align: left;
+    white-space: pre;
+    margin: 0 auto;
+  }
+
+  /* ===== AVATAR ===== */
+  .avatar-section {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0 2rem 0;
+  }
+
+  .avatar-section img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #d480aa33;
+    transition: border-color 0.4s ease;
+  }
+
+  .avatar-section img:hover {
+    border-color: #d480aa;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    text-align: center;
+    padding-bottom: 6rem;
+  }
+
+  nav a {
+    color: #d480aa;
+    text-decoration: none;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+  }
+
+  nav a:hover {
+    color: #ffffff;
+  }
+
+  nav .sep {
+    color: #908d8d;
+    margin: 0 1.2rem;
+  }
+
+  /* ===== SECTION HEADERS ===== */
+  h2 {
+    color: #d480aa;
+    font-size: 0.85rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #333537;
+    padding-bottom: 0.6rem;
+  }
+
+  /* ===== POST LIST ===== */
+  .post-list {
+    list-style: none;
+    margin-bottom: 6rem;
+  }
+
+  .post-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 2rem 0;
+    border-bottom: 1px solid #2a2c2e;
+    transition: border-color 0.3s ease;
+  }
+
+  .post-list li:hover {
+    border-bottom-color: #d480aa44;
+  }
+
+  .post-list li:last-child {
+    border-bottom: none;
+  }
+
+  .post-list a {
+    color: #c9cacc;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+  }
+
+  .post-list a:hover {
+    color: #d480aa;
+  }
+
+  .post-list .date {
+    color: #908d8d;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    margin-left: 2rem;
+  }
+
+  /* ===== FEATURED POST ===== */
+  .featured-post {
+    margin-bottom: 6rem;
+  }
+
+  .featured-post h3 {
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+  }
+
+  .featured-post .meta {
+    color: #908d8d;
+    font-size: 0.85rem;
+    margin-bottom: 3rem;
+  }
+
+  .featured-post p {
+    margin-bottom: 2rem;
+    color: #c9cacc;
+  }
+
+  .featured-post a {
+    color: #d480aa;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  .featured-post a:hover {
+    border-bottom-color: #d480aa;
+  }
+
+  .featured-post strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  blockquote {
+    border-left: 3px solid #d480aa55;
+    margin: 3rem 0;
+    padding: 1rem 0 1rem 2rem;
+    color: #ccffb6;
+    font-style: italic;
+  }
+
+  blockquote p {
+    color: #ccffb6;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    margin-top: 8rem;
+    padding: 4rem 0;
+    text-align: center;
+    border-top: 1px solid #2a2c2e;
+    color: #908d8d;
+    font-size: 0.8rem;
+  }
+
+  footer a {
+    color: #d480aa;
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    color: #ffffff;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    body {
+      padding: 0 5%;
+    }
+
+    .post-list li {
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .post-list .date {
+      margin-left: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <div class="header-area">
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.5rem, 1.4vw, 1.1rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+  </div>
+
+  <!-- ===== AVATAR ===== -->
+  <div class="avatar-section">
+    <img src="avatar.webp" alt="keeb avatar">
+  </div>
+
+  <!-- ===== NAV ===== -->
+  <nav>
+    <a href="#">Home</a>
+    <span class="sep">|</span>
+    <a href="#">About</a>
+    <span class="sep">|</span>
+    <a href="#">Writing</a>
+  </nav>
+
+  <!-- ===== WRITING ===== -->
+  <section>
+    <h2>Writing</h2>
+    <ul class="post-list">
+      <li>
+        <a href="#">MCP Is Dead</a>
+        <span class="date">2026-02-03</span>
+      </li>
+      <li>
+        <a href="#">AI-Native Infrastructure</a>
+        <span class="date">2026-02-03</span>
+      </li>
+      <li>
+        <a href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+        <span class="date">2025-09-29</span>
+      </li>
+      <li>
+        <a href="#">AI is great at parsing</a>
+        <span class="date">2025-09-26</span>
+      </li>
+      <li>
+        <a href="#">Terraform with Glitter</a>
+        <span class="date">2025-09-25</span>
+      </li>
+      <li>
+        <a href="#">Virtualization from scratch</a>
+        <span class="date">2023-07-03</span>
+      </li>
+      <li>
+        <a href="#">I made a keylogger</a>
+        <span class="date">2022-06-12</span>
+      </li>
+      <li>
+        <a href="#">Hexo &amp; VSCode</a>
+        <span class="date">2022-05-28</span>
+      </li>
+      <li>
+        <a href="#">The Lore</a>
+        <span class="date">2022-05-28</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ===== FEATURED POST ===== -->
+  <section class="featured-post">
+    <h2>Featured</h2>
+    <h3>Hexo &amp; VSCode</h3>
+    <div class="meta">2022-05-28</div>
+
+    <p>
+      There is something deeply satisfying about stripping away every layer of abstraction until you are left with nothing but text files and a build step. That is what drew me to <strong>Hexo</strong> in the first place. No database, no admin panel, no WYSIWYG editor fighting you at every turn. Just Markdown, a theme, and a static site generator that does exactly what it says it will do.
+    </p>
+
+    <p>
+      Setting it up inside <strong>VSCode</strong> turned the whole workflow into something genuinely pleasant. The integrated terminal means I can generate a new post, write it, preview it, and deploy it without ever leaving the editor. The Markdown preview pane sits beside my source and updates in real time. Snippets handle the front matter. It is the kind of setup that makes you want to write more, not less.
+    </p>
+
+    <blockquote>
+      <p>The best blogging setup is the one that gets out of your way and lets you focus on putting words on a screen. Everything else is ceremony.</p>
+    </blockquote>
+
+    <p>
+      The theme is a modified version of <a href="#">Cactus</a>, stripped down and rebuilt to feel like a terminal rather than a website. Dark background, monospace type, minimal navigation. Every visual choice is a deliberate rejection of the idea that a personal site needs to look like a SaaS landing page. It should look like it belongs to the person who made it.
+    </p>
+
+    <p>
+      Deployment is a single script. Docker builds the image, Nginx serves the files, and a symlink swap makes the cutover atomic. There is no CI/CD pipeline because there does not need to be one. The entire process from writing to publishing takes under a minute, and most of that time is spent thinking about what to say next.
+    </p>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p>&copy; 2026 <a href="#">keeb.dev</a> &mdash; built with hexo &amp; too much coffee</p>
+  </footer>
+
+</body>
+</html>

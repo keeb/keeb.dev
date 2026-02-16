@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEEB.DEV FM -- Midnight Radio</title>
+<style>
+  /* ========================================
+     MIDNIGHT RADIO / PIRATE BROADCAST THEME
+     ======================================== */
+
+  @keyframes onAirPulse {
+    0%, 100% { box-shadow: 0 0 8px #e63946, 0 0 20px rgba(230, 57, 70, 0.4); opacity: 1; }
+    50% { box-shadow: 0 0 14px #e63946, 0 0 36px rgba(230, 57, 70, 0.6); opacity: 0.85; }
+  }
+
+  @keyframes waveShift {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes eqBar {
+    0%, 100% { height: 30%; }
+    25%  { height: 80%; }
+    50%  { height: 50%; }
+    75%  { height: 95%; }
+  }
+
+  @keyframes staticFlicker {
+    0%   { opacity: 0.03; }
+    20%  { opacity: 0.015; }
+    40%  { opacity: 0.04; }
+    60%  { opacity: 0.02; }
+    80%  { opacity: 0.035; }
+    100% { opacity: 0.03; }
+  }
+
+  @keyframes dialGlow {
+    0%, 100% { text-shadow: 0 0 6px rgba(255, 140, 66, 0.5); }
+    50% { text-shadow: 0 0 14px rgba(255, 140, 66, 0.8), 0 0 30px rgba(255, 140, 66, 0.3); }
+  }
+
+  @keyframes vuNeedle {
+    0%, 100% { transform: rotate(-18deg); }
+    15% { transform: rotate(12deg); }
+    30% { transform: rotate(-5deg); }
+    50% { transform: rotate(20deg); }
+    65% { transform: rotate(2deg); }
+    80% { transform: rotate(15deg); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* --- Reset & Base --- */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: #1a0a2e;
+    color: #f0e6d3;
+    min-height: 100vh;
+    line-height: 1.7;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* --- Static / Noise Overlay --- */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    animation: staticFlicker 3s steps(5) infinite;
+    background-image:
+      repeating-radial-gradient(circle at 17% 32%, transparent 0, rgba(255,255,255,0.03) 1px, transparent 2px),
+      repeating-radial-gradient(circle at 63% 68%, transparent 0, rgba(255,255,255,0.02) 1px, transparent 2px),
+      repeating-radial-gradient(circle at 41% 14%, transparent 0, rgba(255,255,255,0.025) 1px, transparent 3px);
+    background-size: 3px 3px, 4px 4px, 2px 2px;
+  }
+
+  /* --- Subtle purple radial atmosphere --- */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(90, 40, 140, 0.25) 0%, transparent 65%),
+                radial-gradient(ellipse at 80% 100%, rgba(255, 140, 66, 0.06) 0%, transparent 50%);
+  }
+
+  /* --- Layout Container --- */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+
+  a {
+    color: #ff8c42;
+    text-decoration: none;
+    transition: color 0.2s, text-shadow 0.2s;
+  }
+  a:hover {
+    color: #ffb07a;
+    text-shadow: 0 0 8px rgba(255, 140, 66, 0.4);
+  }
+
+  /* ========================================
+     HEADER — STATION BANNER
+     ======================================== */
+  .station-header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    position: relative;
+  }
+
+  /* Waveform decoration above header */
+  .waveform-top {
+    position: relative;
+    height: 40px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    opacity: 0.35;
+  }
+  .waveform-top .wave-track {
+    display: flex;
+    width: 200%;
+    height: 100%;
+    animation: waveShift 8s linear infinite;
+  }
+  .waveform-top .wave-bar {
+    flex: 0 0 4px;
+    margin: 0 2px;
+    background: #ff8c42;
+    align-self: flex-end;
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* ON AIR badge */
+  .on-air {
+    display: inline-block;
+    background: #e63946;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 0.3em 1em;
+    border-radius: 4px;
+    animation: onAirPulse 2s ease-in-out infinite;
+    margin-bottom: 1.2rem;
+    user-select: none;
+  }
+
+  /* Station logo (avatar) */
+  .station-logo {
+    display: block;
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    border: 3px solid #ff8c42;
+    box-shadow: 0 0 20px rgba(255, 140, 66, 0.25), 0 0 60px rgba(90, 40, 140, 0.3);
+    object-fit: cover;
+    image-rendering: pixelated;
+  }
+
+  .station-name {
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #ff8c42;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 12px rgba(255, 140, 66, 0.4), 0 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 0.15rem;
+    animation: dialGlow 4s ease-in-out infinite;
+  }
+
+  .station-tagline {
+    font-size: 0.85rem;
+    color: rgba(240, 230, 211, 0.5);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .frequency-info {
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    color: rgba(240, 230, 211, 0.35);
+    letter-spacing: 0.15em;
+  }
+  .frequency-info span {
+    color: #ff8c42;
+    opacity: 0.7;
+  }
+
+  /* ========================================
+     VU METER DECORATION
+     ======================================== */
+  .vu-meter {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 3px;
+    height: 28px;
+    margin: 1.5rem auto 0;
+    width: fit-content;
+  }
+  .vu-meter .bar {
+    width: 4px;
+    border-radius: 2px 2px 0 0;
+    background: linear-gradient(to top, #ff8c42, #e63946);
+    opacity: 0.6;
+    animation: eqBar 1.2s ease-in-out infinite;
+  }
+  .vu-meter .bar:nth-child(1)  { animation-delay: 0s;    height: 40%; }
+  .vu-meter .bar:nth-child(2)  { animation-delay: 0.15s; height: 70%; }
+  .vu-meter .bar:nth-child(3)  { animation-delay: 0.3s;  height: 55%; }
+  .vu-meter .bar:nth-child(4)  { animation-delay: 0.05s; height: 85%; }
+  .vu-meter .bar:nth-child(5)  { animation-delay: 0.25s; height: 45%; }
+  .vu-meter .bar:nth-child(6)  { animation-delay: 0.1s;  height: 75%; }
+  .vu-meter .bar:nth-child(7)  { animation-delay: 0.35s; height: 60%; }
+  .vu-meter .bar:nth-child(8)  { animation-delay: 0.2s;  height: 90%; }
+  .vu-meter .bar:nth-child(9)  { animation-delay: 0.08s; height: 50%; }
+  .vu-meter .bar:nth-child(10) { animation-delay: 0.28s; height: 65%; }
+  .vu-meter .bar:nth-child(11) { animation-delay: 0.18s; height: 80%; }
+  .vu-meter .bar:nth-child(12) { animation-delay: 0.4s;  height: 35%; }
+  .vu-meter .bar:nth-child(13) { animation-delay: 0.12s; height: 70%; }
+  .vu-meter .bar:nth-child(14) { animation-delay: 0.32s; height: 55%; }
+  .vu-meter .bar:nth-child(15) { animation-delay: 0.22s; height: 42%; }
+
+  /* ========================================
+     ZIGZAG / WAVEFORM DIVIDER
+     ======================================== */
+  .wave-divider {
+    position: relative;
+    height: 20px;
+    margin: 2.5rem 0;
+    overflow: hidden;
+    opacity: 0.2;
+  }
+  .wave-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      #ff8c42 0px,
+      #ff8c42 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
+  .wave-divider svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ========================================
+     SECTION LABELS
+     ======================================== */
+  .section-label {
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(240, 230, 211, 0.3);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(255, 140, 66, 0.2), transparent);
+  }
+  .section-label .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e63946;
+    box-shadow: 0 0 6px rgba(230, 57, 70, 0.5);
+    animation: onAirPulse 2s ease-in-out infinite;
+  }
+
+  /* ========================================
+     BROADCAST LISTING (POSTS)
+     ======================================== */
+  .broadcast-list {
+    list-style: none;
+  }
+
+  .broadcast-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 140, 66, 0.08);
+    transition: background 0.2s;
+    animation: fadeInUp 0.5s ease both;
+  }
+  .broadcast-item:nth-child(1) { animation-delay: 0.05s; }
+  .broadcast-item:nth-child(2) { animation-delay: 0.1s; }
+  .broadcast-item:nth-child(3) { animation-delay: 0.15s; }
+  .broadcast-item:nth-child(4) { animation-delay: 0.2s; }
+  .broadcast-item:nth-child(5) { animation-delay: 0.25s; }
+  .broadcast-item:nth-child(6) { animation-delay: 0.3s; }
+  .broadcast-item:nth-child(7) { animation-delay: 0.35s; }
+  .broadcast-item:nth-child(8) { animation-delay: 0.4s; }
+  .broadcast-item:nth-child(9) { animation-delay: 0.45s; }
+
+  .broadcast-item:hover {
+    background: rgba(255, 140, 66, 0.03);
+  }
+
+  .broadcast-item:last-child {
+    border-bottom: none;
+  }
+
+  .ep-number {
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    color: #ff8c42;
+    opacity: 0.5;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    min-width: 52px;
+  }
+
+  .broadcast-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f0e6d3;
+    transition: color 0.2s;
+  }
+  .broadcast-item:hover .broadcast-title {
+    color: #ff8c42;
+  }
+  .broadcast-title a {
+    color: inherit;
+  }
+  .broadcast-title a:hover {
+    text-shadow: none;
+  }
+
+  .broadcast-date {
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    color: rgba(240, 230, 211, 0.28);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  /* ========================================
+     TRANSCRIPT (SAMPLE POST)
+     ======================================== */
+  .transcript-section {
+    margin-top: 3rem;
+  }
+
+  .transcript-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 140, 66, 0.1);
+    border-radius: 8px;
+    padding: 2rem 2rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .transcript-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #ff8c42 20%, #e63946 50%, #ff8c42 80%, transparent);
+    opacity: 0.6;
+  }
+
+  .transcript-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 140, 66, 0.08);
+  }
+
+  .transcript-ep {
+    font-family: 'Courier New', monospace;
+    font-size: 0.65rem;
+    color: #1a0a2e;
+    background: #ff8c42;
+    padding: 0.15em 0.6em;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .transcript-meta {
+    flex: 1;
+  }
+
+  .transcript-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #f0e6d3;
+    margin-bottom: 0.15rem;
+  }
+
+  .transcript-date-info {
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: rgba(240, 230, 211, 0.3);
+    letter-spacing: 0.1em;
+  }
+
+  .transcript-body {
+    font-size: 0.95rem;
+    line-height: 1.85;
+    color: rgba(240, 230, 211, 0.78);
+  }
+
+  .transcript-body p {
+    margin-bottom: 1rem;
+    text-indent: 0;
+  }
+
+  .transcript-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .transcript-body .highlight {
+    color: #ff8c42;
+    font-weight: 600;
+  }
+
+  /* Inline waveform decoration in transcript */
+  .inline-wave {
+    display: block;
+    margin: 1.2rem 0;
+    height: 16px;
+    position: relative;
+    opacity: 0.15;
+  }
+  .inline-wave svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ========================================
+     FOOTER — TRANSMISSION END
+     ======================================== */
+  .station-footer {
+    margin-top: 4rem;
+    text-align: center;
+    padding: 2rem 0 1rem;
+    position: relative;
+  }
+
+  .station-footer::before {
+    content: '';
+    display: block;
+    width: 60%;
+    max-width: 300px;
+    height: 1px;
+    margin: 0 auto 2rem;
+    background: linear-gradient(to right, transparent, rgba(255, 140, 66, 0.2), transparent);
+  }
+
+  .signoff-icon {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    opacity: 0.4;
+  }
+
+  .signoff-msg {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: rgba(240, 230, 211, 0.3);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .signoff-freq {
+    font-family: 'Courier New', monospace;
+    font-size: 0.65rem;
+    color: rgba(240, 230, 211, 0.18);
+    letter-spacing: 0.15em;
+  }
+
+  .footer-vu {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+    margin: 1.5rem auto 0;
+    opacity: 0.2;
+  }
+  .footer-vu .bar {
+    width: 3px;
+    border-radius: 1px 1px 0 0;
+    background: #ff8c42;
+    animation: eqBar 1.6s ease-in-out infinite;
+  }
+
+  .transmission-info {
+    margin-top: 1.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.6rem;
+    color: rgba(240, 230, 211, 0.12);
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+  }
+
+  /* ========================================
+     RESPONSIVE
+     ======================================== */
+  @media (max-width: 640px) {
+    .container {
+      padding: 0 1rem 3rem;
+    }
+    .station-name {
+      font-size: 1.8rem;
+    }
+    .station-logo {
+      width: 85px;
+      height: 85px;
+    }
+    .broadcast-item {
+      grid-template-columns: auto 1fr;
+      gap: 0.6rem;
+    }
+    .broadcast-date {
+      grid-column: 2;
+      margin-top: -0.4rem;
+    }
+    .transcript-card {
+      padding: 1.5rem 1.2rem 2rem;
+    }
+    .transcript-title {
+      font-size: 1.15rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .station-name {
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+    }
+    .station-tagline {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+    }
+    .broadcast-title {
+      font-size: 0.92rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ====== STATION HEADER ====== -->
+  <header class="station-header">
+
+    <!-- Animated waveform bar -->
+    <div class="waveform-top">
+      <div class="wave-track" id="waveTop"></div>
+    </div>
+
+    <div class="on-air">ON AIR</div>
+
+    <img src="avatar.webp" alt="KEEB.DEV FM Station Logo" class="station-logo">
+
+    <h1 class="station-name">KEEB.DEV FM</h1>
+    <p class="station-tagline">Pirate Broadcast &mdash; Midnight Edition</p>
+    <p class="frequency-info">
+      <span>&#9608;</span> 127.0.0.1 MHz &bull; Unlicensed &bull; Unfiltered &bull; Uninterrupted <span>&#9608;</span>
+    </p>
+
+    <div class="vu-meter">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+  </header>
+
+  <!-- ====== WAVEFORM DIVIDER ====== -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1200 20" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 10 Q25 0 50 10 Q75 20 100 10 Q125 0 150 10 Q175 20 200 10 Q225 0 250 10 Q275 20 300 10 Q325 0 350 10 Q375 20 400 10 Q425 0 450 10 Q475 20 500 10 Q525 0 550 10 Q575 20 600 10 Q625 0 650 10 Q675 20 700 10 Q725 0 750 10 Q775 20 800 10 Q825 0 850 10 Q875 20 900 10 Q925 0 950 10 Q975 20 1000 10 Q1025 0 1050 10 Q1075 20 1100 10 Q1125 0 1150 10 Q1175 20 1200 10" stroke="#ff8c42" stroke-width="1.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ====== BROADCAST LOG (POST LIST) ====== -->
+  <section>
+    <div class="section-label">
+      <span class="dot"></span> Broadcast Log
+    </div>
+
+    <ul class="broadcast-list">
+      <li class="broadcast-item">
+        <span class="ep-number">EP.001</span>
+        <span class="broadcast-title"><a href="#">The Lore</a></span>
+        <span class="broadcast-date">2022-05-28</span>
+      </li>
+      <li class="broadcast-item">
+        <span class="ep-number">EP.002</span>
+        <span class="broadcast-title"><a href="#">Hexo &amp; VSCode</a></span>
+        <span class="broadcast-date">2022-05-28</span>
+      </li>
+      <li class="broadcast-item">
+        <span class="ep-number">EP.003</span>
+        <span class="broadcast-title"><a href="#">I made a keylogger</a></span>
+        <span class="broadcast-date">2022-06-12</span>
+      </li>
+      <li class="broadcast-item">
+        <span class="ep-number">EP.004</span>
+        <span class="broadcast-title"><a href="#">Virtualization from scratch</a></span>
+        <span class="broadcast-date">2023-07-03</span>
+      </li>
+      <li class="broadcast-item">
+        <span class="ep-number">EP.005</span>
+        <span class="broadcast-title"><a href="#">Terraform with Glitter</a></span>
+        <span class="broadcast-date">2025-09-25</span>
+      </li>
+      <li class="broadcast-item">
+        <span class="ep-number">EP.006</span>
+        <span class="broadcast-title"><a href="#">AI is great at parsing</a></span>
+        <span class="broadcast-date">2025-09-26</span>
+      </li>
+      <li class="broadcast-item">
+        <span class="ep-number">EP.007</span>
+        <span class="broadcast-title"><a href="#">Claude Sonnet 4.5 &amp; System Initiative</a></span>
+        <span class="broadcast-date">2025-09-29</span>
+      </li>
+      <li class="broadcast-item">
+        <span class="ep-number">EP.008</span>
+        <span class="broadcast-title"><a href="#">AI-Native Infrastructure</a></span>
+        <span class="broadcast-date">2026-02-03</span>
+      </li>
+      <li class="broadcast-item">
+        <span class="ep-number">EP.009</span>
+        <span class="broadcast-title"><a href="#">MCP Is Dead</a></span>
+        <span class="broadcast-date">2026-02-03</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ====== WAVEFORM DIVIDER ====== -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1200 20" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 10 Q25 0 50 10 Q75 20 100 10 Q125 0 150 10 Q175 20 200 10 Q225 0 250 10 Q275 20 300 10 Q325 0 350 10 Q375 20 400 10 Q425 0 450 10 Q475 20 500 10 Q525 0 550 10 Q575 20 600 10 Q625 0 650 10 Q675 20 700 10 Q725 0 750 10 Q775 20 800 10 Q825 0 850 10 Q875 20 900 10 Q925 0 950 10 Q975 20 1000 10 Q1025 0 1050 10 Q1075 20 1100 10 Q1125 0 1150 10 Q1175 20 1200 10" stroke="#ff8c42" stroke-width="1.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ====== TRANSCRIPT (SAMPLE POST) ====== -->
+  <section class="transcript-section">
+    <div class="section-label">
+      <span class="dot"></span> Now Playing &mdash; Transcript
+    </div>
+
+    <div class="transcript-card">
+      <div class="transcript-header">
+        <span class="transcript-ep">EP.006</span>
+        <div class="transcript-meta">
+          <h2 class="transcript-title">AI is great at parsing</h2>
+          <span class="transcript-date-info">Broadcast 2025-09-26 &bull; 23:47 UTC</span>
+        </div>
+      </div>
+
+      <div class="transcript-body">
+        <p>
+          Good evening, night owls. You're tuned to KEEB.DEV FM and this is your host, coming at you live from somewhere between the kernel and userspace. Tonight's transmission is about something I keep running into&mdash;something that quietly changed how I work.
+        </p>
+
+        <div class="inline-wave">
+          <svg viewBox="0 0 800 16" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 8 Q10 2 20 8 Q30 14 40 8 Q50 2 60 8 Q70 14 80 8 Q90 2 100 8 Q110 14 120 8 Q130 2 140 8 Q150 14 160 8 Q170 2 180 8 Q190 14 200 8 Q210 2 220 8 Q230 14 240 8 Q250 2 260 8 Q270 14 280 8 Q290 2 300 8 Q310 14 320 8 Q330 2 340 8 Q350 14 360 8 Q370 2 380 8 Q390 14 400 8 Q410 2 420 8 Q430 14 440 8 Q450 2 460 8 Q470 14 480 8 Q490 2 500 8 Q510 14 520 8 Q530 2 540 8 Q550 14 560 8 Q570 2 580 8 Q590 14 600 8 Q610 2 620 8 Q630 14 640 8 Q650 2 660 8 Q670 14 680 8 Q690 2 700 8 Q710 14 720 8 Q730 2 740 8 Q750 14 760 8 Q770 2 780 8 Q790 14 800 8" stroke="#ff8c42" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <p>
+          AI excels at understanding structure in ways that surprise you at three in the morning. Hand it a gnarly log dump, an undocumented API response, some half-broken XML from 2003&mdash;it doesn't flinch. Where you'd spend twenty minutes writing a regex that handles 90% of edge cases, <span class="highlight">a language model just reads the shape of the data and gets it</span>. Not because it's magic, but because parsing is fundamentally about pattern recognition across messy, semi-structured input&mdash;exactly the territory where these models thrive.
+        </p>
+
+        <p>
+          The real unlock isn't replacing your parsers. It's that first pass&mdash;the exploratory phase where you're staring at data you've never seen before, trying to figure out what it even is. AI turns that from a chore into a conversation. You throw it a blob of text and ask "what is this?" and it tells you. It finds the fields, infers the hierarchy, spots the inconsistencies. It's like having a colleague who's read every RFC and every man page but never gets tired of looking at malformed JSON.
+        </p>
+
+        <p>
+          That's all for this frequency tonight. Keep your packets clean and your logs verbose. This is KEEB.DEV FM, signing off.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="station-footer">
+    <div class="signoff-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(240,230,211,0.3)" stroke-width="1.5" stroke-linecap="round">
+        <circle cx="12" cy="14" r="4"/>
+        <path d="M8 10a6 6 0 0 1 8 0"/>
+        <path d="M5 7a10 10 0 0 1 14 0"/>
+        <path d="M2 4a14 14 0 0 1 20 0"/>
+      </svg>
+    </div>
+
+    <p class="signoff-msg">End of Transmission</p>
+    <p class="signoff-freq">KEEB.DEV FM &bull; 127.0.0.1 MHz &bull; Broadcasting from /dev/null</p>
+
+    <div class="footer-vu">
+      <div class="bar" style="animation-delay:0s; height:30%;"></div>
+      <div class="bar" style="animation-delay:0.1s; height:50%;"></div>
+      <div class="bar" style="animation-delay:0.2s; height:40%;"></div>
+      <div class="bar" style="animation-delay:0.05s; height:60%;"></div>
+      <div class="bar" style="animation-delay:0.25s; height:35%;"></div>
+      <div class="bar" style="animation-delay:0.15s; height:55%;"></div>
+      <div class="bar" style="animation-delay:0.3s; height:45%;"></div>
+      <div class="bar" style="animation-delay:0.08s; height:65%;"></div>
+      <div class="bar" style="animation-delay:0.22s; height:38%;"></div>
+    </div>
+
+    <div class="transmission-info">
+      This station operates without license or permission.<br>
+      Signal propagates best between 01:00 and 05:00 local time.<br>
+      If you can hear this, you're already listening.
+    </div>
+  </footer>
+
+</div>
+
+<!-- ====== WAVEFORM BAR GENERATOR ====== -->
+<script>
+(function() {
+  // Generate waveform bars for the top decoration
+  var track = document.getElementById('waveTop');
+  if (!track) return;
+  // Generate enough bars to fill double width for seamless loop
+  var count = 200;
+  for (var i = 0; i < count; i++) {
+    var bar = document.createElement('div');
+    bar.className = 'wave-bar';
+    // Pseudo-random heights based on index for a natural waveform look
+    var h = 15 + Math.abs(Math.sin(i * 0.4) * 60) + Math.abs(Math.cos(i * 0.7) * 25);
+    bar.style.height = h + '%';
+    track.appendChild(bar);
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>~*~ keeb.dev ~*~ Welcome to my Homepage! ~*~</title>
+<style>
+  /* ===== STARFIELD BACKGROUND ===== */
+  html {
+    min-height: 100%;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #000011;
+    background-image:
+      /* Tiny distant stars */
+      radial-gradient(1px 1px at 10% 15%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 25% 8%, #ccccff 50%, transparent 100%),
+      radial-gradient(1px 1px at 42% 22%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 58% 5%, #ffddcc 50%, transparent 100%),
+      radial-gradient(1px 1px at 73% 18%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 88% 12%, #ccddff 50%, transparent 100%),
+      radial-gradient(1px 1px at 5% 35%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 18% 42%, #ffccff 50%, transparent 100%),
+      radial-gradient(1px 1px at 35% 38%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 50% 30%, #ccffcc 50%, transparent 100%),
+      radial-gradient(1px 1px at 65% 45%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 80% 33%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 92% 40%, #ffddaa 50%, transparent 100%),
+      radial-gradient(1px 1px at 8% 55%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 22% 62%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 38% 58%, #ccccff 50%, transparent 100%),
+      radial-gradient(1px 1px at 55% 52%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 70% 65%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 85% 58%, #ffccdd 50%, transparent 100%),
+      radial-gradient(1px 1px at 95% 62%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 12% 75%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 28% 80%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 45% 72%, #ccffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 60% 78%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 75% 82%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 90% 75%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 3% 90%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 20% 95%, #ffddcc 50%, transparent 100%),
+      radial-gradient(1px 1px at 40% 88%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 55% 92%, #ffffff 50%, transparent 100%),
+      radial-gradient(1px 1px at 72% 96%, #ccccff 50%, transparent 100%),
+      radial-gradient(1px 1px at 88% 90%, #ffffff 50%, transparent 100%),
+      /* Slightly brighter stars */
+      radial-gradient(2px 2px at 15% 20%, #ffffff 40%, transparent 100%),
+      radial-gradient(2px 2px at 48% 12%, #eeeeff 40%, transparent 100%),
+      radial-gradient(2px 2px at 78% 28%, #ffffff 40%, transparent 100%),
+      radial-gradient(2px 2px at 33% 50%, #ffffcc 40%, transparent 100%),
+      radial-gradient(2px 2px at 62% 68%, #ffffff 40%, transparent 100%),
+      radial-gradient(2px 2px at 90% 48%, #ffffff 40%, transparent 100%),
+      radial-gradient(2px 2px at 8% 82%, #ffffff 40%, transparent 100%),
+      radial-gradient(2px 2px at 52% 85%, #ccddff 40%, transparent 100%),
+      radial-gradient(2px 2px at 82% 72%, #ffffff 40%, transparent 100%),
+      /* A few bright stars with glow */
+      radial-gradient(3px 3px at 30% 25%, #ffffff 30%, rgba(200,200,255,0.3) 60%, transparent 100%),
+      radial-gradient(3px 3px at 68% 40%, #ffffee 30%, rgba(255,255,200,0.2) 60%, transparent 100%),
+      radial-gradient(3px 3px at 15% 65%, #ffffff 30%, rgba(200,220,255,0.3) 60%, transparent 100%),
+      radial-gradient(3px 3px at 85% 85%, #ffffff 30%, rgba(255,200,200,0.2) 60%, transparent 100%);
+    background-size: 100% 100%;
+    color: #cccccc;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* ===== PAGE CONTAINER ===== */
+  .page-wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 10px 16px 30px 16px;
+  }
+
+  /* ===== WELCOME BANNER ===== */
+  .welcome-banner {
+    text-align: center;
+    padding: 18px 10px 10px 10px;
+    margin-bottom: 6px;
+  }
+  .welcome-banner h1 {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 28px;
+    color: #ffcc00;
+    text-shadow: 2px 2px 0px #663300, 0 0 12px rgba(255,200,0,0.4);
+    margin: 0 0 4px 0;
+    letter-spacing: 1px;
+  }
+  .welcome-banner .subtitle {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 14px;
+    color: #66ccff;
+    margin-bottom: 12px;
+  }
+  .welcome-banner .stars-deco {
+    color: #ffcc00;
+    font-size: 12px;
+    letter-spacing: 4px;
+  }
+
+  /* ===== AVATAR SECTION ===== */
+  .avatar-section {
+    text-align: center;
+    margin: 14px 0 8px 0;
+  }
+  .avatar-frame {
+    display: inline-block;
+    border: 3px ridge #5588cc;
+    padding: 4px;
+    background: #111133;
+    box-shadow: 0 0 16px rgba(80,130,220,0.35);
+  }
+  .avatar-frame img {
+    display: block;
+    width: 140px;
+    height: 140px;
+    image-rendering: pixelated;
+  }
+  .avatar-caption {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 12px;
+    color: #88bbff;
+    margin-top: 6px;
+  }
+
+  /* ===== HORIZONTAL RULES ===== */
+  .hr-rainbow {
+    border: none;
+    height: 3px;
+    background: linear-gradient(to right, #ff0000, #ff8800, #ffff00, #00cc00, #0066ff, #8800ff, #ff0000);
+    margin: 14px 0;
+  }
+  .hr-thin {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #5577aa, transparent);
+    margin: 10px 0;
+  }
+
+  /* ===== NAVIGATION ===== */
+  .nav-bar {
+    text-align: center;
+    padding: 8px 0;
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 14px;
+  }
+  .nav-bar a {
+    color: #55ddff;
+    text-decoration: none;
+    padding: 0 8px;
+  }
+  .nav-bar a:visited {
+    color: #bb88ff;
+  }
+  .nav-bar a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+  .nav-sep {
+    color: #ffcc00;
+  }
+
+  /* ===== SECTION HEADINGS ===== */
+  .section-heading {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 20px;
+    color: #44ddaa;
+    text-shadow: 1px 1px 0 #003322;
+    margin: 18px 0 8px 0;
+  }
+  .section-heading-alt {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 18px;
+    color: #ff9966;
+    text-shadow: 1px 1px 0 #442200;
+    margin: 16px 0 8px 0;
+  }
+
+  /* ===== ABOUT SECTION ===== */
+  .about-box {
+    border: 1px solid #334466;
+    background: rgba(10, 10, 40, 0.7);
+    padding: 12px 14px;
+    margin: 10px 0;
+  }
+  .about-box p {
+    margin: 0 0 8px 0;
+    color: #bbccdd;
+  }
+  .about-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ===== POST LISTING ===== */
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0;
+  }
+  .post-list li {
+    padding: 4px 0;
+    border-bottom: 1px dotted #223355;
+  }
+  .post-list li:last-child {
+    border-bottom: none;
+  }
+  .post-date {
+    display: inline-block;
+    width: 90px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: #778899;
+  }
+  .post-list a {
+    color: #66bbff;
+    text-decoration: none;
+  }
+  .post-list a:visited {
+    color: #aa88dd;
+  }
+  .post-list a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+  .post-new {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 10px;
+    color: #ff4444;
+    font-weight: bold;
+    margin-left: 4px;
+    animation: blink-new 1.2s step-end infinite;
+  }
+
+  /* ===== FEATURED POST ===== */
+  .featured-post {
+    border: 2px ridge #446688;
+    background: rgba(10, 15, 35, 0.75);
+    padding: 14px 16px;
+    margin: 12px 0;
+  }
+  .featured-post h3 {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 17px;
+    color: #ffcc66;
+    margin: 0 0 6px 0;
+  }
+  .featured-post .post-meta {
+    font-size: 12px;
+    color: #778899;
+    margin-bottom: 10px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .featured-post p {
+    color: #bbccdd;
+    margin: 0 0 10px 0;
+    text-indent: 24px;
+  }
+  .featured-post p:last-child {
+    margin-bottom: 0;
+  }
+  .read-more {
+    color: #55ddff;
+    text-decoration: none;
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 13px;
+  }
+  .read-more:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  /* ===== UNDER CONSTRUCTION ===== */
+  .construction-section {
+    text-align: center;
+    margin: 16px 0;
+    padding: 12px;
+    border: 1px dashed #ffcc00;
+    background: rgba(40, 30, 0, 0.4);
+  }
+  .construction-text {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 16px;
+    color: #ffcc00;
+    animation: blink-construct 1s step-end infinite;
+  }
+  .construction-sub {
+    font-size: 13px;
+    color: #aa9966;
+    margin-top: 6px;
+  }
+
+  /* ===== GUESTBOOK / LINKS ===== */
+  .links-section {
+    margin: 10px 0;
+  }
+  .links-section ul {
+    list-style: square;
+    padding-left: 24px;
+    margin: 6px 0;
+  }
+  .links-section li {
+    padding: 2px 0;
+  }
+  .links-section a {
+    color: #66ddaa;
+    text-decoration: none;
+  }
+  .links-section a:visited {
+    color: #aa88cc;
+  }
+  .links-section a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  /* ===== FOOTER / VISITOR COUNTER ===== */
+  .page-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 10px;
+  }
+  .visitor-counter {
+    display: inline-block;
+    margin: 10px auto;
+    padding: 6px 14px;
+    border: 2px inset #445566;
+    background: #000000;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+  }
+  .counter-label {
+    color: #88aacc;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .counter-digits {
+    display: inline-block;
+    background: #001100;
+    border: 1px inset #224422;
+    padding: 3px 10px;
+    color: #33ff33;
+    font-size: 18px;
+    letter-spacing: 3px;
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(50, 255, 50, 0.5);
+  }
+
+  /* ===== WEB RING ===== */
+  .webring {
+    text-align: center;
+    margin: 16px 0;
+    padding: 10px;
+    border: 1px solid #334455;
+    background: rgba(10, 10, 30, 0.6);
+  }
+  .webring-title {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 14px;
+    color: #ccaa44;
+    margin-bottom: 8px;
+  }
+  .webring-nav {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 13px;
+  }
+  .webring-nav a {
+    color: #66bbff;
+    text-decoration: none;
+    padding: 0 10px;
+  }
+  .webring-nav a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+  .webring-nav .ring-sep {
+    color: #555577;
+  }
+
+  /* ===== NETSCAPE BADGE ===== */
+  .netscape-badge {
+    text-align: center;
+    margin: 12px 0 6px 0;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12px;
+    color: #667788;
+  }
+  .netscape-badge .badge-box {
+    display: inline-block;
+    border: 2px outset #556677;
+    padding: 4px 12px;
+    background: rgba(20, 20, 50, 0.7);
+    color: #88aacc;
+    font-size: 11px;
+  }
+
+  /* ===== EMAIL LINE ===== */
+  .email-line {
+    text-align: center;
+    font-size: 13px;
+    color: #778899;
+    margin: 8px 0;
+  }
+  .email-line a {
+    color: #66bbff;
+    text-decoration: none;
+  }
+  .email-line a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  /* ===== LAST UPDATED ===== */
+  .last-updated {
+    text-align: center;
+    font-size: 12px;
+    color: #556677;
+    margin: 8px 0 4px 0;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  /* ===== MARQUEE EFFECT (CSS-only) ===== */
+  .marquee-wrap {
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 6px 0;
+  }
+  .marquee-text {
+    display: inline-block;
+    animation: marquee-scroll 18s linear infinite;
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 13px;
+    color: #ff99cc;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes blink-construct {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  @keyframes blink-new {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  @keyframes marquee-scroll {
+    0%   { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* ===== TWINKLE STAR OVERLAY ===== */
+  .twinkle-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .twinkle-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #ffffff;
+    border-radius: 50%;
+    animation: twinkle ease-in-out infinite;
+  }
+  .twinkle-star:nth-child(1)  { left: 7%;  top: 12%; animation-duration: 3.2s; animation-delay: 0s; }
+  .twinkle-star:nth-child(2)  { left: 22%; top: 28%; animation-duration: 2.8s; animation-delay: 0.5s; }
+  .twinkle-star:nth-child(3)  { left: 44%; top: 8%;  animation-duration: 4.1s; animation-delay: 1.2s; }
+  .twinkle-star:nth-child(4)  { left: 63%; top: 35%; animation-duration: 3.5s; animation-delay: 0.3s; }
+  .twinkle-star:nth-child(5)  { left: 81%; top: 18%; animation-duration: 2.6s; animation-delay: 1.8s; }
+  .twinkle-star:nth-child(6)  { left: 36%; top: 55%; animation-duration: 3.8s; animation-delay: 0.7s; }
+  .twinkle-star:nth-child(7)  { left: 91%; top: 42%; animation-duration: 3.0s; animation-delay: 1.5s; }
+  .twinkle-star:nth-child(8)  { left: 14%; top: 70%; animation-duration: 4.4s; animation-delay: 0.2s; }
+  .twinkle-star:nth-child(9)  { left: 56%; top: 78%; animation-duration: 2.9s; animation-delay: 1.0s; }
+  .twinkle-star:nth-child(10) { left: 75%; top: 62%; animation-duration: 3.6s; animation-delay: 0.9s; }
+  .twinkle-star:nth-child(11) { left: 48%; top: 90%; animation-duration: 3.3s; animation-delay: 1.4s; }
+  .twinkle-star:nth-child(12) { left: 3%;  top: 45%; animation-duration: 4.0s; animation-delay: 0.6s; }
+
+  /* ===== KEEP CONTENT ABOVE TWINKLE LAYER ===== */
+  .page-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 520px) {
+    .welcome-banner h1 {
+      font-size: 22px;
+    }
+    .avatar-frame img {
+      width: 110px;
+      height: 110px;
+    }
+    .post-date {
+      display: block;
+      width: auto;
+      margin-bottom: 1px;
+    }
+    .nav-bar a {
+      padding: 0 5px;
+      font-size: 13px;
+    }
+    .featured-post {
+      padding: 10px 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Twinkling star overlay -->
+<div class="twinkle-layer" aria-hidden="true">
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+  <div class="twinkle-star"></div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- ===== WELCOME BANNER ===== -->
+  <div class="welcome-banner">
+    <div class="stars-deco">* * * * * * * * *</div>
+    <h1>~*~ Welcome to keeb.dev ~*~</h1>
+    <div class="subtitle">a personal homepage on the World Wide Web</div>
+    <div class="stars-deco">* * * * * * * * *</div>
+  </div>
+
+  <!-- ===== AVATAR ===== -->
+  <div class="avatar-section">
+    <div class="avatar-frame">
+      <img src="avatar.webp" alt="keeb - pixel art hacker avatar" width="140" height="140">
+    </div>
+    <div class="avatar-caption">That's me! ^_^</div>
+  </div>
+
+  <hr class="hr-rainbow">
+
+  <!-- ===== SCROLLING WELCOME ===== -->
+  <div class="marquee-wrap" aria-label="Scrolling welcome message">
+    <span class="marquee-text">
+      ~*~ Welcome, traveler of the information superhighway! You have found my corner of cyberspace. Enjoy your stay! ~*~
+    </span>
+  </div>
+
+  <hr class="hr-thin">
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="nav-bar">
+    <a href="#">Home</a><span class="nav-sep">|</span>
+    <a href="#">Archives</a><span class="nav-sep">|</span>
+    <a href="#">About Me</a><span class="nav-sep">|</span>
+    <a href="#">Cool Links</a><span class="nav-sep">|</span>
+    <a href="#">Guestbook</a><span class="nav-sep">|</span>
+    <a href="#">E-Mail Me</a>
+  </nav>
+
+  <hr class="hr-thin">
+
+  <!-- ===== ABOUT ===== -->
+  <h2 class="section-heading">:: About This Page ::</h2>
+  <div class="about-box">
+    <p>
+      Hello and welcome to <strong style="color:#ffcc66;">keeb.dev</strong> &mdash; my personal homepage!
+      I'm a hacker, tinkerer, and keyboard enthusiast. Here you'll find my writings about
+      virtualization, infrastructure, AI, security, and whatever else catches my curiosity.
+    </p>
+    <p>
+      I built this page because everyone should have their own place on the Web.
+      Pull up a chair, pour some coffee, and browse around. If you like what you see,
+      please sign my <a href="#" style="color:#66ddaa;">guestbook</a>!
+    </p>
+  </div>
+
+  <hr class="hr-rainbow">
+
+  <!-- ===== POST LISTING ===== -->
+  <h2 class="section-heading">:: My Writings ::</h2>
+
+  <ul class="post-list">
+    <li>
+      <span class="post-date">2026-02-03</span>
+      <a href="#">MCP Is Dead</a>
+      <span class="post-new">NEW!</span>
+    </li>
+    <li>
+      <span class="post-date">2026-02-03</span>
+      <a href="#">AI-Native Infrastructure</a>
+      <span class="post-new">NEW!</span>
+    </li>
+    <li>
+      <span class="post-date">2025-09-29</span>
+      <a href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-26</span>
+      <a href="#">AI is great at parsing</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-25</span>
+      <a href="#">Terraform with Glitter</a>
+    </li>
+    <li>
+      <span class="post-date">2023-07-03</span>
+      <a href="#">Virtualization from scratch</a>
+    </li>
+    <li>
+      <span class="post-date">2022-06-12</span>
+      <a href="#">I made a keylogger</a>
+    </li>
+    <li>
+      <span class="post-date">2022-05-28</span>
+      <a href="#">The Lore</a>
+    </li>
+    <li>
+      <span class="post-date">2022-05-28</span>
+      <a href="#">Hexo &amp; VSCode</a>
+    </li>
+  </ul>
+
+  <hr class="hr-thin">
+
+  <!-- ===== FEATURED POST ===== -->
+  <h2 class="section-heading-alt">:: Featured Post ::</h2>
+  <div class="featured-post">
+    <h3>Virtualization from scratch</h3>
+    <div class="post-meta">July 3, 2023</div>
+    <p>
+      There is something deeply satisfying about building a virtual machine from the ground up.
+      Not downloading one, not configuring a cloud instance &mdash; actually constructing the
+      abstraction layer that sits between software and silicon. You start with nothing but a
+      bare set of CPU instructions and the conviction that you can trick a program into
+      believing it has an entire computer to itself. It is part systems programming, part
+      illusion, and part stubbornness. Every register you virtualize, every interrupt you
+      intercept, pulls you closer to understanding what a computer really is under the layers
+      of abstraction we take for granted every day.
+    </p>
+    <p>
+      In this post I walk through the process of building a minimal hypervisor, handling
+      memory translation, I/O trapping, and the strange edge cases that make you question
+      everything you thought you knew about how operating systems work.
+    </p>
+    <a class="read-more" href="#">>> Read the full post >></a>
+  </div>
+
+  <hr class="hr-rainbow">
+
+  <!-- ===== UNDER CONSTRUCTION ===== -->
+  <div class="construction-section">
+    <div class="construction-text">** UNDER CONSTRUCTION **</div>
+    <div class="construction-sub">
+      More sections coming soon! I'm working on a links page and a page about my keyboard collection.
+      <br>Check back often!
+    </div>
+  </div>
+
+  <hr class="hr-thin">
+
+  <!-- ===== COOL LINKS ===== -->
+  <h2 class="section-heading-alt">:: Cool Links ::</h2>
+  <div class="links-section">
+    <ul>
+      <li><a href="#">The Jargon File</a> &mdash; the hacker's dictionary</li>
+      <li><a href="#">Linux Kernel Archives</a> &mdash; the source of all things</li>
+      <li><a href="#">Phrack Magazine</a> &mdash; hacker zine since 1985</li>
+      <li><a href="#">Project Gutenberg</a> &mdash; free books for everyone</li>
+      <li><a href="#">RFC Editor</a> &mdash; how the internet was built</li>
+    </ul>
+  </div>
+
+  <hr class="hr-thin">
+
+  <!-- ===== FOOTER ===== -->
+  <div class="page-footer">
+
+    <!-- Visitor Counter -->
+    <div class="visitor-counter">
+      <span class="counter-label">You are visitor number:</span>
+      <span class="counter-digits">004,827</span>
+    </div>
+
+    <br><br>
+
+    <!-- Web Ring -->
+    <div class="webring">
+      <div class="webring-title">~= Hacker Homepages Web Ring =~</div>
+      <div class="webring-nav">
+        <a href="#">&lt;&lt; Prev</a>
+        <span class="ring-sep">|</span>
+        <a href="#">Random</a>
+        <span class="ring-sep">|</span>
+        <a href="#">List</a>
+        <span class="ring-sep">|</span>
+        <a href="#">Next &gt;&gt;</a>
+      </div>
+    </div>
+
+    <!-- Netscape Badge -->
+    <div class="netscape-badge">
+      <div class="badge-box">
+        Best viewed in Netscape Navigator 3.0 at 800x600
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div class="email-line">
+      Questions? Comments? <a href="mailto:keeb@keeb.dev">Send me an e-mail!</a>
+    </div>
+
+    <!-- Last Updated -->
+    <div class="last-updated">
+      Last updated: February 3, 2026
+    </div>
+
+    <hr class="hr-thin">
+
+    <div style="text-align:center; font-size:11px; color:#445566; margin-top:6px;">
+      &copy; 1997&ndash;2026 keeb.dev &mdash; Made with &lt;3 and HTML
+    </div>
+
+  </div>
+
+</div><!-- /page-wrapper -->
+
+</body>
+</html>

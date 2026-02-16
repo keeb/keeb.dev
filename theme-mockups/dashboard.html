@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — dashboard</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #1d1f21;
+    color: #c9cacc;
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  a { color: rgba(212,128,170,1); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  code {
+    background: #2a2a2e;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #d480aa;
+  }
+
+  blockquote {
+    border-left: 3px solid #d480aa;
+    padding-left: 0.8em;
+    color: #ccffb6;
+    margin: 0.6em 0;
+    font-style: italic;
+    font-size: 0.85em;
+    line-height: 1.4;
+  }
+
+  h3 { color: #ffffff; font-size: 0.9em; margin: 0.6em 0 0.3em; }
+
+  .container {
+    max-width: 1400px;
+    margin-left: 2rem;
+    margin-right: auto;
+    padding: 0.8rem 1rem;
+  }
+
+  /* ASCII header */
+  #ascii-art {
+    animation: wave-animation 8s ease-in-out infinite;
+    color: #c9cacc;
+    font-size: 0.65rem;
+    overflow: hidden;
+    white-space: pre;
+    line-height: normal;
+    margin-bottom: 0.8rem;
+  }
+
+  @keyframes wave-animation {
+    0%, 30%, 100% { color: #c9cacc; }
+    5% { background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    10% { background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    15% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    20% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    25% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  }
+
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  #terminal-cursor { animation: blink 1s step-end infinite; color: rgba(212,128,170,1); }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0.6rem;
+    height: calc(100vh - 13rem);
+    min-height: 340px;
+  }
+
+  /* Panels */
+  .panel {
+    border: 1px solid #333;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #1d1f21;
+  }
+
+  .panel-header {
+    background: #2a2a2e;
+    border-left: 3px solid #d480aa;
+    padding: 0.3em 0.7em;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #908d8d;
+    flex-shrink: 0;
+  }
+
+  .panel-body {
+    padding: 0.6em 0.8em;
+    overflow: auto;
+    flex: 1;
+    font-size: 0.85em;
+    line-height: 1.45;
+  }
+
+  /* Featured post spans 2 columns */
+  .panel-featured {
+    grid-column: 1 / 3;
+    grid-row: 1;
+  }
+
+  .panel-featured .panel-body {
+    font-size: 0.8em;
+    line-height: 1.4;
+  }
+
+  .panel-featured .panel-body p {
+    margin-bottom: 0.5em;
+  }
+
+  /* Post list */
+  .panel-posts {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  /* Row 2 */
+  .panel-about { grid-column: 1; grid-row: 2; }
+  .panel-archive { grid-column: 2; grid-row: 2; }
+  .panel-status { grid-column: 3; grid-row: 2; }
+
+  /* Post list items */
+  .post-item {
+    display: flex;
+    gap: 0.8em;
+    padding: 0.25em 0;
+    border-bottom: 1px solid #2a2a2e;
+    align-items: baseline;
+  }
+  .post-item:last-child { border-bottom: none; }
+  .post-date {
+    color: #908d8d;
+    font-size: 0.85em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .post-title {
+    color: rgba(212,128,170,1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Status table */
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3em 0;
+    border-bottom: 1px solid #2a2a2e;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { color: #908d8d; }
+  .stat-value { color: #c9cacc; text-align: right; }
+  .stat-value.highlight { color: #ccffb6; }
+
+  /* Archive */
+  .archive-year {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35em 0;
+    border-bottom: 1px solid #2a2a2e;
+  }
+  .archive-year:last-child { border-bottom: none; }
+  .archive-year-label { color: #ffffff; font-weight: bold; }
+  .archive-year-count { color: #908d8d; }
+  .archive-year-bar {
+    display: inline-block;
+    height: 4px;
+    background: #d480aa;
+    margin-left: 0.5em;
+    vertical-align: middle;
+    border-radius: 2px;
+  }
+
+  /* About blurb */
+  .bio-text { color: #c9cacc; margin-bottom: 0.6em; }
+  .bio-topics span {
+    display: inline-block;
+    background: #2a2a2e;
+    border: 1px solid #444;
+    padding: 0.15em 0.45em;
+    margin: 0.15em 0.2em 0.15em 0;
+    font-size: 0.85em;
+    color: #908d8d;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<pre id="ascii-art" style="font-family: monospace; line-height: normal;">
+      ..                                  ..              ..                     _
+< .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+
+<div class="grid">
+
+  <!-- Row 1: Featured Post (spans 2 cols) -->
+  <div class="panel panel-featured">
+    <div class="panel-header">Featured Post &mdash; 2022-05-28</div>
+    <div class="panel-body">
+      <h3 style="margin-top: 0;">Hexo &amp; VSCode</h3>
+      <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+      <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+      <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+      <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+
+      <h3>Asset Management</h3>
+
+      <p>One of the early pain points was handling images and other assets in posts. Hexo's default asset pipeline assumes a flat structure, which gets messy fast when you have dozens of posts each with their own screenshots and diagrams. The <code>hexo-asset-link</code> plugin solves this cleanly &mdash; enable <code>post_asset_folder: true</code> in your <code>_config.yml</code> and each post gets its own directory. Reference images with standard Markdown syntax and the plugin rewrites the paths at build time.</p>
+
+      <p>The real trick is pairing this with <strong style="color:#ffffff;">Docker volume mounts</strong>. Your source tree lives on the host, the Hexo build runs inside the container, and the asset folder convention means everything just works. No path gymnastics, no build-step hacks. You write Markdown, you drop images next to the <code>.md</code> file, and the output is a clean static site with all the assets in the right place. It sounds simple because it is &mdash; which is exactly the point.</p>
+    </div>
+  </div>
+
+  <!-- Row 1: Post List -->
+  <div class="panel panel-posts">
+    <div class="panel-header">All Posts</div>
+    <div class="panel-body">
+      <div class="post-item">
+        <span class="post-date">2026-02-03</span>
+        <a class="post-title" href="#">MCP Is Dead</a>
+      </div>
+      <div class="post-item">
+        <span class="post-date">2026-02-03</span>
+        <a class="post-title" href="#">AI-Native Infrastructure</a>
+      </div>
+      <div class="post-item">
+        <span class="post-date">2025-09-29</span>
+        <a class="post-title" href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+      </div>
+      <div class="post-item">
+        <span class="post-date">2025-09-26</span>
+        <a class="post-title" href="#">AI is great at parsing</a>
+      </div>
+      <div class="post-item">
+        <span class="post-date">2025-09-25</span>
+        <a class="post-title" href="#">Terraform with Glitter</a>
+      </div>
+      <div class="post-item">
+        <span class="post-date">2023-07-03</span>
+        <a class="post-title" href="#">Virtualization from scratch</a>
+      </div>
+      <div class="post-item">
+        <span class="post-date">2022-06-12</span>
+        <a class="post-title" href="#">I made a keylogger</a>
+      </div>
+      <div class="post-item">
+        <span class="post-date">2022-05-28</span>
+        <a class="post-title" href="#">Hexo &amp; VSCode</a>
+      </div>
+      <div class="post-item">
+        <span class="post-date">2022-05-28</span>
+        <a class="post-title" href="#">The Lore</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: About/Bio -->
+  <div class="panel panel-about">
+    <div class="panel-header">About</div>
+    <div class="panel-body">
+      <p class="bio-text"><a href="#">keeb.dev</a> &mdash; a personal engineering blog. Topics: infrastructure, developer tools, AI, and the occasional rabbit hole.</p>
+      <div class="bio-topics">
+        <span>infrastructure</span>
+        <span>developer tools</span>
+        <span>AI</span>
+        <span>docker</span>
+        <span>linux</span>
+        <span>virtualization</span>
+        <span>terraform</span>
+        <span>static sites</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Archive by Year -->
+  <div class="panel panel-archive">
+    <div class="panel-header">Archive</div>
+    <div class="panel-body">
+      <div class="archive-year">
+        <span><span class="archive-year-label">2026</span><span class="archive-year-bar" style="width: 40px;"></span></span>
+        <span class="archive-year-count">2 posts</span>
+      </div>
+      <div class="archive-year">
+        <span><span class="archive-year-label">2025</span><span class="archive-year-bar" style="width: 60px;"></span></span>
+        <span class="archive-year-count">3 posts</span>
+      </div>
+      <div class="archive-year">
+        <span><span class="archive-year-label">2023</span><span class="archive-year-bar" style="width: 20px;"></span></span>
+        <span class="archive-year-count">1 post</span>
+      </div>
+      <div class="archive-year">
+        <span><span class="archive-year-label">2022</span><span class="archive-year-bar" style="width: 60px;"></span></span>
+        <span class="archive-year-count">3 posts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Status/Stats -->
+  <div class="panel panel-status">
+    <div class="panel-header">Status</div>
+    <div class="panel-body">
+      <div class="stat-row">
+        <span class="stat-label">Uptime</span>
+        <span class="stat-value highlight">1,347 days</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Posts</span>
+        <span class="stat-value">9</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Last deploy</span>
+        <span class="stat-value">2026-02-03 14:22 UTC</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Engine</span>
+        <span class="stat-value">Hexo 7.x</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Theme</span>
+        <span class="stat-value">Cactus (modified)</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Host</span>
+        <span class="stat-value">Docker/Nginx</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .grid -->
+</div><!-- .container -->
+</body>
+</html>

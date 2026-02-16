@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — The Minimalist</title>
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  background: #1d1f21;
+  color: #c9cacc;
+  line-height: 1.725;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 2rem 0 0;
+}
+
+a {
+  color: #d4a0aa;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+strong {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+blockquote {
+  color: #ccffb6;
+  border-left: 2px solid #ccffb6;
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+code {
+  color: #d4a0aa;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ASCII Header */
+.ascii-header {
+  padding: 3rem 0 2rem 0;
+}
+
+.ascii-header pre {
+  color: #c9cacc;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Cursor — the ONLY animation */
+#terminal-cursor {
+  color: #d4a0aa;
+  animation: cursor-blink 1s infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Avatar section */
+.avatar-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 3rem 0;
+}
+
+.avatar-section img {
+  width: 80px;
+  height: 80px;
+  display: block;
+}
+
+.avatar-section p {
+  max-width: 40ch;
+}
+
+/* Navigation */
+nav {
+  padding: 2rem 0;
+}
+
+nav a {
+  margin-right: 1.5rem;
+}
+
+/* Post list */
+.post-list {
+  list-style: none;
+  padding: 3rem 0;
+}
+
+.post-list li {
+  padding: 0.5rem 0;
+}
+
+.post-date {
+  color: #908d8d;
+  margin-right: 1.5rem;
+}
+
+/* Featured post */
+.featured-post {
+  padding: 4rem 0;
+}
+
+.featured-post h2 {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.featured-post .meta {
+  color: #908d8d;
+  margin-bottom: 2rem;
+}
+
+.featured-post p {
+  margin-bottom: 1.5rem;
+}
+
+/* Footer */
+footer {
+  padding: 4rem 0 3rem 0;
+  color: #908d8d;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ASCII Header -->
+  <div class="ascii-header">
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+  </div>
+
+  <!-- Avatar & Bio -->
+  <section class="avatar-section">
+    <img src="avatar.webp" alt="avatar">
+    <div>
+      <p>Hacker, builder, breaker of things. Writing about infrastructure, dev tooling, virtualization, AI, and whatever else compiles. All opinions are <strong>my own</strong> and probably wrong.</p>
+    </div>
+  </section>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Writing</a>
+  </nav>
+
+  <!-- Post List -->
+  <ul class="post-list">
+    <li>
+      <span class="post-date">2026-02-03</span>
+      <a href="#">MCP Is Dead</a>
+    </li>
+    <li>
+      <span class="post-date">2026-02-03</span>
+      <a href="#">AI-Native Infrastructure</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-29</span>
+      <a href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-26</span>
+      <a href="#">AI is great at parsing</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-25</span>
+      <a href="#">Terraform with Glitter</a>
+    </li>
+    <li>
+      <span class="post-date">2023-07-03</span>
+      <a href="#">Virtualization from scratch</a>
+    </li>
+    <li>
+      <span class="post-date">2022-06-12</span>
+      <a href="#">I made a keylogger</a>
+    </li>
+    <li>
+      <span class="post-date">2022-05-28</span>
+      <a href="#">Hexo &amp; VSCode</a>
+    </li>
+    <li>
+      <span class="post-date">2022-05-28</span>
+      <a href="#">The Lore</a>
+    </li>
+  </ul>
+
+  <!-- Featured Post -->
+  <article class="featured-post">
+    <h2>Hexo &amp; VSCode</h2>
+    <p class="meta">2022-05-28</p>
+
+    <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+    <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+    <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+    <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+  </article>
+
+  <!-- Footer -->
+  <footer>
+    keeb.dev &mdash; 2026
+  </footer>
+
+</div>
+
+</body>
+</html>

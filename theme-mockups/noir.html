@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — noir</title>
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+  }
+
+  body {
+    background: #111111;
+    color: #e0e0e0;
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    font-size: 1rem;
+    line-height: 1.725;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* ASCII Header */
+  #ascii-art {
+    color: #cccccc;
+    white-space: pre;
+    margin: 0;
+    padding: 0 0 1.5rem 0;
+  }
+
+  #terminal-cursor {
+    color: #998088;
+    animation: cursor-blink 1s infinite;
+  }
+
+  @keyframes cursor-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* Borders */
+  .border-line {
+    border: none;
+    border-top: 1px solid #333333;
+    margin: 1.5rem 0;
+  }
+
+  /* Profile */
+  .profile {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+  }
+
+  .avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 0;
+    filter: grayscale(80%);
+    flex-shrink: 0;
+  }
+
+  .bio {
+    color: #e0e0e0;
+  }
+
+  .bio p {
+    margin: 0;
+  }
+
+  /* Navigation */
+  nav {
+    margin: 1rem 0;
+  }
+
+  nav a {
+    color: #998088;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: #b09098;
+  }
+
+  nav .sep {
+    color: #333333;
+    margin: 0 0.5rem;
+  }
+
+  /* Links */
+  a {
+    color: #998088;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #b09098;
+  }
+
+  /* Post list */
+  .post-list {
+    list-style: none;
+    margin: 1.5rem 0;
+    padding: 0;
+  }
+
+  .post-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.35rem 0;
+  }
+
+  .post-list li a {
+    color: #e0e0e0;
+  }
+
+  .post-list li a:hover {
+    color: #b09098;
+  }
+
+  .post-date {
+    color: #666666;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-left: 1rem;
+  }
+
+  /* Featured post */
+  .featured {
+    margin: 1.5rem 0;
+  }
+
+  .featured h2 {
+    color: #cccccc;
+    font-size: 1.1rem;
+    font-weight: normal;
+    margin-bottom: 1rem;
+  }
+
+  .featured p {
+    margin-bottom: 1rem;
+    color: #e0e0e0;
+  }
+
+  blockquote {
+    border-left: 1px solid #333333;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: #aaaaaa;
+  }
+
+  strong {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  code {
+    background: #1a1a1a;
+    padding: 0.15em 0.35em;
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+
+  /* Section headings */
+  h3 {
+    color: #cccccc;
+    font-size: 0.85rem;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 0;
+    padding-top: 1rem;
+    color: #666666;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+
+<hr class="border-line">
+
+<div class="profile">
+  <img src="avatar.webp" alt="avatar" class="avatar">
+  <div class="bio">
+    <p>Systems engineer. Writing about infrastructure, automation, and the things that run underneath.</p>
+  </div>
+</div>
+
+<nav>
+  <a href="#">Home</a><span class="sep">|</span><a href="#">About</a><span class="sep">|</span><a href="#">Writing</a>
+</nav>
+
+<hr class="border-line">
+
+<h3>Writing</h3>
+
+<ul class="post-list">
+  <li>
+    <a href="#">MCP Is Dead</a>
+    <span class="post-date">2026-02-03</span>
+  </li>
+  <li>
+    <a href="#">AI-Native Infrastructure</a>
+    <span class="post-date">2026-02-03</span>
+  </li>
+  <li>
+    <a href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+    <span class="post-date">2025-09-29</span>
+  </li>
+  <li>
+    <a href="#">AI is great at parsing</a>
+    <span class="post-date">2025-09-26</span>
+  </li>
+  <li>
+    <a href="#">Terraform with Glitter</a>
+    <span class="post-date">2025-09-25</span>
+  </li>
+  <li>
+    <a href="#">Virtualization from scratch</a>
+    <span class="post-date">2023-07-03</span>
+  </li>
+  <li>
+    <a href="#">I made a keylogger</a>
+    <span class="post-date">2022-06-12</span>
+  </li>
+  <li>
+    <a href="#">Hexo &amp; VSCode</a>
+    <span class="post-date">2022-05-28</span>
+  </li>
+  <li>
+    <a href="#">The Lore</a>
+    <span class="post-date">2022-05-28</span>
+  </li>
+</ul>
+
+<hr class="border-line">
+
+<div class="featured">
+  <h2>Hexo &amp; VSCode</h2>
+
+  <p>Setting up a static site with Hexo is one of those tasks that sounds straightforward until you actually sit down to do it. The documentation is decent, the ecosystem is mature, but the gap between <strong>"hello world"</strong> and <strong>"this is actually my site"</strong> is wider than it looks. The real work is in the configuration, the theme customization, and the deployment pipeline.</p>
+
+  <p>VSCode becomes indispensable here. Not because it does anything magical, but because the combination of integrated terminal, markdown preview, and file tree navigation makes the feedback loop tight. You edit a post, glance at the preview, run <code>hexo generate</code> in the terminal below, and see the result. No context switching. No alt-tabbing between five windows.</p>
+
+  <p>The theme layer is where most of the time goes. Hexo themes are essentially EJS templates with Stylus or SASS stylesheets, and the Cactus theme in particular has a clean structure that rewards careful reading before modification. Every change to a partial or a layout file cascades through the entire site, so understanding the inheritance model matters.</p>
+
+  <blockquote>The best toolchain is the one that disappears. When you stop thinking about the build system and start thinking about the words, you have arrived.</blockquote>
+
+  <p>Deployment is the final piece. A simple script that builds the Docker image, generates the static files, and symlinks the output to the serve directory. No CI/CD platform, no webhook chains. Just a shell script and <code>ssh</code>. Sometimes the simplest approach is the most reliable one.</p>
+</div>
+
+<hr class="border-line">
+
+<footer>
+  keeb.dev
+</footer>
+
+</div>
+</body>
+</html>

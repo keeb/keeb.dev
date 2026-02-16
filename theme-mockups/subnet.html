@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev // subnet</title>
+<style>
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg: #0d1117;
+    --sidebar-bg: #161b22;
+    --border: #30363d;
+    --link: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --purple: #bc8cff;
+    --text: #c9d1d9;
+    --dimmed: #8b949e;
+    --code-bg: #161b22;
+    --code-header-bg: #0d1117;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Sidebar ───────────────────────────────────── */
+
+  .sidebar {
+    width: 320px;
+    min-width: 320px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5em;
+    gap: 1.25em;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  /* Sidebar: identity */
+
+  .identity {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+  }
+
+  .identity img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    border: 2px solid var(--link);
+    flex-shrink: 0;
+  }
+
+  .identity h1 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .identity .tagline {
+    font-size: 0.75rem;
+    color: var(--dimmed);
+  }
+
+  /* Sidebar: status */
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--green);
+    font-weight: 600;
+    padding: 0.5em 0.75em;
+    background: rgba(63, 185, 80, 0.08);
+    border: 1px solid rgba(63, 185, 80, 0.2);
+    border-radius: 6px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    display: inline-block;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Sidebar: search */
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 0.5em 0.75em 0.5em 2em;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--dimmed);
+    font-size: 0.8rem;
+    font-family: var(--font-body);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .search-box input:focus {
+    border-color: var(--link);
+  }
+
+  .search-box::before {
+    content: "\1F50D";
+    position: absolute;
+    left: 0.6em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    pointer-events: none;
+  }
+
+  .search-box .shortcut {
+    position: absolute;
+    right: 0.6em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6rem;
+    color: var(--dimmed);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    font-family: var(--font-mono);
+    pointer-events: none;
+  }
+
+  /* Sidebar: tree nav */
+
+  .nav-tree {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .nav-tree .section-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--dimmed);
+    font-weight: 600;
+    margin-bottom: 0.5em;
+  }
+
+  .nav-tree details {
+    margin-bottom: 0.15em;
+  }
+
+  .nav-tree summary {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.35em 0.6em;
+    font-size: 0.82rem;
+    color: var(--text);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+    list-style: none;
+    font-weight: 600;
+    user-select: none;
+  }
+
+  .nav-tree summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav-tree summary::before {
+    content: "\25B8";
+    font-size: 0.7rem;
+    color: var(--dimmed);
+    transition: transform 0.15s ease;
+    display: inline-block;
+    width: 1em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .nav-tree details[open] > summary::before {
+    transform: rotate(90deg);
+  }
+
+  .nav-tree summary:hover {
+    background: rgba(200, 210, 220, 0.06);
+  }
+
+  .nav-tree .tree-children {
+    margin-left: 1em;
+    border-left: 1px solid var(--border);
+    padding-left: 0;
+  }
+
+  .nav-tree .tree-children a {
+    display: block;
+    padding: 0.3em 0.6em 0.3em 0.75em;
+    font-size: 0.8rem;
+    color: var(--dimmed);
+    border-radius: 0 6px 6px 0;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    margin-left: -1px;
+  }
+
+  .nav-tree .tree-children a:hover {
+    background: rgba(200, 210, 220, 0.06);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .nav-tree .tree-children a.active {
+    border-left-color: var(--link);
+    background: rgba(88, 166, 255, 0.08);
+    color: var(--link);
+    font-weight: 500;
+  }
+
+  /* Sidebar: quick links */
+
+  .quick-links {
+    border-top: 1px solid var(--border);
+    padding-top: 1em;
+  }
+
+  .quick-links .section-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--dimmed);
+    font-weight: 600;
+    margin-bottom: 0.5em;
+  }
+
+  .quick-links a {
+    display: block;
+    padding: 0.3em 0.6em;
+    font-size: 0.82rem;
+    color: var(--dimmed);
+    border-radius: 6px;
+    transition: background 0.12s ease, color 0.12s ease;
+    text-decoration: none;
+  }
+
+  .quick-links a:hover {
+    background: rgba(200, 210, 220, 0.06);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  /* Sidebar: footer */
+
+  .sidebar-footer {
+    font-size: 0.65rem;
+    color: var(--dimmed);
+    font-family: var(--font-mono);
+    padding-top: 0.75em;
+    border-top: 1px solid var(--border);
+    opacity: 0.7;
+  }
+
+  /* ── Main Content ──────────────────────────────── */
+
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 2em;
+  }
+
+  .main-inner {
+    max-width: 800px;
+  }
+
+  /* Breadcrumbs */
+
+  .breadcrumbs {
+    font-size: 0.8rem;
+    color: var(--dimmed);
+    margin-bottom: 1.5em;
+    font-family: var(--font-mono);
+  }
+
+  .breadcrumbs a {
+    color: var(--dimmed);
+  }
+
+  .breadcrumbs a:hover {
+    color: var(--link);
+  }
+
+  .breadcrumbs .sep {
+    margin: 0 0.35em;
+    opacity: 0.5;
+  }
+
+  .breadcrumbs .current {
+    color: var(--text);
+  }
+
+  /* Article header */
+
+  .article-header {
+    margin-bottom: 2em;
+    padding-bottom: 1.5em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .article-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f0f6fc;
+    line-height: 1.25;
+    margin-bottom: 0.6em;
+    letter-spacing: -0.03em;
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75em;
+    font-size: 0.8rem;
+    color: var(--dimmed);
+  }
+
+  .article-meta .date {
+    font-family: var(--font-mono);
+  }
+
+  .article-meta .dot {
+    opacity: 0.4;
+  }
+
+  .tag-pill {
+    display: inline-block;
+    padding: 0.15em 0.55em;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border: 1px solid;
+  }
+
+  .tag-pill.purple {
+    color: var(--purple);
+    border-color: rgba(188, 140, 255, 0.3);
+    background: rgba(188, 140, 255, 0.1);
+  }
+
+  .tag-pill.blue {
+    color: var(--link);
+    border-color: rgba(88, 166, 255, 0.3);
+    background: rgba(88, 166, 255, 0.1);
+  }
+
+  .tag-pill.green {
+    color: var(--green);
+    border-color: rgba(63, 185, 80, 0.3);
+    background: rgba(63, 185, 80, 0.1);
+  }
+
+  .tag-pill.orange {
+    color: var(--orange);
+    border-color: rgba(210, 153, 34, 0.3);
+    background: rgba(210, 153, 34, 0.1);
+  }
+
+  /* Table of contents */
+
+  .toc-box {
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25em 1.5em;
+    margin-bottom: 2em;
+  }
+
+  .toc-box .toc-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--dimmed);
+    font-weight: 600;
+    margin-bottom: 0.75em;
+  }
+
+  .toc-box ol {
+    list-style: none;
+    counter-reset: toc;
+  }
+
+  .toc-box ol li {
+    counter-increment: toc;
+    margin-bottom: 0.3em;
+  }
+
+  .toc-box ol li a {
+    font-size: 0.85rem;
+    color: var(--dimmed);
+    transition: color 0.12s ease;
+  }
+
+  .toc-box ol li a::before {
+    content: counter(toc) ".";
+    margin-right: 0.5em;
+    color: var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .toc-box ol li a:hover {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  /* Info box */
+
+  .info-box {
+    border-left: 3px solid var(--link);
+    background: rgba(88, 166, 255, 0.06);
+    padding: 1em 1.25em;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 1.75em;
+  }
+
+  .info-box .info-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--link);
+    margin-bottom: 0.4em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .info-box ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .info-box ul li {
+    font-size: 0.85rem;
+    color: var(--text);
+    padding: 0.15em 0;
+    padding-left: 1.2em;
+    position: relative;
+  }
+
+  .info-box ul li::before {
+    content: "\2713";
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  /* Article body */
+
+  .article-body h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #f0f6fc;
+    margin-top: 2.25em;
+    margin-bottom: 0.75em;
+    padding-bottom: 0.35em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .article-body h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f0f6fc;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  .article-body p {
+    margin-bottom: 1.15em;
+    line-height: 1.75;
+    color: var(--text);
+  }
+
+  .article-body ul,
+  .article-body ol {
+    margin-bottom: 1.15em;
+    padding-left: 1.75em;
+  }
+
+  .article-body li {
+    margin-bottom: 0.35em;
+    line-height: 1.65;
+  }
+
+  .article-body code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: rgba(110, 118, 129, 0.15);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    color: #f0f6fc;
+  }
+
+  .article-body strong {
+    color: #f0f6fc;
+    font-weight: 600;
+  }
+
+  /* Code block */
+
+  .code-block {
+    margin-bottom: 1.75em;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .code-block .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 1em;
+    background: var(--code-header-bg);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--dimmed);
+  }
+
+  .code-block .code-header .filename {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+
+  .code-block .code-header .filename .icon {
+    opacity: 0.5;
+  }
+
+  .code-block .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--dimmed);
+    font-size: 0.7rem;
+    font-family: var(--font-body);
+    padding: 0.25em 0.6em;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .code-block .copy-btn:hover {
+    border-color: var(--dimmed);
+    color: var(--text);
+  }
+
+  .code-block pre {
+    background: var(--code-bg);
+    padding: 1.25em;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .code-block pre .keyword {
+    color: #ff7b72;
+  }
+
+  .code-block pre .type {
+    color: #79c0ff;
+  }
+
+  .code-block pre .string {
+    color: #a5d6ff;
+  }
+
+  .code-block pre .comment {
+    color: var(--dimmed);
+    font-style: italic;
+  }
+
+  .code-block pre .func {
+    color: #d2a8ff;
+  }
+
+  .code-block pre .number {
+    color: var(--orange);
+  }
+
+  .code-block pre .macro {
+    color: #79c0ff;
+  }
+
+  .code-block pre .include {
+    color: #ff7b72;
+  }
+
+  /* Tags footer */
+
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-top: 2.5em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--border);
+  }
+
+  .article-tags .label {
+    font-size: 0.75rem;
+    color: var(--dimmed);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-right: 0.25em;
+    align-self: center;
+  }
+
+  /* Article footer */
+
+  .article-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5em;
+    padding-top: 1em;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--dimmed);
+  }
+
+  .article-footer a {
+    font-size: 0.78rem;
+  }
+
+  /* ── Hamburger menu (mobile) ───────────────────── */
+
+  .hamburger {
+    display: none;
+    position: fixed;
+    top: 1em;
+    left: 1em;
+    z-index: 1000;
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 1.4rem;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+  }
+
+  /* ── Responsive ────────────────────────────────── */
+
+  @media (max-width: 900px) {
+    .hamburger {
+      display: flex;
+    }
+
+    .sidebar {
+      position: fixed;
+      left: -320px;
+      top: 0;
+      z-index: 100;
+      transition: left 0.25s ease;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar.open + .sidebar-overlay {
+      display: block;
+    }
+
+    .main {
+      padding: 2em 1.25em;
+      padding-top: 4em;
+    }
+
+    .article-header h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+  /* ── Scrollbar global ──────────────────────────── */
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--dimmed);
+  }
+</style>
+</head>
+<body>
+
+<!-- Hamburger (mobile only) -->
+<button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="identity">
+    <img src="avatar.webp" alt="keeb.dev avatar" width="64" height="64">
+    <div>
+      <h1>keeb.dev</h1>
+      <div class="tagline">infrastructure &amp; systems</div>
+    </div>
+  </div>
+
+  <div class="status-line">
+    <span class="status-dot"></span>
+    ALL SYSTEMS OPERATIONAL
+  </div>
+
+  <div class="search-box">
+    <input type="text" placeholder="Search docs..." aria-label="Search documentation">
+    <span class="shortcut">/</span>
+  </div>
+
+  <nav class="nav-tree">
+    <div class="section-label">Posts</div>
+
+    <details open>
+      <summary>2026</summary>
+      <div class="tree-children">
+        <a href="#">AI-Native Infrastructure</a>
+        <a href="#">MCP Is Dead</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>2025</summary>
+      <div class="tree-children">
+        <a href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+        <a href="#">AI is great at parsing</a>
+        <a href="#">Terraform with Glitter</a>
+      </div>
+    </details>
+
+    <details open>
+      <summary>2023</summary>
+      <div class="tree-children">
+        <a href="#" class="active">Virtualization from scratch</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>2022</summary>
+      <div class="tree-children">
+        <a href="#">I made a keylogger</a>
+        <a href="#">Hexo &amp; VSCode</a>
+        <a href="#">The Lore</a>
+      </div>
+    </details>
+  </nav>
+
+  <div class="quick-links">
+    <div class="section-label">Quick Links</div>
+    <a href="#">Home</a>
+    <a href="#">Archive</a>
+    <a href="#">About</a>
+    <a href="#">RSS</a>
+  </div>
+
+  <div class="sidebar-footer">
+    v4.2.0 // last deploy: 2026-02-03
+  </div>
+</aside>
+
+<div class="sidebar-overlay" onclick="document.querySelector('.sidebar').classList.remove('open')"></div>
+
+<!-- Main Content -->
+<main class="main">
+  <div class="main-inner">
+
+    <div class="breadcrumbs">
+      <a href="#">keeb.dev</a><span class="sep">/</span><a href="#">posts</a><span class="sep">/</span><span class="current">virtualization-from-scratch</span>
+    </div>
+
+    <header class="article-header">
+      <h1>Virtualization from scratch</h1>
+      <div class="article-meta">
+        <span class="date">2023-07-03</span>
+        <span class="dot">&middot;</span>
+        <span>12 min read</span>
+        <span class="dot">&middot;</span>
+        <span class="tag-pill purple">virtualization</span>
+        <span class="tag-pill purple">kvm</span>
+        <span class="tag-pill purple">low-level</span>
+        <span class="tag-pill blue">linux</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+
+      <!-- Table of Contents -->
+      <div class="toc-box">
+        <div class="toc-title">On this page</div>
+        <ol>
+          <li><a href="#what-is-virtualization">What is virtualization, really?</a></li>
+          <li><a href="#type1-vs-type2">Type-1 vs Type-2 hypervisors</a></li>
+          <li><a href="#hardware-extensions">Hardware virtualization extensions</a></li>
+          <li><a href="#kvm-from-userspace">Talking to KVM from userspace</a></li>
+          <li><a href="#building-vm-monitor">Building a minimal VM monitor</a></li>
+        </ol>
+      </div>
+
+      <!-- Info box -->
+      <div class="info-box">
+        <div class="info-title">What you'll learn</div>
+        <ul>
+          <li>The fundamental difference between Type-1 and Type-2 hypervisors</li>
+          <li>How Intel VT-x and AMD-V hardware extensions enable efficient virtualization</li>
+          <li>How to interact with the Linux KVM API using ioctls from C</li>
+          <li>How to build a minimal VM monitor that boots real-mode x86 code</li>
+        </ul>
+      </div>
+
+      <h2 id="prerequisites">Prerequisites</h2>
+
+      <ul>
+        <li>A Linux system with a CPU that supports hardware virtualization (Intel VT-x or AMD-V)</li>
+        <li>Basic familiarity with C and systems programming</li>
+        <li>Understanding of x86 assembly fundamentals</li>
+        <li>Root access or membership in the <code>kvm</code> group</li>
+        <li>GCC or Clang toolchain installed</li>
+      </ul>
+
+      <h2 id="what-is-virtualization">What is virtualization, really?</h2>
+
+      <p>At its core, virtualization is the act of running one operating system inside another, but that description sells it short. What we are really doing is creating an illusion so convincing that a guest kernel believes it has exclusive access to real hardware&mdash;its own CPU, its own memory, its own interrupt controller&mdash;while in reality, every privileged operation is mediated by a layer beneath it. This mediating layer is the <strong>hypervisor</strong>, sometimes called a <strong>virtual machine monitor (VMM)</strong>, and the depth at which it sits in the stack determines almost everything about the performance and complexity trade-offs you will encounter.</p>
+
+      <p>Before hardware-assisted virtualization existed, projects like VMware Workstation and Bochs had to resort to <strong>binary translation</strong>: scanning the guest's instruction stream, finding privileged instructions that would fault or behave incorrectly in ring&nbsp;3, and replacing them at runtime with equivalent safe sequences. This worked, but it was slow and brutally complex. The x86 ISA was never designed for clean virtualization&mdash;Popek and Goldberg famously noted that certain "sensitive" instructions on x86 do not trap when executed in an unprivileged ring, meaning the hypervisor cannot intercept them by simply running the guest at a lower privilege level. Binary translation was the workaround, and it dominated the industry for over a decade until the hardware vendors caught up.</p>
+
+      <h2 id="type1-vs-type2">Type-1 vs Type-2 hypervisors</h2>
+
+      <p>The taxonomy matters because it determines your trust boundary. A <strong>Type-1 (bare-metal) hypervisor</strong> runs directly on hardware, with no host OS beneath it. Xen, VMware ESXi, and Microsoft Hyper-V fall into this camp. The hypervisor <em>is</em> the kernel, or at least the most privileged code on the machine. Guest operating systems run in less privileged CPU modes, and the hypervisor mediates all access to physical resources. This architecture minimizes the attack surface and the amount of code running at the highest privilege, but it means the hypervisor must include its own device drivers, scheduler, and memory manager&mdash;essentially a small OS in its own right.</p>
+
+      <p>A <strong>Type-2 (hosted) hypervisor</strong> runs as a process on top of a conventional host OS. VirtualBox and QEMU (without KVM) are classic examples. The host kernel handles hardware, scheduling, and memory management; the hypervisor process merely creates the illusion of a machine inside userspace. The advantage is simplicity: you get to reuse the host's driver ecosystem, networking stack, and filesystem. The disadvantage is performance and an additional layer in the trust hierarchy&mdash;a compromised host kernel means compromised guests.</p>
+
+      <p>Linux's KVM occupies an interesting middle ground. Technically, it turns the Linux kernel itself into a Type-1 hypervisor by adding a new CPU mode. The kernel module (<code>kvm.ko</code> and its architecture-specific counterpart, <code>kvm-intel.ko</code> or <code>kvm-amd.ko</code>) leverages hardware virtualization extensions to run guest code directly on the physical CPU with near-native speed. But because it is a kernel module rather than a standalone hypervisor, it still benefits from Linux's mature driver model. QEMU typically acts as the userspace component&mdash;handling device emulation, disk I/O, and VNC/SPICE displays&mdash;while KVM handles the CPU and memory virtualization in-kernel.</p>
+
+      <h2 id="hardware-extensions">Hardware virtualization extensions</h2>
+
+      <p>Everything changed in 2005&ndash;2006 when Intel shipped <strong>VT-x</strong> (codenamed Vanderpool) and AMD shipped <strong>AMD-V</strong> (codenamed Pacifica). These extensions introduced a new, more-privileged CPU mode called <strong>VMX root mode</strong> (Intel) or <strong>host mode</strong> (AMD). The hypervisor runs in root mode, and the guest runs in <strong>VMX non-root mode</strong>. When the guest executes a privileged instruction&mdash;like writing to a control register or executing <code>HLT</code>&mdash;the CPU automatically traps into the hypervisor via a mechanism Intel calls a <strong>VM-exit</strong>. The hypervisor inspects the exit reason, emulates the instruction or adjusts state as needed, and then resumes the guest with a <strong>VM-entry</strong>. The data structure that holds the guest's register state, exit reasons, and control fields is the <strong>VMCS</strong> (Virtual Machine Control Structure) on Intel, or the <strong>VMCB</strong> on AMD. Every VM-exit saves guest state into this structure and loads host state from it; every VM-entry does the reverse. The hardware handles all of this in microcode, making context switches between host and guest astonishingly fast&mdash;on the order of hundreds of nanoseconds on modern CPUs.</p>
+
+      <h2 id="kvm-from-userspace">Talking to KVM from userspace</h2>
+
+      <p>The KVM API is exposed through the <code>/dev/kvm</code> character device and a set of <code>ioctl</code> calls organized in three levels. First, you open <code>/dev/kvm</code> and issue <strong>system-level ioctls</strong> like <code>KVM_GET_API_VERSION</code> and <code>KVM_CREATE_VM</code>. The latter returns a file descriptor representing a new virtual machine. Second, you issue <strong>VM-level ioctls</strong> on that VM fd, such as <code>KVM_SET_USER_MEMORY_REGION</code> to map host memory into the guest's physical address space, or <code>KVM_CREATE_VCPU</code> to add a virtual processor. Each vCPU ioctl returns yet another file descriptor. Third, you issue <strong>vCPU-level ioctls</strong> like <code>KVM_RUN</code> to actually execute guest code. When <code>KVM_RUN</code> returns, the reason for the exit is stored in a shared <code>kvm_run</code> structure that you obtain by <code>mmap</code>-ing the vCPU fd. You inspect the exit reason&mdash;I/O port access, MMIO, halt, shutdown, internal error&mdash;handle it, and loop back to <code>KVM_RUN</code>. That loop is the heartbeat of your VM monitor.</p>
+
+      <h2 id="building-vm-monitor">Building a minimal VM monitor</h2>
+
+      <p>Let's put it all together. The following C program creates a VM with a single vCPU, loads a tiny chunk of real-mode x86 code into guest memory, and runs it. The guest code writes the value <code>0x42</code> to I/O port <code>0x3f8</code> (the serial port) and then halts. Our VMM intercepts the I/O exit and prints the value. It is barely a hundred lines, yet it demonstrates the full KVM lifecycle: system fd, VM fd, vCPU fd, memory region setup, register initialization, and the run loop.</p>
+
+      <!-- Code block with filename header -->
+      <div class="code-block">
+        <div class="code-header">
+          <span class="filename"><span class="icon">&#128196;</span> vm_monitor.c</span>
+          <button class="copy-btn" onclick="navigator.clipboard.writeText(this.closest('.code-block').querySelector('pre').textContent)">Copy</button>
+        </div>
+<pre><span class="include">#include</span> <span class="string">&lt;stdio.h&gt;</span>
+<span class="include">#include</span> <span class="string">&lt;stdlib.h&gt;</span>
+<span class="include">#include</span> <span class="string">&lt;string.h&gt;</span>
+<span class="include">#include</span> <span class="string">&lt;fcntl.h&gt;</span>
+<span class="include">#include</span> <span class="string">&lt;unistd.h&gt;</span>
+<span class="include">#include</span> <span class="string">&lt;sys/ioctl.h&gt;</span>
+<span class="include">#include</span> <span class="string">&lt;sys/mman.h&gt;</span>
+<span class="include">#include</span> <span class="string">&lt;linux/kvm.h&gt;</span>
+
+<span class="comment">/* Tiny real-mode guest: writes 0x42 to port 0x3f8, then halts. */</span>
+<span class="keyword">static</span> <span class="keyword">const</span> <span class="type">unsigned char</span> guest_code[] = {
+    <span class="number">0xba</span>, <span class="number">0xf8</span>, <span class="number">0x03</span>,   <span class="comment">/* mov dx, 0x3f8  */</span>
+    <span class="number">0xb0</span>, <span class="number">0x42</span>,         <span class="comment">/* mov al, 0x42   */</span>
+    <span class="number">0xee</span>,               <span class="comment">/* out dx, al     */</span>
+    <span class="number">0xf4</span>,               <span class="comment">/* hlt            */</span>
+};
+
+<span class="type">int</span> <span class="func">main</span>(<span class="keyword">void</span>)
+{
+    <span class="type">int</span> kvm_fd, vm_fd, vcpu_fd;
+    <span class="type">size_t</span> mmap_size;
+    <span class="keyword">struct</span> <span class="type">kvm_run</span> *run;
+    <span class="keyword">struct</span> <span class="type">kvm_sregs</span> sregs;
+    <span class="keyword">struct</span> <span class="type">kvm_regs</span> regs;
+    <span class="keyword">struct</span> <span class="type">kvm_userspace_memory_region</span> mem_region;
+    <span class="type">void</span> *guest_mem;
+
+    <span class="comment">/* 1. Open the KVM subsystem */</span>
+    kvm_fd = <span class="func">open</span>(<span class="string">"/dev/kvm"</span>, O_RDWR | O_CLOEXEC);
+    <span class="keyword">if</span> (kvm_fd &lt; <span class="number">0</span>) { <span class="func">perror</span>(<span class="string">"open /dev/kvm"</span>); <span class="keyword">return</span> <span class="number">1</span>; }
+
+    <span class="comment">/* 2. Create a new virtual machine */</span>
+    vm_fd = <span class="func">ioctl</span>(kvm_fd, KVM_CREATE_VM, <span class="number">0</span>);
+    <span class="keyword">if</span> (vm_fd &lt; <span class="number">0</span>) { <span class="func">perror</span>(<span class="string">"KVM_CREATE_VM"</span>); <span class="keyword">return</span> <span class="number">1</span>; }
+
+    <span class="comment">/* 3. Allocate 1 MiB of guest physical memory */</span>
+    guest_mem = <span class="func">mmap</span>(NULL, <span class="number">0x100000</span>, PROT_READ | PROT_WRITE,
+                     MAP_SHARED | MAP_ANONYMOUS, -<span class="number">1</span>, <span class="number">0</span>);
+    <span class="func">memcpy</span>(guest_mem, guest_code, <span class="keyword">sizeof</span>(guest_code));
+
+    <span class="comment">/* 4. Map host memory into the guest's address space */</span>
+    <span class="func">memset</span>(&amp;mem_region, <span class="number">0</span>, <span class="keyword">sizeof</span>(mem_region));
+    mem_region.slot            = <span class="number">0</span>;
+    mem_region.guest_phys_addr = <span class="number">0</span>;
+    mem_region.memory_size     = <span class="number">0x100000</span>;
+    mem_region.userspace_addr  = (<span class="type">unsigned long</span>)guest_mem;
+    <span class="func">ioctl</span>(vm_fd, KVM_SET_USER_MEMORY_REGION, &amp;mem_region);
+
+    <span class="comment">/* 5. Create a virtual CPU */</span>
+    vcpu_fd = <span class="func">ioctl</span>(vm_fd, KVM_CREATE_VCPU, <span class="number">0</span>);
+    mmap_size = <span class="func">ioctl</span>(kvm_fd, KVM_GET_VCPU_MMAP_SIZE, NULL);
+    run = <span class="func">mmap</span>(NULL, mmap_size, PROT_READ | PROT_WRITE,
+              MAP_SHARED, vcpu_fd, <span class="number">0</span>);
+
+    <span class="comment">/* 6. Initialize segment registers for real mode at 0x0000:0x0000 */</span>
+    <span class="func">ioctl</span>(vcpu_fd, KVM_GET_SREGS, &amp;sregs);
+    sregs.cs.base = <span class="number">0</span>;
+    sregs.cs.selector = <span class="number">0</span>;
+    <span class="func">ioctl</span>(vcpu_fd, KVM_SET_SREGS, &amp;sregs);
+
+    <span class="comment">/* 7. Set instruction pointer to start of guest code */</span>
+    <span class="func">memset</span>(&amp;regs, <span class="number">0</span>, <span class="keyword">sizeof</span>(regs));
+    regs.rip = <span class="number">0</span>;
+    regs.rflags = <span class="number">0x2</span>;    <span class="comment">/* bit 1 is always set */</span>
+    <span class="func">ioctl</span>(vcpu_fd, KVM_SET_REGS, &amp;regs);
+
+    <span class="comment">/* 8. Run loop: execute guest until exit */</span>
+    <span class="keyword">for</span> (;;) {
+        <span class="func">ioctl</span>(vcpu_fd, KVM_RUN, NULL);
+
+        <span class="keyword">switch</span> (run-&gt;exit_reason) {
+        <span class="keyword">case</span> KVM_EXIT_IO:
+            <span class="keyword">if</span> (run-&gt;io.port == <span class="number">0x3f8</span> &amp;&amp; run-&gt;io.direction == KVM_EXIT_IO_OUT) {
+                <span class="type">char</span> *data = (<span class="type">char</span> *)run + run-&gt;io.data_offset;
+                <span class="func">printf</span>(<span class="string">"Guest wrote 0x%02x to serial port\n"</span>, *data);
+            }
+            <span class="keyword">break</span>;
+        <span class="keyword">case</span> KVM_EXIT_HLT:
+            <span class="func">printf</span>(<span class="string">"Guest halted.\n"</span>);
+            <span class="keyword">goto</span> done;
+        <span class="keyword">default</span>:
+            <span class="func">fprintf</span>(stderr, <span class="string">"Unexpected exit: %d\n"</span>, run-&gt;exit_reason);
+            <span class="keyword">goto</span> done;
+        }
+    }
+done:
+    <span class="func">munmap</span>(run, mmap_size);
+    <span class="func">munmap</span>(guest_mem, <span class="number">0x100000</span>);
+    <span class="func">close</span>(vcpu_fd);
+    <span class="func">close</span>(vm_fd);
+    <span class="func">close</span>(kvm_fd);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</pre>
+      </div>
+
+      <p>Compile it with <code>gcc -o vm_monitor vm_monitor.c</code> and run it (you'll need access to <code>/dev/kvm</code>). If everything works, you should see <code>Guest wrote 0x42 to serial port</code> followed by <code>Guest halted.</code>&mdash;proof that your seven-byte guest executed on real hardware, mediated entirely by the KVM hypervisor. From here, you could extend the monitor to handle MMIO exits (for framebuffer emulation), add multiple vCPUs with proper synchronization, or wire up virtio devices for disk and network access. The rabbit hole goes all the way down, but this is where it starts: one ioctl loop and a handful of bytes.</p>
+
+      <!-- Tags -->
+      <div class="article-tags">
+        <span class="label">Tags:</span>
+        <span class="tag-pill purple">virtualization</span>
+        <span class="tag-pill purple">kvm</span>
+        <span class="tag-pill blue">linux</span>
+        <span class="tag-pill green">c</span>
+        <span class="tag-pill orange">low-level</span>
+        <span class="tag-pill purple">hypervisor</span>
+      </div>
+
+      <!-- Footer -->
+      <div class="article-footer">
+        <span>Last updated: 2023-07-03</span>
+        <a href="#">Edit this page &rarr;</a>
+      </div>
+
+    </article>
+  </div>
+</main>
+
+</body>
+</html>

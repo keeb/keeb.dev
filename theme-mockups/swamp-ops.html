@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWAMP OPS COMMAND CENTER // keeb.dev</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @font-face {
+    font-family: 'Terminal';
+    src: local('Courier New'), local('Consolas'), local('monospace');
+  }
+
+  :root {
+    --bg: #0a0f0a;
+    --bg-panel: #0d150d;
+    --bg-panel-alt: #0f1a0f;
+    --green-bright: #00ff41;
+    --green-mid: #00cc33;
+    --green-dim: #00801f;
+    --green-dark: #003d0f;
+    --green-ghost: #00ff4110;
+    --green-scanline: #00ff4106;
+    --amber: #ffaa00;
+    --red: #ff2020;
+    --red-dim: #661010;
+    --text: #00dd38;
+    --text-dim: #007a1f;
+    --text-bright: #33ff66;
+    --border: #00491480;
+    --font-mono: 'Courier New', 'Consolas', 'Liberation Mono', monospace;
+  }
+
+  html {
+    font-size: 14px;
+    scrollbar-color: var(--green-dark) var(--bg);
+  }
+
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  /* ===== GRID OVERLAY ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      /* Major grid */
+      linear-gradient(var(--green-ghost) 1px, transparent 1px),
+      linear-gradient(90deg, var(--green-ghost) 1px, transparent 1px),
+      /* Minor grid */
+      linear-gradient(var(--green-ghost) 0.5px, transparent 0.5px),
+      linear-gradient(90deg, var(--green-ghost) 0.5px, transparent 0.5px);
+    background-size:
+      120px 120px,
+      120px 120px,
+      24px 24px,
+      24px 24px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ===== SCANLINES ===== */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      var(--green-scanline) 2px,
+      var(--green-scanline) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ===== GRID COORDINATE MARKERS ===== */
+  .coord-markers {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+    overflow: hidden;
+  }
+
+  .coord-top, .coord-left {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--green-dark);
+    letter-spacing: 1px;
+  }
+
+  .coord-top {
+    top: 4px;
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .coord-left {
+    left: 4px;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-around;
+  }
+
+  /* ===== RADAR SWEEP ===== */
+  .radar-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 1px solid var(--green-dark);
+    overflow: hidden;
+    z-index: 4;
+    opacity: 0.35;
+    background: radial-gradient(circle, var(--bg) 0%, #030803 100%);
+  }
+
+  .radar-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(transparent 49.5%, var(--green-dark) 49.5%, var(--green-dark) 50.5%, transparent 50.5%),
+      linear-gradient(90deg, transparent 49.5%, var(--green-dark) 49.5%, var(--green-dark) 50.5%, transparent 50.5%);
+  }
+
+  .radar-container::after {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    top: 0;
+    left: 50%;
+    transform-origin: bottom left;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      var(--green-bright) 2deg,
+      transparent 40deg
+    );
+    animation: radar-sweep 4s linear infinite;
+  }
+
+  .radar-dot {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    animation: radar-blink 4s ease-in-out infinite;
+  }
+
+  .radar-dot:nth-child(1) { top: 35%; left: 60%; animation-delay: 0.5s; }
+  .radar-dot:nth-child(2) { top: 55%; left: 30%; animation-delay: 1.8s; }
+  .radar-dot:nth-child(3) { top: 25%; left: 40%; animation-delay: 3.1s; }
+
+  @keyframes radar-sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes radar-blink {
+    0%, 100% { opacity: 0; }
+    10% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* ===== STATUS INDICATORS ===== */
+  @keyframes blink-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  @keyframes blink-fast {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.6; }
+    97% { opacity: 0.9; }
+    98% { opacity: 0.4; }
+    99% { opacity: 0.8; }
+  }
+
+  @keyframes typewriter-cursor {
+    0%, 100% { border-right-color: var(--green-bright); }
+    50% { border-right-color: transparent; }
+  }
+
+  @keyframes stamp-appear {
+    0% { transform: rotate(-12deg) scale(1.5); opacity: 0; }
+    60% { transform: rotate(-12deg) scale(0.95); opacity: 0.9; }
+    100% { transform: rotate(-12deg) scale(1); opacity: 0.7; }
+  }
+
+  .blink-slow { animation: blink-slow 2s ease-in-out infinite; }
+  .blink-fast { animation: blink-fast 0.8s step-end infinite; }
+
+  /* ===== MAIN LAYOUT ===== */
+  .ops-wrapper {
+    position: relative;
+    z-index: 5;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+  }
+
+  /* ===== TOP SECURITY BAR ===== */
+  .security-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid var(--green-dark);
+    background: var(--bg-panel);
+    margin-bottom: 4px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .security-bar .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green-bright);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .security-bar .classification {
+    color: var(--red);
+    font-weight: bold;
+    letter-spacing: 3px;
+  }
+
+  /* ===== HEADER / COMMAND CENTER ===== */
+  .command-header {
+    border: 2px solid var(--green-dim);
+    background: var(--bg-panel);
+    padding: 30px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .command-header::before {
+    content: 'CLASSIFIED';
+    position: absolute;
+    top: 20px;
+    right: -20px;
+    transform: rotate(12deg);
+    font-size: 42px;
+    font-weight: bold;
+    color: var(--red);
+    opacity: 0.06;
+    letter-spacing: 8px;
+    pointer-events: none;
+  }
+
+  .header-top-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  .commander-avatar {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    border: 2px solid var(--green-mid);
+    padding: 3px;
+    background: var(--bg);
+    position: relative;
+    image-rendering: pixelated;
+  }
+
+  .commander-avatar img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  .commander-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--green-bright);
+    opacity: 0.3;
+    animation: blink-slow 3s ease-in-out infinite;
+  }
+
+  .header-text {
+    flex: 1;
+  }
+
+  .header-text h1 {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    color: var(--green-bright);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    text-shadow: 0 0 20px var(--green-dark), 0 0 40px #00330a;
+    animation: flicker 8s ease-in-out infinite;
+  }
+
+  .header-text .subtitle {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+
+  .header-text .callsign {
+    font-size: 0.85rem;
+    color: var(--green-mid);
+    margin-top: 8px;
+    letter-spacing: 2px;
+  }
+
+  .header-text .callsign span {
+    color: var(--amber);
+  }
+
+  .clearance-badge {
+    display: inline-block;
+    border: 2px solid var(--red);
+    padding: 6px 16px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-top: 12px;
+    position: relative;
+    background: var(--red-dim);
+  }
+
+  .clearance-badge::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border: 1px solid var(--red);
+    opacity: 0.4;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--green-dark);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .header-stats .stat-val {
+    color: var(--green-bright);
+    font-size: 0.85rem;
+  }
+
+  /* ===== STATUS STRIP ===== */
+  .status-strip {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 24px;
+  }
+
+  .status-strip .strip-item {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .status-strip .strip-item .val {
+    display: block;
+    color: var(--green-bright);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  .status-strip .strip-item.alert .val {
+    color: var(--amber);
+    animation: blink-slow 2s ease-in-out infinite;
+  }
+
+  /* ===== SECTION HEADERS ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--green-dark);
+  }
+
+  .section-header h2 {
+    font-size: 0.85rem;
+    color: var(--green-bright);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: normal;
+  }
+
+  .section-header .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--green-dark), transparent);
+  }
+
+  .section-header .tag {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ===== BRIEFING LIST ===== */
+  .briefing-list {
+    margin-bottom: 40px;
+  }
+
+  .briefing-entry {
+    display: grid;
+    grid-template-columns: 90px 100px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green-dark);
+    background: var(--bg-panel);
+    margin-bottom: 4px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .briefing-entry:hover {
+    background: var(--bg-panel-alt);
+    border-left-color: var(--green-bright);
+    box-shadow: inset 0 0 30px var(--green-ghost);
+  }
+
+  .briefing-entry .b-date {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .briefing-entry .b-class {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    text-align: center;
+    border: 1px solid;
+  }
+
+  .b-class.top-secret {
+    color: var(--red);
+    border-color: var(--red-dim);
+    background: #1a060660;
+  }
+
+  .b-class.secret {
+    color: var(--amber);
+    border-color: #664d0060;
+    background: #1a150660;
+  }
+
+  .b-class.confidential {
+    color: var(--green-mid);
+    border-color: var(--green-dark);
+    background: #061a0660;
+  }
+
+  .briefing-entry .b-title {
+    font-size: 0.85rem;
+    color: var(--text-bright);
+    letter-spacing: 1px;
+  }
+
+  .briefing-entry .b-id {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-align: right;
+  }
+
+  /* ===== DOCUMENT / POST CONTENT ===== */
+  .document-panel {
+    border: 2px solid var(--green-dim);
+    background: var(--bg-panel);
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .document-panel::before {
+    content: 'TOP SECRET';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    font-size: 72px;
+    font-weight: bold;
+    color: var(--red);
+    opacity: 0.04;
+    letter-spacing: 12px;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 0;
+  }
+
+  .doc-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--green-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+  }
+
+  .doc-header .doc-meta {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 2;
+  }
+
+  .doc-header .doc-meta strong {
+    color: var(--green-mid);
+    font-weight: normal;
+  }
+
+  .doc-stamp {
+    border: 3px solid var(--red);
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--red);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    transform: rotate(-12deg);
+    opacity: 0.7;
+    position: relative;
+    animation: stamp-appear 0.5s ease-out forwards;
+  }
+
+  .doc-stamp::before,
+  .doc-stamp::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 1px solid var(--red);
+    opacity: 0.3;
+  }
+
+  .doc-stamp::after {
+    inset: -5px;
+  }
+
+  .doc-body {
+    padding: 30px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .doc-body h3 {
+    font-size: 1.2rem;
+    color: var(--green-bright);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: normal;
+    text-shadow: 0 0 10px var(--green-dark);
+  }
+
+  .doc-body p {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 16px;
+    max-width: 72ch;
+  }
+
+  .doc-body .redacted {
+    background: var(--green-dark);
+    color: var(--green-dark);
+    padding: 0 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    user-select: none;
+  }
+
+  .doc-body .redacted:hover {
+    background: transparent;
+    color: var(--text);
+  }
+
+  .doc-body blockquote {
+    border-left: 3px solid var(--amber);
+    padding: 12px 20px;
+    margin: 20px 0;
+    background: #1a150610;
+    color: var(--amber);
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+  }
+
+  .doc-body code {
+    background: var(--bg);
+    padding: 2px 6px;
+    color: var(--green-bright);
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+  }
+
+  .doc-footer {
+    padding: 12px 24px;
+    border-top: 1px solid var(--green-dark);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== INTEL SIDEBAR / OPERATOR CARD ===== */
+  .operator-card {
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .operator-card .op-avatar {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--green-dim);
+    image-rendering: pixelated;
+    flex-shrink: 0;
+  }
+
+  .operator-card .op-avatar img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  .operator-card .op-info {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 1.8;
+  }
+
+  .operator-card .op-info .op-name {
+    color: var(--green-bright);
+    font-size: 0.85rem;
+  }
+
+  /* ===== COMMS LOG ===== */
+  .comms-section {
+    margin-bottom: 40px;
+  }
+
+  .comms-log {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    padding: 16px;
+    font-size: 0.75rem;
+    line-height: 2;
+  }
+
+  .comms-log .log-line {
+    color: var(--text-dim);
+  }
+
+  .comms-log .log-line .ts {
+    color: var(--green-dark);
+    margin-right: 8px;
+  }
+
+  .comms-log .log-line .src {
+    color: var(--green-mid);
+  }
+
+  .comms-log .log-line .msg {
+    color: var(--text);
+  }
+
+  .comms-log .log-line.warn .msg {
+    color: var(--amber);
+  }
+
+  .comms-log .log-line.crit .msg {
+    color: var(--red);
+  }
+
+  .comms-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: var(--green-bright);
+    vertical-align: middle;
+    animation: blink-fast 0.8s step-end infinite;
+  }
+
+  /* ===== FOOTER ===== */
+  .ops-footer {
+    border-top: 2px solid var(--green-dim);
+    padding: 24px 0;
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .ops-footer .transmission-end {
+    font-size: 0.8rem;
+    letter-spacing: 6px;
+    color: var(--green-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .ops-footer .footer-line {
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .ops-footer .end-marker {
+    margin-top: 16px;
+    color: var(--green-dark);
+    font-size: 0.7rem;
+    letter-spacing: 8px;
+  }
+
+  /* ===== DECORATIVE CORNERS ===== */
+  .corner-bracket {
+    position: relative;
+  }
+
+  .corner-bracket::before,
+  .corner-bracket::after {
+    content: '+';
+    position: absolute;
+    color: var(--green-dark);
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .corner-bracket::before {
+    top: -1px;
+    left: -1px;
+  }
+
+  .corner-bracket::after {
+    bottom: -1px;
+    right: -1px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .header-top-row {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .header-text h1 {
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+    }
+
+    .header-stats {
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .briefing-entry {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .briefing-entry .b-id {
+      text-align: left;
+    }
+
+    .briefing-entry .b-class {
+      justify-self: start;
+      width: fit-content;
+    }
+
+    .status-strip {
+      flex-wrap: wrap;
+    }
+
+    .status-strip .strip-item {
+      min-width: calc(50% - 2px);
+    }
+
+    .doc-header {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .doc-stamp {
+      align-self: flex-end;
+    }
+
+    .radar-container {
+      width: 100px;
+      height: 100px;
+      bottom: 10px;
+      right: 10px;
+      opacity: 0.2;
+    }
+
+    .security-bar {
+      flex-direction: column;
+      gap: 4px;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .ops-wrapper {
+      padding: 16px 10px 40px;
+    }
+
+    .command-header {
+      padding: 20px 14px;
+    }
+
+    .header-text h1 {
+      font-size: 1rem;
+    }
+
+    .doc-body {
+      padding: 20px 14px;
+    }
+  }
+
+  /* ===== SELECTION STYLING ===== */
+  ::selection {
+    background: var(--green-dim);
+    color: var(--bg);
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--green-dark);
+    border-radius: 0;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--green-dim);
+  }
+</style>
+</head>
+<body>
+
+<!-- GRID COORDINATE MARKERS -->
+<div class="coord-markers">
+  <div class="coord-top">
+    <span>A-00</span><span>B-01</span><span>C-02</span><span>D-03</span><span>E-04</span><span>F-05</span><span>G-06</span><span>H-07</span>
+  </div>
+  <div class="coord-left">
+    <span>00</span><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span><span>09</span><span>10</span><span>11</span>
+  </div>
+</div>
+
+<!-- RADAR -->
+<div class="radar-container">
+  <div class="radar-dot"></div>
+  <div class="radar-dot"></div>
+  <div class="radar-dot"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="ops-wrapper">
+
+  <!-- SECURITY BAR -->
+  <div class="security-bar">
+    <div>
+      <span class="status-dot blink-slow"></span>
+      SECURE CHANNEL ESTABLISHED // AES-256-GCM
+    </div>
+    <div class="classification">TOP SECRET // SWAMP EYES ONLY</div>
+    <div>SESSION: 0x4B33B</div>
+  </div>
+
+  <!-- COMMAND HEADER -->
+  <div class="command-header corner-bracket">
+    <div class="header-top-row">
+      <div class="commander-avatar">
+        <img src="supreme_commander.png" alt="SWAMP SUPREME COMMANDER">
+      </div>
+      <div class="header-text">
+        <h1>SWAMP OPS COMMAND CENTER</h1>
+        <div class="subtitle">keeb.dev // field intelligence division</div>
+        <div class="callsign">Callsign: <span>SWAMP SUPREME COMMANDER</span></div>
+        <div class="clearance-badge">
+          SECURITY CLEARANCE: LEVEL 5 // UNRESTRICTED
+        </div>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div>Briefings Filed<br><span class="stat-val">9</span></div>
+      <div>Threat Level<br><span class="stat-val" style="color: var(--amber);">ELEVATED</span></div>
+      <div>Uplink Status<br><span class="stat-val blink-slow">ACTIVE</span></div>
+      <div>Last Contact<br><span class="stat-val">2026-02-03</span></div>
+    </div>
+  </div>
+
+  <!-- STATUS STRIP -->
+  <div class="status-strip">
+    <div class="strip-item">
+      Perimeter<span class="val">SECURE</span>
+    </div>
+    <div class="strip-item alert">
+      Incoming<span class="val">3 SIGNALS</span>
+    </div>
+    <div class="strip-item">
+      Encryption<span class="val">NOMINAL</span>
+    </div>
+    <div class="strip-item">
+      Swamp Depth<span class="val">MAXIMUM</span>
+    </div>
+  </div>
+
+  <!-- OPERATOR CARD -->
+  <div class="operator-card">
+    <div class="op-avatar">
+      <img src="avatar.webp" alt="Field Operator">
+    </div>
+    <div class="op-info">
+      <div class="op-name">FIELD OPERATOR // KEEB</div>
+      <div>Role: Infrastructure Saboteur &amp; Keyboard Enthusiast</div>
+      <div>Status: <span style="color: var(--green-bright);">OPERATIONAL</span> // Sector 7G</div>
+    </div>
+  </div>
+
+  <!-- BRIEFING LIST -->
+  <div class="briefing-list">
+    <div class="section-header">
+      <h2>Intelligence Briefings</h2>
+      <div class="line"></div>
+      <div class="tag">9 Records</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2026-02-03</div>
+      <div class="b-class top-secret">TOP SECRET</div>
+      <div class="b-title">MCP Is Dead</div>
+      <div class="b-id">BRIEF-009</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2026-02-03</div>
+      <div class="b-class top-secret">TOP SECRET</div>
+      <div class="b-title">AI-Native Infrastructure</div>
+      <div class="b-id">BRIEF-008</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2025-09-29</div>
+      <div class="b-class secret">SECRET</div>
+      <div class="b-title">Claude Sonnet 4.5 &amp; System Initiative</div>
+      <div class="b-id">BRIEF-007</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2025-09-26</div>
+      <div class="b-class secret">SECRET</div>
+      <div class="b-title">AI is great at parsing</div>
+      <div class="b-id">BRIEF-006</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2025-09-25</div>
+      <div class="b-class secret">SECRET</div>
+      <div class="b-title">Terraform with Glitter</div>
+      <div class="b-id">BRIEF-005</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2023-07-03</div>
+      <div class="b-class confidential">CONFIDENTIAL</div>
+      <div class="b-title">Virtualization from scratch</div>
+      <div class="b-id">BRIEF-004</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2022-06-12</div>
+      <div class="b-class confidential">CONFIDENTIAL</div>
+      <div class="b-title">I made a keylogger</div>
+      <div class="b-id">BRIEF-003</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2022-05-28</div>
+      <div class="b-class confidential">CONFIDENTIAL</div>
+      <div class="b-title">Hexo &amp; VSCode</div>
+      <div class="b-id">BRIEF-002</div>
+    </div>
+
+    <div class="briefing-entry">
+      <div class="b-date">2022-05-28</div>
+      <div class="b-class confidential">CONFIDENTIAL</div>
+      <div class="b-title">The Lore</div>
+      <div class="b-id">BRIEF-001</div>
+    </div>
+  </div>
+
+  <!-- FEATURED DOCUMENT: MCP Is Dead -->
+  <div class="section-header">
+    <h2>Active Briefing</h2>
+    <div class="line"></div>
+    <div class="tag">BRIEF-009 // PRIORITY ALPHA</div>
+  </div>
+
+  <div class="document-panel corner-bracket">
+    <div class="doc-header">
+      <div class="doc-meta">
+        <strong>Document ID:</strong> SWAMP-OPS-2026-009<br>
+        <strong>Classification:</strong> <span style="color: var(--red);">TOP SECRET // SWAMP EYES ONLY</span><br>
+        <strong>Date Filed:</strong> 2026-02-03 00:00:00 UTC<br>
+        <strong>Author:</strong> SWAMP SUPREME COMMANDER<br>
+        <strong>Subject:</strong> PROTOCOL TERMINATION ADVISORY
+      </div>
+      <div class="doc-stamp">TOP SECRET</div>
+    </div>
+
+    <div class="doc-body">
+      <h3>BRIEFING-009: MCP Is Dead</h3>
+
+      <p>
+        Operatives, this is a priority transmission from SWAMP OPS COMMAND. The Model Context Protocol,
+        once heralded as the universal bridge between AI systems and the tools they wield, has been
+        declared <span class="redacted">TERMINATED</span> effective immediately. After months of field
+        deployment across hostile infrastructure, intelligence confirms that MCP failed to survive
+        contact with the real world.
+      </p>
+
+      <p>
+        The protocol's fatal flaw was not technical but strategic. It attempted to be everything to
+        everyone -- a universal adapter in an ecosystem that rewards specificity and <span class="redacted">ruthless pragmatism</span>.
+        Vendor lock-in disguised as openness. A <code>JSON-RPC</code> fever dream that collapsed
+        under its own abstraction weight. The swamp consumes all things that lack roots.
+      </p>
+
+      <blockquote>
+        COMMANDER'S NOTE: When a protocol requires more boilerplate than the problem it solves,
+        the protocol is the problem. We've seen this before. We'll see it again. Stay sharp.
+      </blockquote>
+
+      <p>
+        All field operatives are advised to decommission MCP integrations and return to
+        direct tool invocation patterns. The old ways endure because they work. Further intelligence
+        will be disseminated through standard channels. This briefing is classified
+        <span class="redacted">LEVEL 5</span> -- unauthorized distribution will be met with
+        immediate revocation of swamp privileges.
+      </p>
+
+      <p style="color: var(--text-dim); font-size: 0.75rem; margin-top: 24px; letter-spacing: 1px;">
+        // END OF BRIEFING CONTENT // EYES ONLY // DO NOT REPRODUCE //
+      </p>
+    </div>
+
+    <div class="doc-footer">
+      <span>PAGE 1 OF 1 // SWAMP-OPS-2026-009</span>
+      <span>PRINTED: 2026-02-06T00:00:00Z</span>
+      <span style="color: var(--red);">DESTROY AFTER READING</span>
+    </div>
+  </div>
+
+  <!-- COMMS LOG -->
+  <div class="comms-section">
+    <div class="section-header">
+      <h2>Command Channel</h2>
+      <div class="line"></div>
+      <div class="tag">LIVE FEED</div>
+    </div>
+
+    <div class="comms-log">
+      <div class="log-line">
+        <span class="ts">[2026-02-06 09:44:12]</span>
+        <span class="src">SYS&gt;</span>
+        <span class="msg"> Secure channel initialized. Encryption nominal.</span>
+      </div>
+      <div class="log-line">
+        <span class="ts">[2026-02-06 09:44:13]</span>
+        <span class="src">CMD&gt;</span>
+        <span class="msg"> SWAMP SUPREME COMMANDER authenticated. Clearance: LEVEL 5.</span>
+      </div>
+      <div class="log-line">
+        <span class="ts">[2026-02-06 09:44:15]</span>
+        <span class="src">INT&gt;</span>
+        <span class="msg"> 9 briefings loaded from archive. All sectors reporting.</span>
+      </div>
+      <div class="log-line warn">
+        <span class="ts">[2026-02-06 09:44:18]</span>
+        <span class="src">WRN&gt;</span>
+        <span class="msg"> Elevated threat level detected in Sector MCP. Protocol status: DECEASED.</span>
+      </div>
+      <div class="log-line">
+        <span class="ts">[2026-02-06 09:44:22]</span>
+        <span class="src">OPS&gt;</span>
+        <span class="msg"> Perimeter sweep complete. No unauthorized access detected.</span>
+      </div>
+      <div class="log-line crit">
+        <span class="ts">[2026-02-06 09:44:25]</span>
+        <span class="src">RED&gt;</span>
+        <span class="msg"> REMINDER: All MCP integrations flagged for decommission. Deadline: IMMEDIATE.</span>
+      </div>
+      <div class="log-line">
+        <span class="ts">[2026-02-06 09:44:30]</span>
+        <span class="src">CMD&gt;</span>
+        <span class="msg"> Standing by for further orders. Swamp is quiet.</span>
+      </div>
+      <div class="log-line">
+        <span class="ts">[2026-02-06 09:44:31]</span>
+        <span class="src">SYS&gt;</span>
+        <span class="msg"> Awaiting input... <span class="comms-cursor"></span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="ops-footer">
+    <div class="transmission-end">/// TRANSMISSION ENDS ///</div>
+    <div class="footer-line">
+      SWAMP OPS COMMAND CENTER // keeb.dev // ALL RIGHTS CLASSIFIED
+    </div>
+    <div class="footer-line">
+      Unauthorized access will be prosecuted to the full extent of swamp law
+    </div>
+    <div class="footer-line">
+      This terminal is monitored. Your keystrokes are <em>always</em> logged.
+    </div>
+    <div class="end-marker">
+      &lt;/SWAMP&gt;
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

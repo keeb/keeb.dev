@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — Directory Listing</title>
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 15px;
+}
+
+body {
+  font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  background: #1d1f21;
+  color: #c9cacc;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanlines */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.03) 3px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+::selection {
+  background: rgba(212, 128, 170, 0.25);
+  color: #fff;
+}
+
+.container {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 2rem 4rem 2rem;
+}
+
+/* Wave animation */
+@keyframes wave-animation {
+  0%, 30%, 100% { color: #c9cacc; }
+  5% {
+    background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  10% {
+    background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  15% {
+    background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  20% {
+    background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  25% {
+    background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Cursor blink */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+  color: #d480aa;
+}
+
+#terminal-cursor {
+  animation: blink 1s step-end infinite;
+  color: #d480aa;
+}
+
+/* ASCII header */
+.header-area {
+  padding: 3rem 0 2rem 0;
+}
+
+#ascii-art {
+  color: #d5a1aa;
+  animation: wave-animation 8s ease-in-out infinite;
+  display: inline-block;
+  text-align: left;
+  white-space: pre;
+  margin: 0;
+}
+
+/* Terminal session area */
+.terminal-session {
+  padding: 0;
+}
+
+/* Prompt styling */
+.prompt {
+  color: #d480aa;
+  font-weight: bold;
+}
+
+.prompt-cmd {
+  color: #c9cacc;
+  font-weight: normal;
+}
+
+/* Tree output */
+.tree-output {
+  margin: 0.4rem 0 0.8rem 0;
+}
+
+.tree-output pre {
+  font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre;
+  margin: 0;
+}
+
+/* Tree structure characters */
+.tree-branch {
+  color: #908d8d;
+}
+
+/* Directory names */
+.tree-dir {
+  color: #d5a1aa;
+  font-weight: bold;
+}
+
+/* File entries (non-linked) */
+.tree-file {
+  color: #c9cacc;
+}
+
+/* Linked file entries */
+a.tree-link {
+  color: #c9cacc;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a.tree-link:hover {
+  color: #d480aa;
+  text-decoration: none;
+}
+
+/* Active/selected file */
+a.tree-link.active {
+  color: #d480aa;
+}
+
+/* Tree summary */
+.tree-summary {
+  color: #908d8d;
+  margin-top: 0.2rem;
+}
+
+/* Cat output - frontmatter */
+.cat-output {
+  margin: 0.4rem 0 1.6rem 0;
+}
+
+.cat-output pre {
+  font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.frontmatter {
+  color: #908d8d;
+}
+
+.frontmatter .fm-delim {
+  color: #666;
+}
+
+.frontmatter .fm-key {
+  color: #908d8d;
+}
+
+.frontmatter .fm-value {
+  color: #908d8d;
+}
+
+/* Post content styling */
+.post-content {
+  color: #c9cacc;
+}
+
+.post-content .heading {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.post-content .post-link {
+  color: #d480aa;
+  text-decoration: none;
+}
+
+.post-content .post-link:hover {
+  text-decoration: underline;
+}
+
+.post-content .inline-code {
+  color: #d480aa;
+}
+
+.post-content .post-bold {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Blockquote */
+.post-blockquote {
+  color: #ccffb6;
+  border-left: 2px solid #ccffb6;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* Code block inside cat output */
+.code-block {
+  background: #282a2e;
+  border: 1px solid #333537;
+  padding: 1rem;
+  margin: 0.8rem 0;
+  overflow-x: auto;
+}
+
+.code-block code {
+  color: #c9cacc;
+}
+
+/* Prompt line spacing */
+.prompt-line {
+  margin-top: 1.6rem;
+}
+
+.prompt-line:first-child {
+  margin-top: 0;
+}
+
+/* Waiting prompt at the end */
+.waiting-prompt {
+  margin-top: 1.6rem;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ASCII Header -->
+  <div class="header-area">
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">&#9608;</span>
+</pre>
+  </div>
+
+  <!-- Terminal Session -->
+  <div class="terminal-session">
+
+    <!-- tree command -->
+    <div class="prompt-line">
+      <span class="prompt">keeb@dev:~$</span> <span class="prompt-cmd">tree ~/writing/</span>
+    </div>
+
+    <div class="tree-output"><pre>
+<span class="tree-dir">keeb.dev/</span>
+<span class="tree-branch">&#9500;&#9472;&#9472;</span> <a href="#" class="tree-link">about.md</a>
+<span class="tree-branch">&#9500;&#9472;&#9472;</span> <span class="tree-file">avatar.webp</span>
+<span class="tree-branch">&#9492;&#9472;&#9472;</span> <span class="tree-dir">writing/</span>
+    <span class="tree-branch">&#9500;&#9472;&#9472;</span> <span class="tree-dir">2022/</span>
+    <span class="tree-branch">&#9474;</span>   <span class="tree-branch">&#9500;&#9472;&#9472;</span> <a href="#" class="tree-link">the-lore.md</a>
+    <span class="tree-branch">&#9474;</span>   <span class="tree-branch">&#9500;&#9472;&#9472;</span> <a href="#" class="tree-link active">hexo-and-vscode.md</a>
+    <span class="tree-branch">&#9474;</span>   <span class="tree-branch">&#9492;&#9472;&#9472;</span> <a href="#" class="tree-link">i-made-a-keylogger.md</a>
+    <span class="tree-branch">&#9500;&#9472;&#9472;</span> <span class="tree-dir">2023/</span>
+    <span class="tree-branch">&#9474;</span>   <span class="tree-branch">&#9492;&#9472;&#9472;</span> <a href="#" class="tree-link">virtualization-from-scratch.md</a>
+    <span class="tree-branch">&#9500;&#9472;&#9472;</span> <span class="tree-dir">2025/</span>
+    <span class="tree-branch">&#9474;</span>   <span class="tree-branch">&#9500;&#9472;&#9472;</span> <a href="#" class="tree-link">terraform-with-glitter.md</a>
+    <span class="tree-branch">&#9474;</span>   <span class="tree-branch">&#9500;&#9472;&#9472;</span> <a href="#" class="tree-link">ai-is-great-at-parsing.md</a>
+    <span class="tree-branch">&#9474;</span>   <span class="tree-branch">&#9492;&#9472;&#9472;</span> <a href="#" class="tree-link">claude-sonnet-4.5-system-initiative.md</a>
+    <span class="tree-branch">&#9492;&#9472;&#9472;</span> <span class="tree-dir">2026/</span>
+        <span class="tree-branch">&#9500;&#9472;&#9472;</span> <a href="#" class="tree-link">ai-native-infrastructure.md</a>
+        <span class="tree-branch">&#9492;&#9472;&#9472;</span> <a href="#" class="tree-link">mcp-is-dead.md</a>
+
+<span class="tree-summary">5 directories, 11 files</span></pre>
+    </div>
+
+    <!-- cat command -->
+    <div class="prompt-line">
+      <span class="prompt">keeb@dev:~$</span> <span class="prompt-cmd">cat ~/writing/2022/hexo-and-vscode.md</span>
+    </div>
+
+    <div class="cat-output"><pre>
+<span class="frontmatter"><span class="fm-delim">---</span>
+<span class="fm-key">title:</span> <span class="fm-value">Hexo &amp; VSCode</span>
+<span class="fm-key">date:</span> <span class="fm-value">2022-05-28</span>
+<span class="fm-key">tags:</span> <span class="fm-value">[meta, hexo, dev]</span>
+<span class="fm-delim">---</span></span>
+
+<span class="post-content"><span class="heading">## Quickstart: Installation, Editing, and Deployment</span>
+
+<a href="https://github.com/hexojs/hexo" class="post-link">Hexo</a> is the static site generator used to generate this blog, along
+with a modified version of the <a href="https://github.com/probberechts/hexo-theme-cactus" class="post-link">cactus</a> theme. What I like about hexo is
+that it's easy to install <span class="inline-code">`npm install hexo-cli -g`</span> and setup
+<span class="inline-code">`hexo init blog`</span> and start a server <span class="inline-code">`hexo server`</span> and create
+new posts <span class="inline-code">`hexo new "Post"`</span>.
+
+Themes are just a simple, drop them into the themes directory, update
+the <span class="inline-code">`_config.yml`</span> to point to the correct theme, and you're off and
+running. When you're done editing your auto generated <span class="inline-code">`Post.md`</span> in
+the <span class="inline-code">`source/_posts`</span> directory, you can <span class="inline-code">`hexo generate`</span> to build it
+all together into static HTML which exists in the <span class="inline-code">`public`</span> folder.
+
+Copy the contents of the <span class="inline-code">`public`</span> folder to your favorite static site
+hoster, and viola, your website is ready to serve traffic.
+
+<span class="heading">## VSCode Remote editing</span>
+
+After more than 25 years using <span class="inline-code">`vim`</span> and carrying around my lightly
+modified <span class="inline-code">`.vimrc`</span> everywhere, I am starting to explore using IDE's.
+For this project, I have been using <a href="https://code.visualstudio.com/" class="post-link">VSCode</a> because I appreciate
+the live preview of Markdown as I type and it's much better than
+SublimeText.</span>
+
+<div class="post-blockquote">One habit that hasn't shaken, however, is that I really like to
+develop on Linux and I prefer to develop remotely. This allows me
+to work from any internet-connected device, seamlessly, without
+having to copy files or worry about committing changes in progress
+or really have to think about things at all. My code is just one
+<span class="inline-code">`ssh`</span> command away.</div>
+
+<span class="post-content">VSCode takes this a step further and can effectively mount remote
+filesystems and load source code as if it is local, seamlessly.
+
+<span class="heading">## Running Hexo in VSCode</span>
+
+The only non-trivial part of this setup is that the default launch
+experience in VSCode doesn't work with Hexo. This is because it is
+expecting to run <span class="inline-code">`node`</span> on a javascript file somewhere, but no such
+javascript exists. This is remedied by clicking on
+<span class="post-bold">Run -> Add Configuration</span> in the menubar, which will open your
+local <span class="inline-code">`launch.json`</span>.</span></pre>
+    </div>
+
+    <!-- Waiting prompt -->
+    <div class="waiting-prompt">
+      <span class="prompt">keeb@dev:~$</span> <span class="cursor-blink">&#9608;</span>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

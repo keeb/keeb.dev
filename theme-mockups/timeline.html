@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev - Timeline</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: #1d1f21;
+    color: #c9cacc;
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  a {
+    color: rgba(212,128,170,1);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin-left: 2rem;
+    margin-right: auto;
+    padding: 2rem 1rem;
+  }
+
+  /* ASCII Header */
+  @keyframes wave-animation {
+    0%, 30%, 100% { color: #c9cacc; }
+    5% { background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    10% { background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    15% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    20% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    25% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  #terminal-cursor {
+    animation: blink 1s step-end infinite;
+    color: rgba(212,128,170,1);
+  }
+
+  #ascii-art {
+    animation: wave-animation 8s ease-in-out infinite;
+    color: #c9cacc;
+    font-size: 0.65rem;
+    overflow: hidden;
+    white-space: pre;
+    font-family: monospace;
+    line-height: normal;
+    margin-bottom: 3rem;
+  }
+
+  /* Timeline structure */
+  .timeline {
+    position: relative;
+    padding: 2rem 0;
+  }
+
+  /* The center vertical line */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #444;
+    transform: translateX(-50%);
+  }
+
+  .timeline-entry {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 2.5rem;
+    width: 100%;
+  }
+
+  /* The dot on the spine */
+  .timeline-entry .dot {
+    position: absolute;
+    left: 50%;
+    top: 1.2rem;
+    width: 8px;
+    height: 8px;
+    background: #d480aa;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  /* Date label on the spine */
+  .timeline-entry .date-label {
+    position: absolute;
+    left: 50%;
+    top: -0.6rem;
+    transform: translateX(-50%);
+    color: #908d8d;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 2;
+    background: #1d1f21;
+    padding: 0 0.5rem;
+  }
+
+  /* Card base styles */
+  .timeline-card {
+    background: #242629;
+    border: 1px solid #333;
+    padding: 1rem;
+    max-width: 45%;
+    position: relative;
+    width: 45%;
+  }
+
+  .timeline-card h3 {
+    color: #ffffff;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .timeline-card h3 a {
+    color: rgba(212,128,170,1);
+  }
+
+  .timeline-card .card-date {
+    color: #908d8d;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-card .excerpt {
+    color: #c9cacc;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  /* Left-side cards (odd: 1st, 3rd, 5th, 7th, 9th) */
+  .timeline-entry.left .timeline-card {
+    margin-right: auto;
+    margin-left: 0;
+  }
+
+  /* Arrow pointing right (toward center) for left cards */
+  .timeline-entry.left .timeline-card::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 1.2rem;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #333;
+  }
+
+  .timeline-entry.left .timeline-card::before {
+    content: '';
+    position: absolute;
+    right: -7px;
+    top: 1.2rem;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #242629;
+    z-index: 1;
+  }
+
+  /* Right-side cards (even: 2nd, 4th, 6th, 8th) */
+  .timeline-entry.right .timeline-card {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  /* Arrow pointing left (toward center) for right cards */
+  .timeline-entry.right .timeline-card::after {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 1.2rem;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid #333;
+  }
+
+  .timeline-entry.right .timeline-card::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 1.2rem;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid #242629;
+    z-index: 1;
+  }
+
+  /* Featured post section */
+  .featured-section {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px solid #444;
+  }
+
+  .featured-label {
+    color: #d480aa;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+  }
+
+  .featured-section h2 {
+    color: #ffffff;
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .featured-section h2 a {
+    color: rgba(212,128,170,1);
+  }
+
+  .featured-meta {
+    color: #908d8d;
+    font-size: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .featured-body {
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .featured-body p {
+    margin-bottom: 1rem;
+  }
+
+  .featured-body code {
+    background: #2a2d31;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.82rem;
+    color: #d480aa;
+  }
+
+  .featured-body blockquote {
+    color: #ccffb6;
+    border-left: 3px solid #ccffb6;
+    padding-left: 1rem;
+    margin: 1.2rem 0;
+    font-style: italic;
+  }
+
+  .featured-body h3 {
+    color: #ffffff;
+    font-size: 1.05rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .featured-body strong {
+    color: #ffffff;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<pre id="ascii-art" style="font-family: monospace; line-height: normal;">
+      ..                                  ..              ..                     _
+< .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+
+<div class="timeline">
+
+  <!-- Post 1: Left -->
+  <div class="timeline-entry left">
+    <div class="dot"></div>
+    <div class="date-label">2026-02-03</div>
+    <div class="timeline-card">
+      <h3><a href="#">MCP Is Dead</a></h3>
+      <div class="card-date">2026-02-03</div>
+      <div class="excerpt">The Model Context Protocol had a good run. Here's why it's already obsolete.</div>
+    </div>
+  </div>
+
+  <!-- Post 2: Right -->
+  <div class="timeline-entry right">
+    <div class="dot"></div>
+    <div class="date-label">2026-02-03</div>
+    <div class="timeline-card">
+      <h3><a href="#">AI-Native Infrastructure</a></h3>
+      <div class="card-date">2026-02-03</div>
+      <div class="excerpt">What happens when you design infrastructure assuming AI is the primary operator?</div>
+    </div>
+  </div>
+
+  <!-- Post 3: Left -->
+  <div class="timeline-entry left">
+    <div class="dot"></div>
+    <div class="date-label">2025-09-29</div>
+    <div class="timeline-card">
+      <h3><a href="#">Claude Sonnet 4.5 & System Initiative</a></h3>
+      <div class="card-date">2025-09-29</div>
+      <div class="excerpt">Testing Claude's latest model against real infrastructure-as-code workflows.</div>
+    </div>
+  </div>
+
+  <!-- Post 4: Right -->
+  <div class="timeline-entry right">
+    <div class="dot"></div>
+    <div class="date-label">2025-09-26</div>
+    <div class="timeline-card">
+      <h3><a href="#">AI is great at parsing</a></h3>
+      <div class="card-date">2025-09-26</div>
+      <div class="excerpt">LLMs turn out to be surprisingly effective at parsing unstructured data formats.</div>
+    </div>
+  </div>
+
+  <!-- Post 5: Left -->
+  <div class="timeline-entry left">
+    <div class="dot"></div>
+    <div class="date-label">2025-09-25</div>
+    <div class="timeline-card">
+      <h3><a href="#">Terraform with Glitter</a></h3>
+      <div class="card-date">2025-09-25</div>
+      <div class="excerpt">Making infrastructure code slightly more fabulous than it needs to be.</div>
+    </div>
+  </div>
+
+  <!-- Post 6: Right -->
+  <div class="timeline-entry right">
+    <div class="dot"></div>
+    <div class="date-label">2023-07-03</div>
+    <div class="timeline-card">
+      <h3><a href="#">Virtualization from scratch</a></h3>
+      <div class="card-date">2023-07-03</div>
+      <div class="excerpt">Building a hypervisor from first principles to understand what the abstractions hide.</div>
+    </div>
+  </div>
+
+  <!-- Post 7: Left -->
+  <div class="timeline-entry left">
+    <div class="dot"></div>
+    <div class="date-label">2022-06-12</div>
+    <div class="timeline-card">
+      <h3><a href="#">I made a keylogger</a></h3>
+      <div class="card-date">2022-06-12</div>
+      <div class="excerpt">A deep dive into input event handling, kernel modules, and why security matters.</div>
+    </div>
+  </div>
+
+  <!-- Post 8: Right -->
+  <div class="timeline-entry right">
+    <div class="dot"></div>
+    <div class="date-label">2022-05-28</div>
+    <div class="timeline-card">
+      <h3><a href="#">Hexo & VSCode</a></h3>
+      <div class="card-date">2022-05-28</div>
+      <div class="excerpt">The static site setup behind this blog.</div>
+    </div>
+  </div>
+
+  <!-- Post 9: Left -->
+  <div class="timeline-entry left">
+    <div class="dot"></div>
+    <div class="date-label">2022-05-28</div>
+    <div class="timeline-card">
+      <h3><a href="#">The Lore</a></h3>
+      <div class="card-date">2022-05-28</div>
+      <div class="excerpt">Every project needs an origin story. This is that story.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Featured Post -->
+<div class="featured-section">
+  <div class="featured-label">Featured Post</div>
+  <h2><a href="#">Hexo & VSCode</a></h2>
+  <div class="featured-meta">2022-05-28</div>
+  <div class="featured-body">
+    <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+    <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+    <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+    <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+
+    <h3>Asset Management</h3>
+
+    <p>One of the early pain points was handling images and other assets in posts. Hexo's default asset pipeline assumes a flat structure, which gets messy fast when you have dozens of posts each with their own screenshots and diagrams. The <code>hexo-asset-link</code> plugin solves this cleanly &mdash; enable <code>post_asset_folder: true</code> in your <code>_config.yml</code> and each post gets its own directory. Reference images with standard Markdown syntax and the plugin rewrites the paths at build time.</p>
+
+    <p>The real trick is pairing this with <strong>Docker volume mounts</strong>. Your source tree lives on the host, the Hexo build runs inside the container, and the asset folder convention means everything just works. No path gymnastics, no build-step hacks. You write Markdown, you drop images next to the <code>.md</code> file, and the output is a clean static site with all the assets in the right place. It sounds simple because it is &mdash; which is exactly the point.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

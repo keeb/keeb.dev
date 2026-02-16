@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev // Roguelike Dungeon Navigator</title>
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg-deep: #0f0c18;
+    --bg-content: #13101e;
+    --bg-rail: #161224;
+    --gold: #ffd700;
+    --gold-dim: #b8960a;
+    --gold-glow: rgba(255, 215, 0, 0.15);
+    --slate-blue: #7b68ee;
+    --neon-green: #39ff14;
+    --mana-blue: #4488ff;
+    --text-body: #c8c0d8;
+    --text-bright: #e8e0f0;
+    --text-dim: #6a6080;
+    --border-dark: #2a2240;
+    --border-gold: #ffd70044;
+  }
+
+  html {
+    scrollbar-color: var(--gold-dim) var(--bg-deep);
+  }
+
+  body {
+    font-family: 'Courier New', Courier, monospace;
+    background: var(--bg-deep);
+    color: var(--text-body);
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ═══════════════════════════════════════════
+     GRID LAYOUT
+     ═══════════════════════════════════════════ */
+  .dungeon-layout {
+    display: grid;
+    grid-template-columns: 64px 40px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ═══════════════════════════════════════════
+     ICON RAIL
+     ═══════════════════════════════════════════ */
+  .icon-rail {
+    background: var(--bg-rail);
+    border-right: 1px solid var(--border-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 64px;
+    height: 100vh;
+    z-index: 100;
+    gap: 4px;
+  }
+
+  .avatar-frame {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    position: relative;
+    /* Pixel-art border using box-shadow steps */
+    box-shadow:
+      -2px 0 0 0 var(--gold),
+       2px 0 0 0 var(--gold),
+       0 -2px 0 0 var(--gold),
+       0  2px 0 0 var(--gold),
+      -4px 0 0 0 var(--gold-dim),
+       4px 0 0 0 var(--gold-dim),
+       0 -4px 0 0 var(--gold-dim),
+       0  4px 0 0 var(--gold-dim);
+  }
+
+  .avatar-frame img {
+    width: 48px;
+    height: 48px;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  .rail-divider {
+    width: 36px;
+    height: 1px;
+    background: var(--border-dark);
+    margin: 6px 0;
+  }
+
+  .rail-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s, box-shadow 0.2s;
+    position: relative;
+    text-decoration: none;
+  }
+
+  .rail-icon:hover {
+    background: rgba(255, 215, 0, 0.08);
+    box-shadow: inset 0 0 12px rgba(255, 215, 0, 0.1);
+  }
+
+  .rail-icon:hover .rail-tooltip {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .rail-tooltip {
+    position: absolute;
+    left: 56px;
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    background: #1c1830;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-size: 10px;
+    padding: 3px 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s, transform 0.15s;
+    z-index: 200;
+    letter-spacing: 0.5px;
+  }
+
+  .rail-label {
+    font-size: 7px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* HP / MP bars */
+  .stat-bars {
+    margin-top: auto;
+    width: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 4px;
+  }
+
+  .stat-bar {
+    width: 100%;
+  }
+
+  .stat-label {
+    font-size: 7px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 2px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .stat-track {
+    width: 100%;
+    height: 6px;
+    background: #1a1630;
+    border: 1px solid #2a2240;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-fill {
+    height: 100%;
+    transition: width 0.5s;
+  }
+
+  .stat-fill.hp {
+    width: 85%;
+    background: var(--neon-green);
+    box-shadow: 0 0 6px rgba(57, 255, 20, 0.4);
+  }
+
+  .stat-fill.mp {
+    width: 60%;
+    background: var(--mana-blue);
+    box-shadow: 0 0 6px rgba(68, 136, 255, 0.4);
+  }
+
+  /* XP bar at very bottom */
+  .xp-bar {
+    width: 48px;
+    margin-top: 8px;
+    padding-bottom: 2px;
+  }
+
+  .xp-label {
+    font-size: 7px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 2px;
+    text-align: center;
+  }
+
+  .xp-track {
+    width: 100%;
+    height: 4px;
+    background: #1a1630;
+    border: 1px solid #2a2240;
+    overflow: hidden;
+  }
+
+  .xp-fill {
+    height: 100%;
+    width: 72%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.3);
+  }
+
+  /* ═══════════════════════════════════════════
+     ASCII GUTTER
+     ═══════════════════════════════════════════ */
+  .ascii-gutter {
+    background: var(--bg-deep);
+    border-right: 1px solid #1c1830;
+    position: fixed;
+    top: 0;
+    left: 64px;
+    width: 40px;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 99;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .gutter-text {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.25;
+    color: var(--slate-blue);
+    opacity: 0.25;
+    white-space: pre;
+    text-align: center;
+    padding-top: 8px;
+    animation: gutter-drift 60s linear infinite;
+  }
+
+  @keyframes gutter-drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
+  }
+
+  /* ═══════════════════════════════════════════
+     MAIN CONTENT AREA
+     ═══════════════════════════════════════════ */
+  .content-area {
+    grid-column: 3;
+    margin-left: 104px; /* 64px rail + 40px gutter */
+    max-width: 800px;
+    padding: 40px 32px 80px 24px;
+    min-height: 100vh;
+  }
+
+  /* Site header */
+  .site-header {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-dark);
+  }
+
+  .site-title {
+    font-size: 28px;
+    color: var(--gold);
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    margin-bottom: 4px;
+  }
+
+  .site-title .prompt-char {
+    color: var(--neon-green);
+  }
+
+  .site-subtitle {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .site-level {
+    font-size: 11px;
+    color: var(--slate-blue);
+    margin-top: 6px;
+  }
+
+  /* ASCII dividers */
+  .ascii-divider {
+    color: var(--border-dark);
+    font-size: 13px;
+    margin: 28px 0;
+    letter-spacing: 2px;
+    user-select: none;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ascii-divider.gold {
+    color: var(--gold-dim);
+    opacity: 0.5;
+  }
+
+  /* ═══════════════════════════════════════════
+     FEATURED POST / QUEST LOG
+     ═══════════════════════════════════════════ */
+  .featured-quest {
+    background: var(--bg-content);
+    border: 1px solid var(--border-gold);
+    padding: 28px 24px;
+    margin-bottom: 36px;
+    position: relative;
+    /* Pixel-art border effect */
+    box-shadow:
+      2px 2px 0 0 #1c1830,
+      4px 4px 0 0 #0f0c18,
+      inset 0 0 30px rgba(255, 215, 0, 0.03);
+  }
+
+  .featured-quest::before {
+    content: '[ FEATURED QUEST ]';
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--bg-content);
+    color: var(--gold);
+    font-size: 10px;
+    padding: 0 8px;
+    letter-spacing: 2px;
+  }
+
+  .quest-title {
+    font-size: 20px;
+    color: var(--gold);
+    font-weight: bold;
+    margin-bottom: 4px;
+    text-shadow: 0 0 16px rgba(255, 215, 0, 0.15);
+  }
+
+  .quest-title .alert-marker {
+    color: var(--neon-green);
+  }
+
+  .quest-date {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  .quest-date .day-num {
+    color: var(--slate-blue);
+  }
+
+  .quest-content p {
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--text-body);
+  }
+
+  .quest-content p .highlight {
+    color: var(--neon-green);
+  }
+
+  .quest-content p .skill-up {
+    color: var(--gold);
+    font-weight: bold;
+  }
+
+  .quest-content p .location {
+    color: var(--slate-blue);
+  }
+
+  /* Quest reward boxes */
+  .quest-rewards {
+    background: #0d0a14;
+    border: 1px solid var(--border-dark);
+    padding: 16px 18px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .quest-rewards::before {
+    content: 'QUEST REWARDS';
+    position: absolute;
+    top: -9px;
+    left: 12px;
+    background: #0d0a14;
+    color: var(--gold-dim);
+    font-size: 9px;
+    padding: 0 6px;
+    letter-spacing: 2px;
+  }
+
+  .reward-item {
+    font-size: 13px;
+    color: var(--gold);
+    margin-bottom: 4px;
+    padding-left: 4px;
+  }
+
+  .reward-item .rarity-rare {
+    color: var(--slate-blue);
+  }
+
+  .reward-item .rarity-epic {
+    color: #cc66ff;
+  }
+
+  .reward-item .rarity-legendary {
+    color: var(--gold);
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
+  }
+
+  /* ═══════════════════════════════════════════
+     POST LIST / QUEST LOG
+     ═══════════════════════════════════════════ */
+  .quest-log-header {
+    font-size: 16px;
+    color: var(--text-bright);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .quest-log-header .section-icon {
+    color: var(--gold);
+  }
+
+  .quest-entry {
+    display: block;
+    background: var(--bg-content);
+    border: 1px solid #1e1a30;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    text-decoration: none;
+    position: relative;
+  }
+
+  .quest-entry:hover {
+    border-color: var(--border-gold);
+    box-shadow:
+      0 0 16px rgba(255, 215, 0, 0.06),
+      2px 2px 0 0 #1c1830;
+    transform: translateX(2px);
+  }
+
+  .quest-entry.completed .quest-entry-title {
+    color: var(--text-dim);
+  }
+
+  .quest-entry.completed .quest-status {
+    color: var(--neon-green);
+  }
+
+  .quest-entry.active .quest-entry-title {
+    color: var(--text-bright);
+  }
+
+  .quest-entry.active .quest-status {
+    color: var(--gold);
+    animation: blink-alert 2s step-end infinite;
+  }
+
+  @keyframes blink-alert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .quest-entry-top {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .quest-status {
+    font-size: 13px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .quest-entry-title {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .quest-entry-date {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .quest-entry-date .day-num {
+    color: var(--slate-blue);
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .dungeon-footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-dark);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .footer-ascii {
+    color: var(--border-dark);
+    margin-bottom: 8px;
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  .footer-text a {
+    color: var(--slate-blue);
+    text-decoration: none;
+  }
+
+  .footer-text a:hover {
+    color: var(--gold);
+  }
+
+  .footer-save {
+    margin-top: 12px;
+    color: var(--text-dim);
+    font-size: 10px;
+    opacity: 0.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .dungeon-layout {
+      display: block;
+    }
+
+    .icon-rail {
+      display: none;
+    }
+
+    .ascii-gutter {
+      display: none;
+    }
+
+    .content-area {
+      margin-left: 0;
+      padding: 24px 16px 60px 16px;
+      max-width: 100%;
+    }
+
+    .mobile-nav {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .mobile-nav {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .featured-quest {
+      padding: 18px 14px;
+    }
+
+    .featured-quest::before {
+      font-size: 8px;
+    }
+
+    .quest-title {
+      font-size: 16px;
+    }
+
+    .quest-content p {
+      font-size: 13px;
+    }
+
+    .quest-rewards {
+      padding: 12px 14px;
+    }
+
+    .site-title {
+      font-size: 22px;
+    }
+
+    .quest-entry {
+      padding: 10px 12px;
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     MOBILE NAV BAR
+     ═══════════════════════════════════════════ */
+  .mobile-nav {
+    background: var(--bg-rail);
+    border-bottom: 1px solid var(--border-dark);
+    padding: 8px 12px;
+    justify-content: space-around;
+    align-items: center;
+    gap: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .mobile-nav a {
+    font-size: 18px;
+    text-decoration: none;
+    padding: 4px 8px;
+  }
+
+  /* ═══════════════════════════════════════════
+     SCROLLBAR
+     ═══════════════════════════════════════════ */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--gold-dim);
+    border: 1px solid var(--bg-deep);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+  }
+
+  /* Blinking cursor effect for header */
+  .cursor-blink::after {
+    content: '_';
+    animation: cursor-flash 1s step-end infinite;
+    color: var(--gold);
+  }
+
+  @keyframes cursor-flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Mobile navigation (hidden on desktop) -->
+<nav class="mobile-nav">
+  <a href="#" title="Home">&#x1F3F0;</a>
+  <a href="#" title="Posts">&#x2694;&#xFE0F;</a>
+  <a href="#" title="Archive">&#x1F5FA;&#xFE0F;</a>
+  <a href="#" title="About">&#x1F4DC;</a>
+  <a href="#" title="Projects">&#x2697;&#xFE0F;</a>
+</nav>
+
+<div class="dungeon-layout">
+
+  <!-- ════════════════════════════════════════
+       ICON RAIL
+       ════════════════════════════════════════ -->
+  <aside class="icon-rail">
+    <div class="avatar-frame">
+      <img src="avatar.webp" alt="Avatar" width="48" height="48">
+    </div>
+
+    <div class="rail-divider"></div>
+
+    <a class="rail-icon" href="#" title="Home">
+      &#x1F3F0;
+      <span class="rail-tooltip">HOME</span>
+    </a>
+    <a class="rail-icon" href="#" title="Posts">
+      &#x2694;&#xFE0F;
+      <span class="rail-tooltip">POSTS</span>
+    </a>
+    <a class="rail-icon" href="#" title="Archive">
+      &#x1F5FA;&#xFE0F;
+      <span class="rail-tooltip">ARCHIVE</span>
+    </a>
+    <a class="rail-icon" href="#" title="About">
+      &#x1F4DC;
+      <span class="rail-tooltip">ABOUT</span>
+    </a>
+    <a class="rail-icon" href="#" title="Projects">
+      &#x2697;&#xFE0F;
+      <span class="rail-tooltip">PROJECTS</span>
+    </a>
+
+    <div class="rail-divider"></div>
+
+    <!-- HP / MP Bars -->
+    <div class="stat-bars">
+      <div class="stat-bar">
+        <div class="stat-label">
+          <span>HP</span>
+          <span>85%</span>
+        </div>
+        <div class="stat-track">
+          <div class="stat-fill hp"></div>
+        </div>
+      </div>
+      <div class="stat-bar">
+        <div class="stat-label">
+          <span>MP</span>
+          <span>60%</span>
+        </div>
+        <div class="stat-track">
+          <div class="stat-fill mp"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- XP Bar -->
+    <div class="xp-bar">
+      <div class="xp-label">XP 72%</div>
+      <div class="xp-track">
+        <div class="xp-fill"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════════════════════════════════════════
+       ASCII GUTTER
+       ════════════════════════════════════════ -->
+  <div class="ascii-gutter">
+    <div class="gutter-text">&#x2551;
+&#x2502;
+&#x255A;
+&#x2502;
+&#x00B7;
+&#x2560;
+&#x2502;
+&#x00B7;
+&#x2551;
+&#x2563;
+&#x2502;
+&#x00B7;
+&#x2554;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x2557;
+&#x2551;
+&#x251C;
+&#x2502;
+&#x00B7;
+&#x2524;
+&#x2502;
+&#x00B7;
+&#x2551;
+&#x2502;
+&#x255A;
+&#x2550;
+&#x255D;
+&#x2502;
+&#x00B7;
+&#x2554;
+&#x2550;
+&#x2557;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x251C;
+&#x2502;
+&#x2524;
+&#x00B7;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x255A;
+&#x2502;
+&#x2551;
+&#x00B7;
+&#x2554;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x2557;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x2560;
+&#x2563;
+&#x2502;
+&#x00B7;
+&#x2551;
+&#x2502;
+&#x255A;
+&#x2550;
+&#x255D;
+&#x2502;
+&#x00B7;
+&#x2554;
+&#x2550;
+&#x2557;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x251C;
+&#x2502;
+&#x2524;
+&#x00B7;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x255A;
+&#x2502;
+&#x2551;
+&#x00B7;
+&#x2554;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x2557;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x2560;
+&#x2563;
+&#x2502;
+&#x00B7;
+&#x2551;
+&#x2502;
+&#x255A;
+&#x2550;
+&#x255D;
+&#x2502;
+&#x00B7;
+&#x2554;
+&#x2550;
+&#x2557;
+&#x2551;
+&#x2502;
+&#x00B7;
+&#x251C;
+&#x2502;
+&#x2524;
+&#x00B7;</div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       MAIN CONTENT
+       ════════════════════════════════════════ -->
+  <main class="content-area">
+
+    <!-- Site Header -->
+    <header class="site-header">
+      <div class="site-title">
+        <span class="prompt-char">&gt;</span> keeb.dev<span class="cursor-blink"></span>
+      </div>
+      <div class="site-subtitle">Roguelike Dungeon Navigator</div>
+      <div class="site-level">LVL 42 // Class: Infrastructure Mage // Guild: Terminal Dwellers</div>
+    </header>
+
+    <!-- Featured Quest -->
+    <article class="featured-quest">
+      <h1 class="quest-title"><span class="alert-marker">[!]</span> QUEST LOG: The Lore</h1>
+      <div class="quest-date"><span class="day-num">Day 1 of the Journey</span> // 2022-05-28</div>
+
+      <div class="quest-content">
+        <p>
+          It began, as these things always do, with a blinking cursor in a dark room. There was no graphical interface to guide the way, no friendly wizard to point toward the next objective. Just a terminal prompt, patient and unblinking, waiting for input. I typed <span class="highlight">ls</span> for the first time and watched the dungeon reveal its contents. Hidden directories. Mysterious config files. A whole filesystem stretching out beneath me like the procedurally generated floors of an endless dungeon. I had found the entrance, and there was no turning back.
+        </p>
+
+        <p>
+          The first real boss encounter was installing Linux on bare metal. Armed with nothing but a burned USB drive and a prayer, I descended into the BIOS configuration caverns and emerged three hours later with a working Ubuntu installation. <span class="skill-up">Gained +1 to System Administration.</span> The world looked different now. Every click, every window, every process was something I could inspect, modify, and break. And break things I did -- spectacularly, repeatedly, and with an enthusiasm that could only come from someone who hadn't yet learned to fear the <span class="highlight">rm -rf</span> command.
+        </p>
+
+        <p>
+          Learning to code was less like reading a spellbook and more like stumbling through <span class="location">the dungeon of Stack Overflow</span>, collecting fragments of arcane knowledge and stitching them together into something that occasionally compiled. Bash scripts became my first cantrips -- small, unreliable, but deeply satisfying when they worked. <span class="skill-up">Gained +1 to Shell Scripting.</span> Python followed, then JavaScript, each language a new branch in an ever-expanding skill tree. The experience points came slowly at first, but every solved bug, every passing test, every successfully parsed JSON blob felt like clearing a room full of hostiles.
+        </p>
+
+        <div class="quest-rewards">
+          <div class="reward-item"><span class="rarity-rare">[ ] SSH Key of Infinite Access</span></div>
+          <div class="reward-item"><span class="rarity-epic">[ ] The Tome of Man Pages</span></div>
+          <div class="reward-item"><span class="rarity-legendary">[ ] Root Shell of Absolute Power</span></div>
+        </div>
+
+        <p>
+          Building the first website was the culmination of countless side quests. <span class="location">The dungeon of DNS configuration</span> nearly claimed me -- CNAME records, A records, nameserver propagation delays, all guarded by the final boss: a 48-hour TTL that made every mistake feel permanent. But the site went live. A single HTML page, served by a misconfigured Nginx instance, displaying "Hello, World" in a font I would later realize was Comic Sans. <span class="skill-up">Gained +2 to Web Deployment. Gained +1 to Humility.</span>
+        </p>
+
+        <p>
+          That was Day 1. The dungeon has only grown deeper since then. Every corridor leads to three more, every answered question spawns a dozen new ones, and the loot table of knowledge never seems to run dry. This quest log is my record of the crawl -- the bosses fought, the skills gained, the spectacular wipes and the hard-won victories. If you're reading this, adventurer, consider this your invitation. The dungeon is open. The cursor is blinking. Type your first command and begin.
+        </p>
+
+        <div class="quest-rewards">
+          <div class="reward-item"><span class="rarity-rare">[ ] +500 XP to Terminal Proficiency</span></div>
+          <div class="reward-item"><span class="rarity-epic">[ ] Cloak of Imposter Syndrome (Cursed, Unremovable)</span></div>
+          <div class="reward-item"><span class="rarity-legendary">[ ] Keeb.dev Domain (Legendary, Soulbound)</span></div>
+        </div>
+      </div>
+    </article>
+
+    <div class="ascii-divider gold">&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;</div>
+
+    <!-- Quest Log: All Posts -->
+    <section>
+      <h2 class="quest-log-header"><span class="section-icon">&#x2694;&#xFE0F;</span> Quest Log</h2>
+
+      <a class="quest-entry active" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[!]</span>
+          <span class="quest-entry-title">MCP Is Dead</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 1347</span> // 2026-02-03</div>
+      </a>
+
+      <a class="quest-entry active" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[!]</span>
+          <span class="quest-entry-title">AI-Native Infrastructure</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 1347</span> // 2026-02-03</div>
+      </a>
+
+      <a class="quest-entry active" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[!]</span>
+          <span class="quest-entry-title">Claude Sonnet 4.5 &amp; System Initiative</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 1220</span> // 2025-09-29</div>
+      </a>
+
+      <div class="ascii-divider">&#x2500;&#x2500;&#x2500; completed quests &#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;</div>
+
+      <a class="quest-entry completed" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[*]</span>
+          <span class="quest-entry-title">AI is great at parsing</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 1217</span> // 2025-09-26</div>
+      </a>
+
+      <a class="quest-entry completed" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[*]</span>
+          <span class="quest-entry-title">Terraform with Glitter</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 1216</span> // 2025-09-25</div>
+      </a>
+
+      <a class="quest-entry completed" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[*]</span>
+          <span class="quest-entry-title">Virtualization from scratch</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 401</span> // 2023-07-03</div>
+      </a>
+
+      <a class="quest-entry completed" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[*]</span>
+          <span class="quest-entry-title">I made a keylogger</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 15</span> // 2022-06-12</div>
+      </a>
+
+      <a class="quest-entry completed" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[*]</span>
+          <span class="quest-entry-title">Hexo &amp; VSCode</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 1</span> // 2022-05-28</div>
+      </a>
+
+      <a class="quest-entry completed" href="#">
+        <div class="quest-entry-top">
+          <span class="quest-status">[*]</span>
+          <span class="quest-entry-title">The Lore</span>
+        </div>
+        <div class="quest-entry-date"><span class="day-num">Day 1</span> // 2022-05-28</div>
+      </a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="dungeon-footer">
+      <div class="footer-ascii">&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;</div>
+      <div class="footer-text">
+        &copy; 2026 <a href="#">keeb.dev</a> // All dungeons explored with Hexo &amp; Nginx<br>
+        Powered by mass quantities of caffeine potions and mass quantities of mass quantities
+      </div>
+      <div class="footer-save">
+        [GAME SAVED] // Last checkpoint: 2026-02-06 // Deaths this run: 0 (allegedly)
+      </div>
+    </footer>
+
+  </main>
+
+</div>
+
+</body>
+</html>

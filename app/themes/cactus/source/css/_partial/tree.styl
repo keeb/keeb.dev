@@ -1,0 +1,63 @@
+.tree
+  font-family: $font-family-mono
+  font-size: 0.8rem
+  line-height: 1.6
+  color: $color-border
+
+.tree-dir-line
+  white-space: nowrap
+
+.tree-dir
+  color: $color-main-page-header
+  font-weight: bold
+
+.tree-entry
+  display: grid
+  grid-template-columns: auto 10ch auto auto
+  gap: 0 0.5ch
+  align-items: baseline
+  white-space: nowrap
+
+.tree-branch
+  color: $color-border
+  white-space: pre
+
+.tree-date
+  color: $color-border
+  font-size: 0.72rem
+
+.tree-file-link
+  color: $color-text
+  text-decoration: none
+  background-image: none
+  transition: color 0.2s ease
+
+  &:hover
+    color: $color-accent-1
+    background-image: none
+    text-shadow: none
+
+.tree-tags
+  color: $color-border
+  font-size: 0.68rem
+  margin-left: 1ch
+
+.tree-entry.active .tree-file-link
+  color: $color-accent-1
+
+.tree-entry.active .tree-tags
+  color: $color-accent-1
+
+// Larger tree on homepage
+.content.homepage .tree
+  font-size: 1rem
+  line-height: 1.8
+
+.content.homepage .tree-date
+  font-size: 0.9rem
+
+.content.homepage .tree-tags
+  font-size: 0.85rem
+
+.content.homepage .tree-dir-line:first-child .tree-dir
+  font-size: 1.2em

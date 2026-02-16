@@ -1,56 +1,60 @@
+{
+    log default {
+        format json
+        level INFO
+    }
+}
+
+(blocked_ips) {
+    @blocked remote_ip 185.177.72.49
+    abort @blocked
+}
+
 keeb.dev {
-    root * /usr/share/nginx/html
+    import blocked_ips
+    log
+    root * /srv/keeb.dev/site
     file_server
     handle /static/* {
-        root * /usr/share/nginx
+        root * /srv/keeb.dev
         file_server
     }
     handle /slate/* {
-        root * /usr/share/nginx
+        root * /srv/keeb.dev
         file_server
     }
     handle /bio/* {
-        root * /usr/share/nginx
+        root * /srv/keeb.dev
         file_server
     }
-    handle /op/* {
-        reverse_proxy 100.92.243.19:6969
+    handle_errors {
+        @404 expression {err.status_code} == 404
+        redir @404 / temporary
     }
 }
 
 counter.keeb.dev {
-    reverse_proxy keeb.dev:8000
+    import blocked_ips
+    log
+    rewrite * /src/counter.php
+    reverse_proxy counter:80
 }
 
-start.keeb.dev {
-    root * /usr/share/nginx/start
+swamp.keeb.dev {
+    import blocked_ips
+    log
+    reverse_proxy 100.120.74.63:1337
+}
+
+gameswiththebois.com {
+    import blocked_ips
+    log
+    root * /srv/gameswiththebois.com/site
     file_server
 }
 
-flix.keeb.dev {
-    reverse_proxy 100.92.243.19:8096
-}
-
-si.keeb.dev {
-    reverse_proxy 100.86.60.111:8080
-}
-
-tilt.keeb.dev {
-    reverse_proxy 100.86.60.111:10350
-}
-
-whiskers.keeb.dev {
-    reverse_proxy 100.86.60.111:3000
-}
-
-localstack.keeb.dev {
-    reverse_proxy 100.92.243.19:4566
-}
-
-vault.keeb.dev {
-    reverse_proxy 100.92.243.19:8200
-}
-
-jaeger.keeb.dev {
-    reverse_proxy 100.86.60.111:3000
+www.gameswiththebois.com {
+    import blocked_ips
+    log
+    redir https://gameswiththebois.com{uri} permanent
 }

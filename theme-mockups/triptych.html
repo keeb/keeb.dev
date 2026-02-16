@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — Triptych</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    background: #1d1f21;
+    color: #c9cacc;
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  a {
+    color: rgba(212,128,170,1);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .main-container {
+    max-width: 1600px;
+    margin-left: 2rem;
+    margin-right: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ASCII Header */
+  #ascii-art {
+    animation: wave-animation 8s ease-in-out infinite;
+    color: #c9cacc;
+    font-size: 0.65rem;
+    overflow: hidden;
+    white-space: pre;
+    padding: 1rem 0 0.5rem 0;
+  }
+
+  @keyframes wave-animation {
+    0%, 30%, 100% { color: #c9cacc; }
+    5% { background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    10% { background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    15% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    20% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    25% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  #terminal-cursor {
+    animation: blink 1s step-end infinite;
+    color: rgba(212,128,170,1);
+  }
+
+  /* Selection Bar */
+  .selection-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 0.75rem 0;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    margin-bottom: 0;
+  }
+
+  .selection-item {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    color: #908d8d;
+    cursor: pointer;
+    white-space: nowrap;
+    border-right: 1px solid #333;
+    transition: color 0.2s;
+  }
+
+  .selection-item:last-child {
+    border-right: none;
+  }
+
+  .selection-item:hover {
+    color: #c9cacc;
+  }
+
+  .selection-item.active {
+    color: #d480aa;
+    border-bottom: 2px solid #d480aa;
+    padding-bottom: calc(0.35rem - 2px);
+  }
+
+  .selection-item .date {
+    color: #555;
+    margin-right: 0.4rem;
+  }
+
+  .selection-item.active .date {
+    color: #8a5070;
+  }
+
+  /* Triptych Grid */
+  .triptych {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: #333;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .column {
+    overflow-y: auto;
+    padding: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: #444 #1d1f21;
+  }
+
+  .column::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .column::-webkit-scrollbar-track {
+    background: #1d1f21;
+  }
+
+  .column::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+  }
+
+  .column::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  .col-1 { background: #1d1f21; }
+  .col-2 { background: #1e2023; }
+  .col-3 { background: #1d1f21; }
+
+  /* Post Content Styles */
+  .post-title {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+  }
+
+  .post-date {
+    color: #908d8d;
+    font-size: 0.8rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .post-body p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+
+  .post-body h3 {
+    color: #ffffff;
+    font-size: 0.95rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .post-body h4 {
+    color: #ffffff;
+    font-size: 0.85rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .post-body blockquote {
+    color: #ccffb6;
+    border-left: 2px solid #ccffb6;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+  }
+
+  .post-body code {
+    background: #2a2c2e;
+    padding: 0.15rem 0.35rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #d480aa;
+  }
+
+  .post-body pre {
+    background: #2a2c2e;
+    padding: 0.75rem 1rem;
+    border-radius: 3px;
+    overflow-x: auto;
+    margin: 1rem 0;
+    font-size: 0.85em;
+    line-height: 1.5;
+  }
+
+  .post-body pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .post-body ul, .post-body ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .post-body li {
+    margin-bottom: 0.35rem;
+    line-height: 1.6;
+  }
+
+  .post-body strong {
+    color: #ffffff;
+  }
+
+  .post-body a {
+    color: rgba(212,128,170,1);
+  }
+</style>
+</head>
+<body>
+
+<div class="main-container">
+
+  <!-- ASCII Header -->
+  <pre id="ascii-art" style="font-family: monospace; line-height: normal;">
+      ..                                  ..              ..                     _
+< .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">&#x2588;</span>
+</pre>
+
+  <!-- Selection Bar -->
+  <div class="selection-bar">
+    <div class="selection-item active"><span class="date">2026-02-03</span>MCP Is Dead</div>
+    <div class="selection-item"><span class="date">2026-02-03</span>AI-Native Infrastructure</div>
+    <div class="selection-item"><span class="date">2025-09-29</span>Claude Sonnet 4.5 &amp; System Initiative</div>
+    <div class="selection-item"><span class="date">2025-09-26</span>AI is great at parsing</div>
+    <div class="selection-item"><span class="date">2025-09-25</span>Terraform with Glitter</div>
+    <div class="selection-item active"><span class="date">2023-07-03</span>Virtualization from scratch</div>
+    <div class="selection-item"><span class="date">2022-06-12</span>I made a keylogger</div>
+    <div class="selection-item active"><span class="date">2022-05-28</span>Hexo &amp; VSCode</div>
+    <div class="selection-item"><span class="date">2022-05-28</span>The Lore</div>
+  </div>
+
+  <!-- Triptych Columns -->
+  <div class="triptych">
+
+    <!-- Column 1: Hexo & VSCode (featured, full body) -->
+    <div class="column col-1">
+      <h3 class="post-title">Hexo &amp; VSCode</h3>
+      <div class="post-date">2022-05-28</div>
+      <div class="post-body">
+        <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+        <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+        <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+        <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+
+        <h3>Asset Management</h3>
+
+        <p>One of the early pain points was handling images and other assets in posts. Hexo's default asset pipeline assumes a flat structure, which gets messy fast when you have dozens of posts each with their own screenshots and diagrams. The <code>hexo-asset-link</code> plugin solves this cleanly &mdash; enable <code>post_asset_folder: true</code> in your <code>_config.yml</code> and each post gets its own directory. Reference images with standard Markdown syntax and the plugin rewrites the paths at build time.</p>
+
+        <p>The real trick is pairing this with <strong>Docker volume mounts</strong>. Your source tree lives on the host, the Hexo build runs inside the container, and the asset folder convention means everything just works. No path gymnastics, no build-step hacks. You write Markdown, you drop images next to the <code>.md</code> file, and the output is a clean static site with all the assets in the right place. It sounds simple because it is &mdash; which is exactly the point.</p>
+      </div>
+    </div>
+
+    <!-- Column 2: MCP Is Dead -->
+    <div class="column col-2">
+      <h3 class="post-title">MCP Is Dead</h3>
+      <div class="post-date">2026-02-03</div>
+      <div class="post-body">
+        <p>The Model Context Protocol was supposed to be the universal adapter layer between AI models and the tools they need to interact with. A standardized way to expose databases, APIs, file systems, and anything else a language model might want to touch. In theory it was the right idea at the right time &mdash; a JSON-RPC interface that any tool provider could implement once and every AI client could consume. In practice, MCP suffered from the same disease that kills most interoperability standards: it solved yesterday's problem while tomorrow's problem was already walking through the door.</p>
+
+        <p>The fundamental issue is that MCP assumed a clean separation between "model" and "tool" that increasingly does not exist. When Claude or GPT calls a function, the interesting work is not in the transport layer or the schema definition &mdash; it is in the <strong>orchestration logic</strong> that decides which tools to call, in what order, with what parameters, and how to interpret the results. MCP standardized the plumbing but said nothing about the architecture of the house. As agents became more sophisticated, the protocol became a bottleneck rather than an enabler.</p>
+
+        <p>What replaced it was not a single protocol but a pattern: models that internalize tool semantics directly. Instead of calling out to an MCP server that wraps a database client, the model has native understanding of SQL dialects and query planning. Instead of routing through a file-system MCP adapter, the model operates on an abstract representation of project structure that it builds and maintains in context. The indirection layer that MCP provided turned out to be overhead that smarter models simply did not need.</p>
+
+        <blockquote>Standards are most useful when they bridge a capability gap. When the gap closes, the bridge becomes a detour.</blockquote>
+
+        <p>This is not to say MCP was a failure. It served a critical role during the transitional period when models were capable enough to use tools but not capable enough to reason deeply about them. It gave the ecosystem a common vocabulary and forced tool providers to think about structured interfaces. But its moment has passed. The projects still maintaining MCP servers are doing so out of inertia, not conviction. The rest of the industry has moved on to agent frameworks that treat tool integration as a first-class concern of the model itself, not a protocol bolted on from the outside.</p>
+      </div>
+    </div>
+
+    <!-- Column 3: Virtualization from scratch -->
+    <div class="column col-3">
+      <h3 class="post-title">Virtualization from scratch</h3>
+      <div class="post-date">2023-07-03</div>
+      <div class="post-body">
+        <p>There is a particular kind of understanding you only get from building something yourself. Reading about hypervisors, containers, and virtual machines gives you vocabulary. Implementing one from scratch gives you intuition. This post walks through building a minimal virtual machine monitor on Linux using <code>KVM</code> &mdash; the Kernel-based Virtual Machine interface that exposes hardware virtualization features through a set of <code>ioctl</code> calls on <code>/dev/kvm</code>. No QEMU, no libvirt, no abstraction layers. Just a C program that boots a guest.</p>
+
+        <p>The starting point is surprisingly simple. You open <code>/dev/kvm</code>, create a VM with <code>KVM_CREATE_VM</code>, allocate a chunk of memory with <code>mmap</code>, and map it into the guest's physical address space with <code>KVM_SET_USER_MEMORY_REGION</code>. Then you create a virtual CPU, set up its registers to point at your guest code, and enter a loop: <code>KVM_RUN</code>, handle the exit reason, repeat. The first milestone is getting a guest that executes <code>HLT</code> and stops cleanly. The second is getting it to write a character to a serial port so you can see output. From there the complexity ramps up quickly.</p>
+
+        <h3>The Memory Map</h3>
+
+        <p>The hardest conceptual leap is understanding that the guest sees a completely different physical address space than the host. When your guest code references address <code>0x1000</code>, that maps to some offset in the <code>mmap</code>'d region on the host. KVM handles the translation through Extended Page Tables (EPT on Intel, NPT on AMD), which means the hardware does nested address translation without trapping to the hypervisor on every memory access. Getting the initial memory layout right &mdash; where the guest kernel expects to find itself, where the page tables live, where the stack starts &mdash; is where most first attempts fail.</p>
+
+        <blockquote>The gap between "I understand how virtual memory works" and "I can set up a guest page table that boots" is about three days of staring at hex dumps.</blockquote>
+
+        <p>Once you have memory and a serial console working, the next challenge is interrupts. The guest needs a local APIC for timers and an I/O APIC for device interrupts. KVM provides an in-kernel emulation of both, but you still need to configure them correctly. Getting a guest Linux kernel to boot to a shell requires setting up the interrupt descriptor table, programming the PIC or APIC, and handling the dozens of port I/O exits that the kernel generates during early boot as it probes for hardware that does not exist. Each exit is a small puzzle: what did the guest expect to find at this port, and what is the minimum response that lets it continue?</p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

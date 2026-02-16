@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PACKET STORM // keeb.dev</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: #0a0e14;
+  color: #a8b8cc;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+body {
+  min-height: 100vh;
+}
+
+a {
+  color: #44aaff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #66ccff;
+}
+
+/* ===== FIXED TOP BANNER ===== */
+
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: #0a0e14;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2em;
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, #44aaff, #ff4444) 1;
+}
+
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.banner-left img {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  border: 1px solid #2a3a4a;
+}
+
+.banner-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.3em;
+  color: #e0e8f0;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.banner-title .slash {
+  color: #44aaff;
+  margin: 0 2px;
+}
+
+.banner-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.banner-nav a {
+  color: #7a8a9c;
+  padding: 6px 16px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.banner-nav a:hover,
+.banner-nav a.active {
+  color: #e0e8f0;
+  border-bottom-color: #44aaff;
+  text-decoration: none;
+}
+
+.banner-nav .sep {
+  color: #2a3a4a;
+  user-select: none;
+}
+
+.banner-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.threat-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.threat-blocks {
+  display: flex;
+  gap: 3px;
+}
+
+.threat-block {
+  width: 10px;
+  height: 18px;
+  background: #1a2030;
+  border-radius: 2px;
+}
+
+.threat-block.filled {
+  background: #ffaa00;
+  animation: threatPulse 2s ease-in-out infinite;
+}
+
+.threat-block.filled:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.threat-block.filled:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.threat-label {
+  color: #ffaa00;
+  animation: threatTextPulse 2s ease-in-out infinite;
+}
+
+@keyframes threatPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; box-shadow: 0 0 6px #ffaa0088; }
+}
+
+@keyframes threatTextPulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+/* ===== MAIN CONTENT ===== */
+
+.content {
+  margin-top: 100px;
+  padding: 2em;
+  column-count: 3;
+  column-gap: 2em;
+  column-rule: 1px solid #2a3a4a;
+}
+
+/* ===== ARTICLES ===== */
+
+.article {
+  break-inside: avoid;
+  margin-bottom: 1.8em;
+  padding-bottom: 1.4em;
+  border-bottom: 1px dashed #1e2a38;
+}
+
+.article:last-child {
+  border-bottom: none;
+}
+
+.article-header {
+  margin-bottom: 0.6em;
+}
+
+.article h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 1.4em;
+  color: #e0e8f0;
+  line-height: 1.25;
+  margin-bottom: 0.3em;
+}
+
+.article h2 a {
+  color: #e0e8f0;
+}
+
+.article h2 a:hover {
+  color: #44aaff;
+}
+
+.article-meta {
+  font-size: 0.85em;
+  color: #5a6a7c;
+  margin-bottom: 0.5em;
+}
+
+.article-meta .author {
+  color: #7a8a9c;
+}
+
+.article p {
+  margin-bottom: 0.7em;
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* ===== FEATURED ARTICLE ===== */
+
+.featured {
+  break-inside: avoid;
+  margin-bottom: 2em;
+  padding-bottom: 1.8em;
+  border-bottom: 1px dashed #1e2a38;
+}
+
+.featured h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 1.8em;
+  color: #e0e8f0;
+  line-height: 1.2;
+  margin-bottom: 0.4em;
+}
+
+.featured .article-meta {
+  margin-bottom: 0.8em;
+}
+
+.featured .drop-cap::first-letter {
+  float: left;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 3.4em;
+  line-height: 0.85;
+  padding-right: 0.08em;
+  padding-top: 0.04em;
+  color: #44aaff;
+  font-weight: 700;
+}
+
+.featured p {
+  margin-bottom: 0.7em;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.featured .code-block {
+  background: #060a10;
+  border: 1px solid #1e2a38;
+  border-left: 3px solid #44aaff;
+  padding: 0.8em 1em;
+  margin: 1em 0;
+  font-size: 0.92em;
+  line-height: 1.45;
+  overflow-x: auto;
+  white-space: pre;
+  color: #8fa8c8;
+}
+
+.featured .code-block .comment {
+  color: #4a5a6a;
+}
+
+.featured .code-block .string {
+  color: #44ff88;
+}
+
+.featured .code-block .key {
+  color: #ffaa00;
+}
+
+/* ===== CATEGORY TAGS ===== */
+
+.tag {
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 10px;
+  vertical-align: middle;
+  line-height: 1.6;
+}
+
+.tag-exploit {
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.tag-analysis {
+  background: rgba(68, 170, 255, 0.15);
+  color: #44aaff;
+  border: 1px solid rgba(68, 170, 255, 0.3);
+}
+
+.tag-infra {
+  background: rgba(68, 255, 136, 0.15);
+  color: #44ff88;
+  border: 1px solid rgba(68, 255, 136, 0.3);
+}
+
+.tag-tools {
+  background: rgba(255, 170, 0, 0.15);
+  color: #ffaa00;
+  border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.tag-deep-dive {
+  background: rgba(170, 100, 255, 0.15);
+  color: #aa64ff;
+  border: 1px solid rgba(170, 100, 255, 0.3);
+}
+
+.tag-editorial {
+  background: rgba(140, 150, 165, 0.15);
+  color: #8c96a5;
+  border: 1px solid rgba(140, 150, 165, 0.3);
+}
+
+/* ===== BREAKING TAG ===== */
+
+.tag-breaking {
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 0.7em;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 3px;
+  background: #ff4444;
+  color: #fff;
+  animation: breakingPulse 1.5s ease-in-out infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes breakingPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(255, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(255, 68, 68, 0.8); }
+}
+
+/* ===== PULL QUOTE ===== */
+
+.pull-quote {
+  column-span: all;
+  text-align: center;
+  padding: 1.6em 3em;
+  margin: 1em 0 1.8em 0;
+  border-top: 1px solid #2a3a4a;
+  border-bottom: 1px solid #2a3a4a;
+  break-inside: avoid;
+}
+
+.pull-quote p {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.5em;
+  line-height: 1.4;
+  color: #c0d0e0;
+}
+
+.pull-quote .attribution {
+  font-family: 'Courier New', Courier, monospace;
+  font-style: normal;
+  font-size: 0.55em;
+  color: #5a6a7c;
+  margin-top: 0.6em;
+  letter-spacing: 0.04em;
+}
+
+/* ===== SIDEBAR BOXES ===== */
+
+.sidebar-box {
+  break-inside: avoid;
+  background: #0f1520;
+  border: 1px solid #1e2a38;
+  padding: 1em 1.2em;
+  margin-bottom: 1.8em;
+}
+
+.sidebar-box h3 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #44aaff;
+  margin-bottom: 0.8em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid #1e2a38;
+}
+
+.sidebar-box .stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3em 0;
+  border-bottom: 1px dotted #1a2030;
+}
+
+.sidebar-box .stat-row:last-child {
+  border-bottom: none;
+}
+
+.sidebar-box .stat-label {
+  color: #5a6a7c;
+}
+
+.sidebar-box .stat-value {
+  font-weight: 700;
+}
+
+.sidebar-box .stat-value.green {
+  color: #44ff88;
+}
+
+.sidebar-box .stat-value.amber {
+  color: #ffaa00;
+}
+
+.sidebar-box .stat-value.blue {
+  color: #44aaff;
+}
+
+.sidebar-box .alert-item {
+  padding: 0.4em 0;
+  border-bottom: 1px dotted #1a2030;
+  font-size: 0.95em;
+}
+
+.sidebar-box .alert-item:last-child {
+  border-bottom: none;
+}
+
+.sidebar-box .alert-time {
+  color: #4a5a6a;
+  font-size: 0.85em;
+}
+
+.sidebar-box .alert-text {
+  color: #a8b8cc;
+}
+
+.sidebar-box .alert-severity {
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+.sidebar-box .alert-severity.high {
+  color: #ff4444;
+}
+
+.sidebar-box .alert-severity.medium {
+  color: #ffaa00;
+}
+
+.sidebar-box .alert-severity.low {
+  color: #44aaff;
+}
+
+/* ===== BLOCKQUOTE ===== */
+
+blockquote {
+  border-left: 2px solid #44aaff;
+  padding-left: 1em;
+  margin: 0.8em 0;
+  color: #8a9ab0;
+  font-style: italic;
+}
+
+/* ===== SECTION HEADER (column-span all) ===== */
+
+.section-header {
+  column-span: all;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #3a4a5c;
+  padding: 0.6em 0;
+  margin: 0.5em 0;
+  border-bottom: 1px solid #1e2a38;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 900px) {
+  .content {
+    column-count: 2;
+  }
+
+  .banner-nav {
+    font-size: 0.75em;
+    gap: 0;
+  }
+
+  .banner-nav a {
+    padding: 6px 10px;
+  }
+
+  .pull-quote {
+    padding: 1.2em 1.5em;
+  }
+
+  .pull-quote p {
+    font-size: 1.2em;
+  }
+}
+
+@media (max-width: 600px) {
+  .content {
+    column-count: 1;
+    padding: 1em;
+  }
+
+  .banner {
+    padding: 0 1em;
+    height: auto;
+    min-height: 60px;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .content {
+    margin-top: 70px;
+  }
+
+  .banner-nav {
+    display: none;
+  }
+
+  .banner-title {
+    font-size: 1em;
+  }
+
+  .threat-indicator {
+    font-size: 0.65em;
+  }
+
+  .featured h1 {
+    font-size: 1.4em;
+  }
+
+  .pull-quote {
+    padding: 1em;
+  }
+
+  .pull-quote p {
+    font-size: 1.1em;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== FIXED TOP BANNER ===== -->
+<header class="banner">
+  <div class="banner-left">
+    <img src="avatar.webp" alt="keeb.dev">
+    <div class="banner-title">PACKET STORM <span class="slash">//</span> keeb.dev</div>
+  </div>
+
+  <nav class="banner-nav">
+    <a href="#" class="active">ANALYSIS</a>
+    <span class="sep">|</span>
+    <a href="#">EXPLOITS</a>
+    <span class="sep">|</span>
+    <a href="#">INFRA</a>
+    <span class="sep">|</span>
+    <a href="#">ARCHIVE</a>
+  </nav>
+
+  <div class="banner-right">
+    <div class="threat-indicator">
+      <div class="threat-blocks">
+        <div class="threat-block filled"></div>
+        <div class="threat-block filled"></div>
+        <div class="threat-block filled"></div>
+        <div class="threat-block"></div>
+        <div class="threat-block"></div>
+      </div>
+      <span class="threat-label">ELEVATED</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="content">
+
+  <!-- FEATURED POST -->
+  <article class="featured">
+    <h1>AI Is Great at Parsing</h1>
+    <div class="article-meta">
+      <span class="tag tag-analysis">ANALYSIS</span>
+      2025-09-26 &mdash; by <span class="author">keeb</span> // STAFF ANALYST
+    </div>
+
+    <p class="drop-cap">For decades, the act of parsing has been one of the most tedious and thankless tasks in software engineering. Every log format is different. Every network capture has its own quirks. Every legacy protocol dump reads like an ancient dialect nobody alive still speaks fluently. Engineers have spent entire careers writing brittle regular expressions and fragile state machines to extract meaning from the chaos of unstructured data. But something has shifted. Large language models have turned out to be remarkably, almost unsettlingly good at parsing &mdash; and the implications are beginning to ripple through every team that touches raw data.</p>
+
+    <p>The breakthrough is not that AI can parse faster, though it can. It is that AI can parse <em>flexibly</em>. Consider a network capture where half the packets follow RFC spec and the other half were generated by a firmware bug that mangled the headers. A traditional parser breaks. An AI reads the intent. "These bytes probably represent a timestamp, based on position and range." Sources within a major cloud provider's incident response team, speaking on condition of anonymity, described deploying local models against legacy mainframe transaction logs that had defeated every regex library they threw at them. "We described the output format we wanted and fed it 200 lines of garbage," the source said. "It just... figured it out. It inferred field boundaries from context. We had a clean dataset in forty minutes."</p>
+
+    <p>The paradigm shift is subtle but profound: engineers are no longer writing parsers. They are <em>describing what they want extracted</em>. The prompt replaces the grammar definition. A typical interaction might look like this:</p>
+
+    <div class="code-block"><span class="comment"># Prompt sent to local model for media file parsing</span>
+<span class="key">system</span>: <span class="string">"You are a filename parser. Extract structured</span>
+<span class="string">  metadata from media filenames. Return JSON only."</span>
+
+<span class="key">user</span>: <span class="string">"Parse these filenames:</span>
+<span class="string">  The.Sopranos.S01E01.Pilot.720p.BluRay.x264.avi</span>
+<span class="string">  Attack on Titan - 01 [1080p].mkv</span>
+<span class="string">  The Matrix (1999) 1080p BluRay.mp4"</span>
+
+<span class="comment"># Model returns structured JSON for each file:</span>
+<span class="comment"># title, season, episode, year, quality, codec, etc.</span>
+<span class="comment"># No regex. No grammar. No edge cases to handle.</span></div>
+
+    <p>A second anonymous source, this one a security researcher who reverse-engineers malware communication protocols, put it bluntly: "I used to spend a week writing a parser for each new C2 protocol variant. Now I paste a packet dump into an AI and ask it to identify the command structure. It gets it right about 80% of the time on the first try, and the other 20% it gets close enough that one round of correction finishes the job. That is not incremental improvement. That is a category change." The researcher paused. "My parser repository has not had a commit in four months."</p>
+
+    <p>The implications extend well beyond convenience. Teams that previously needed dedicated parsing infrastructure &mdash; maintained by engineers who understood the arcane specifics of each data format &mdash; can now consolidate that work into prompt engineering and validation pipelines. The parser does not need to be maintained, versioned, or debugged in the traditional sense. When the format drifts, the model adapts. When the edge case appears, the model reasons about it rather than crashing into an unhandled exception. This is not the elimination of engineering. It is the relocation of engineering effort from the mechanical to the architectural: defining what correct output looks like, building validation layers, and deciding which data to trust.</p>
+  </article>
+
+  <!-- PULL QUOTE -->
+  <div class="pull-quote">
+    <p>"We stopped writing parsers. We started describing outcomes. The model fills in everything between the raw bytes and the clean data."</p>
+    <div class="attribution">&mdash; Anonymous infrastructure engineer at a Fortune 100 company</div>
+  </div>
+
+  <!-- BREAKING: MCP Is Dead -->
+  <article class="article">
+    <div class="article-header">
+      <h2><span class="tag-breaking">BREAKING</span> <a href="#">MCP Is Dead</a></h2>
+      <div class="article-meta">2026-02-03 &mdash; by <span class="author">keeb</span></div>
+    </div>
+    <p>Anthropic released MCP as a way to give AI models controlled access to external tools and data sources. The pitch: standardize how AI connects to capabilities and you will get an ecosystem of reusable integrations. Write a tool definition once, use it everywhere. The implicit assumption is that AI needs to be spoonfed &mdash; that humans must carefully craft JSON schemas describing what a tool does, what parameters it takes, what it returns.</p>
+    <p>This is backwards. MCP is a protocol designed by humans to grant AI controlled access to capabilities. It assumes the human is the architect and the AI is the consumer. Every tool definition, every resource schema, every prompt template: written and maintained by humans, for AI to consume. But the trajectory of AI capability suggests that within months, models will be able to discover, negotiate, and invoke capabilities on their own without hand-holding schemas.</p>
+    <p>The protocol is not wrong. It is already obsolete. The gap between MCP's assumptions and what AI can actually do is widening every week, and no amount of versioning will close it.</p>
+  </article>
+
+  <!-- BREAKING: AI-Native Infrastructure -->
+  <article class="article">
+    <div class="article-header">
+      <h2><span class="tag-breaking">BREAKING</span> <a href="#">Building Infrastructure Automation with Claude and Swamp</a></h2>
+      <div class="article-meta">2026-02-03 &mdash; by <span class="author">keeb</span></div>
+    </div>
+    <p>What happens when you hand an AI framework a Proxmox cluster and say "describe my infrastructure, go as deep as you need to, build what you need"? The answer is a surprisingly coherent story of two systems working together: swamp provides the runtime, CLI, model orchestration, immutable state storage, and validation, while Claude writes code, makes architectural decisions, and invokes the CLI to bring it all together.</p>
+    <p>Swamp is an AI-native automation framework. It provides a model system for defining typed resources, workflow orchestration, expression evaluation, and persistent state storage. Claude uses the CLI to create models, run methods, and store infrastructure state. Claude writes the TypeScript; swamp compiles, validates, and executes it.</p>
+    <p>The result is infrastructure-as-conversation rather than infrastructure-as-code. The model asks questions, proposes structures, validates assumptions, and builds a living map of the cluster &mdash; all without a single Terraform file in sight.</p>
+  </article>
+
+  <!-- SIDEBAR: NETWORK STATUS -->
+  <div class="sidebar-box">
+    <h3>Network Status</h3>
+    <div class="stat-row">
+      <span class="stat-label">Uptime</span>
+      <span class="stat-value green">99.97%</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Active Nodes</span>
+      <span class="stat-value blue">14 / 14</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Avg Latency</span>
+      <span class="stat-value green">2.4ms</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Packets/sec</span>
+      <span class="stat-value blue">1.2M</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Threat Level</span>
+      <span class="stat-value amber">ELEVATED</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Last Scan</span>
+      <span class="stat-value blue">12m ago</span>
+    </div>
+  </div>
+
+  <!-- REGULAR ARTICLE: Claude Sonnet 4.5 & System Initiative -->
+  <article class="article">
+    <div class="article-header">
+      <h2><span class="tag tag-analysis">ANALYSIS</span> <a href="#">Using Claude Sonnet 4.5 with System Initiative</a></h2>
+      <div class="article-meta">2025-09-29 &mdash; by <span class="author">keeb</span></div>
+    </div>
+    <p>Anthropic dropped Claude Sonnet 4.5 with bold claims about being their "best coding model" with "30+ hour focus." Time to stress-test those claims with System Initiative, where AI mistakes do not just break code &mdash; they break production infrastructure. System Initiative is not just another infrastructure-as-code tool. It is AI-native infrastructure automation that translates natural language into precise infrastructure changes.</p>
+    <p>The promise is compelling: infrastructure management that amplifies human intent rather than requiring you to learn another domain-specific language. The reality is nuanced, with impressive capabilities offset by the sharp edges you would expect from a system where a misinterpreted prompt can reconfigure a load balancer.</p>
+  </article>
+
+  <!-- REGULAR ARTICLE: Terraform with Glitter -->
+  <article class="article">
+    <div class="article-header">
+      <h2><span class="tag tag-infra">INFRASTRUCTURE</span> <a href="#">HashiCorp's "AI Agents" Are Just Terraform With Glitter</a></h2>
+      <div class="article-meta">2025-09-25 &mdash; by <span class="author">keeb</span></div>
+    </div>
+    <p>HashiCorp wants you to believe something significant happened at HashiConf this week. They rolled out Project Infragraph, promised AI agents, and sprinkled their Cloud Platform with new integrations. It sounds promising &mdash; until you scratch the surface. This is not a revolution. It is Terraform and Vault with AI glitter on top. Same drift. Same brittle state files. Same pipelines that crack the moment reality changes in the cloud console.</p>
+    <p>The fundamental problem: they cannot afford to kill the very pain that keeps their ecosystem alive. Instead, they rebrand the scaffolding and hope no one notices.</p>
+  </article>
+
+  <!-- SIDEBAR: RECENT ALERTS -->
+  <div class="sidebar-box">
+    <h3>Recent Alerts</h3>
+    <div class="alert-item">
+      <div><span class="alert-severity high">HIGH</span> <span class="alert-text">Unusual egress pattern on node-07</span></div>
+      <div class="alert-time">2026-02-06 03:41 UTC</div>
+    </div>
+    <div class="alert-item">
+      <div><span class="alert-severity medium">MED</span> <span class="alert-text">TLS cert expiry in 72h &mdash; *.keeb.dev</span></div>
+      <div class="alert-time">2026-02-05 18:12 UTC</div>
+    </div>
+    <div class="alert-item">
+      <div><span class="alert-severity low">LOW</span> <span class="alert-text">DNS propagation delay on counter.keeb.dev</span></div>
+      <div class="alert-time">2026-02-05 11:07 UTC</div>
+    </div>
+    <div class="alert-item">
+      <div><span class="alert-severity medium">MED</span> <span class="alert-text">Proxmox backup job exceeded time window</span></div>
+      <div class="alert-time">2026-02-04 22:30 UTC</div>
+    </div>
+    <div class="alert-item">
+      <div><span class="alert-severity low">LOW</span> <span class="alert-text">Rate limit triggered on /api/counter endpoint</span></div>
+      <div class="alert-time">2026-02-04 09:15 UTC</div>
+    </div>
+  </div>
+
+  <!-- SECTION HEADER -->
+  <div class="section-header">From the Archive</div>
+
+  <!-- Virtualization from scratch -->
+  <article class="article">
+    <div class="article-header">
+      <h2><span class="tag tag-deep-dive">DEEP DIVE</span> <a href="#">Virtualization from Scratch: Setting Up a New vmhost</a></h2>
+      <div class="article-meta">2023-07-03 &mdash; by <span class="author">keeb</span></div>
+    </div>
+    <p>A ground-up walkthrough of building a KVM virtualization host on Arch Linux without the safety net of Proxmox or VMware. Covers bridge networking, QEMU configuration, and the low-level plumbing that managed hypervisors hide from you. Useful for anyone who wants to understand what actually happens under the hood.</p>
+  </article>
+
+  <!-- I made a keylogger -->
+  <article class="article">
+    <div class="article-header">
+      <h2><span class="tag tag-exploit">EXPLOIT</span> <a href="#">I Made a Keylogger</a></h2>
+      <div class="article-meta">2022-06-12 &mdash; by <span class="author">keeb</span></div>
+    </div>
+    <p>A confession and a technical walkthrough. The motivation: replicating the tiling window manager experience on Windows by intercepting keyboard shortcuts. The method: a system-level key interceptor that would make any antivirus vendor nervous. Sometimes the best tools are the ones that look the most suspicious.</p>
+  </article>
+
+  <!-- Hexo & VSCode -->
+  <article class="article">
+    <div class="article-header">
+      <h2><span class="tag tag-tools">TOOLS</span> <a href="#">Hexo &amp; VSCode</a></h2>
+      <div class="article-meta">2022-05-28 &mdash; by <span class="author">keeb</span></div>
+    </div>
+    <p>A quickstart guide to the static site generator powering this very publication. Installation, editing, deployment, and the modified Cactus theme that gives keeb.dev its look. Practical notes on using VSCode as a blogging environment with live preview and integrated terminal workflows.</p>
+  </article>
+
+  <!-- The Lore -->
+  <article class="article">
+    <div class="article-header">
+      <h2><span class="tag tag-editorial">EDITORIAL</span> <a href="#">The Lore</a></h2>
+      <div class="article-meta">2022-05-28 &mdash; by <span class="author">keeb</span></div>
+    </div>
+    <p>The origin story. From an 8-year-old playing Mad Dog McCree on a Tandy to illicit AOL sessions funded by blank checks left with a devious aunt. A personal history of how an obsession with technology became a career, told with the honesty of someone who remembers every misstep along the way.</p>
+  </article>
+
+</main>
+
+</body>
+</html>

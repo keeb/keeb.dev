@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEEB.DEV — SCHEMATIC REV 4.2</title>
+<style>
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --pcb-darkest: #001a00;
+    --pcb-board: #002200;
+    --pcb-card: #003300;
+    --trace-green: #44ff44;
+    --solder-gold: #ffcc00;
+    --led-red: #ff4400;
+    --copper: #cc9966;
+    --silkscreen: #e0e8d0;
+    --trace-dim: #1a6b1a;
+    --trace-bright: #66ff66;
+    --grid-line: rgba(68, 255, 68, 0.06);
+    --grid-line-strong: rgba(68, 255, 68, 0.1);
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--pcb-darkest);
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        var(--grid-line) 0px,
+        var(--grid-line) 1px,
+        transparent 1px,
+        transparent 20px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        var(--grid-line) 0px,
+        var(--grid-line) 1px,
+        transparent 1px,
+        transparent 20px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        var(--grid-line-strong) 0px,
+        var(--grid-line-strong) 1px,
+        transparent 1px,
+        transparent 100px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        var(--grid-line-strong) 0px,
+        var(--grid-line-strong) 1px,
+        transparent 1px,
+        transparent 100px
+      );
+    color: var(--silkscreen);
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 2em;
+  }
+
+  /* ── MASONRY GRID ── */
+  .pcb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5em;
+    width: 100%;
+  }
+
+  /* ── BASE CARD ── */
+  .card {
+    background: var(--pcb-card);
+    border: 1px solid var(--trace-dim);
+    padding: 1.5em;
+    position: relative;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 0 18px rgba(68, 255, 68, 0.2), inset 0 0 12px rgba(68, 255, 68, 0.04);
+    border-color: var(--trace-green);
+  }
+
+  .card:hover .via-tl,
+  .card:hover .via-tr,
+  .card:hover .via-bl,
+  .card:hover .via-br {
+    background: var(--trace-bright);
+    box-shadow: 0 0 6px var(--trace-green);
+  }
+
+  .card:hover .trace-top,
+  .card:hover .trace-bottom {
+    border-color: var(--trace-bright);
+  }
+
+  /* ── VIA CIRCLES (corners) ── */
+  .via-tl,
+  .via-tr,
+  .via-bl,
+  .via-br {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--solder-gold);
+    z-index: 2;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  .via-tl { top: -4px; left: -4px; }
+  .via-tr { top: -4px; right: -4px; }
+  .via-bl { bottom: -4px; left: -4px; }
+  .via-br { bottom: -4px; right: -4px; }
+
+  /* ── TRACE LINES (top & bottom connecting vias) ── */
+  .trace-top,
+  .trace-bottom {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    height: 0;
+    border-top: 1px solid var(--trace-dim);
+    transition: border-color 0.3s;
+  }
+
+  .trace-top { top: 0; }
+  .trace-bottom { bottom: 0; }
+
+  /* Side traces (left & right) */
+  .trace-left,
+  .trace-right {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: 0;
+    border-left: 1px solid var(--trace-dim);
+    transition: border-color 0.3s;
+  }
+
+  .trace-left { left: 0; }
+  .trace-right { right: 0; }
+
+  .card:hover .trace-left,
+  .card:hover .trace-right {
+    border-color: var(--trace-bright);
+  }
+
+  /* ── HERO CARD ── */
+  .card--hero {
+    grid-column: 1 / -1;
+    background: var(--pcb-darkest);
+    border: 2px solid var(--trace-green);
+    display: flex;
+    align-items: center;
+    gap: 2em;
+    padding: 2em 2.5em;
+  }
+
+  .hero-avatar-wrapper {
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .hero-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid var(--solder-gold);
+    display: block;
+    object-fit: cover;
+    box-shadow: 0 0 12px rgba(255, 204, 0, 0.3);
+  }
+
+  /* Trace line connecting avatar to title */
+  .hero-avatar-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: 2em;
+    height: 2px;
+    background: var(--trace-green);
+    box-shadow: 0 0 4px var(--trace-green);
+  }
+
+  .hero-text {
+    flex: 1;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+    color: var(--trace-green);
+    letter-spacing: 0.15em;
+    text-shadow: 0 0 10px rgba(68, 255, 68, 0.5);
+    margin-bottom: 0.25em;
+    font-weight: bold;
+  }
+
+  .hero-subtitle {
+    font-size: 0.9rem;
+    color: var(--copper);
+    letter-spacing: 0.3em;
+    margin-bottom: 0.75em;
+  }
+
+  .hero-trace-line {
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--trace-green) 0%,
+      var(--trace-green) 40%,
+      transparent 40%,
+      transparent 42%,
+      var(--trace-green) 42%,
+      var(--trace-green) 60%,
+      transparent 60%,
+      transparent 62%,
+      var(--solder-gold) 62%,
+      var(--solder-gold) 80%,
+      transparent 80%
+    );
+    box-shadow: 0 0 4px rgba(68, 255, 68, 0.3);
+    margin-top: 0.5em;
+  }
+
+  /* ── FEATURED CARD ── */
+  .card--featured {
+    grid-column: span 2;
+    border: 2px solid var(--solder-gold);
+    background: linear-gradient(135deg, var(--pcb-card) 0%, #003a00 100%);
+  }
+
+  .card--featured .via-tl,
+  .card--featured .via-tr,
+  .card--featured .via-bl,
+  .card--featured .via-br {
+    width: 10px;
+    height: 10px;
+    background: var(--solder-gold);
+    box-shadow: 0 0 4px rgba(255, 204, 0, 0.4);
+  }
+
+  .card--featured .via-tl { top: -5px; left: -5px; }
+  .card--featured .via-tr { top: -5px; right: -5px; }
+  .card--featured .via-bl { bottom: -5px; left: -5px; }
+  .card--featured .via-br { bottom: -5px; right: -5px; }
+
+  /* ── COMPONENT (IC CHIP) CARD ── */
+  .card--component {
+    position: relative;
+    border: 2px solid var(--copper);
+    text-align: center;
+    padding: 2em 2.5em;
+  }
+
+  /* Pin legs on left side */
+  .pin-left {
+    position: absolute;
+    left: -12px;
+    width: 12px;
+    height: 4px;
+    background: var(--copper);
+  }
+
+  .pin-left:nth-child(1) { top: 20%; }
+  .pin-left:nth-child(2) { top: 40%; }
+  .pin-left:nth-child(3) { top: 60%; }
+  .pin-left:nth-child(4) { top: 80%; }
+
+  /* Pin legs on right side */
+  .pin-right {
+    position: absolute;
+    right: -12px;
+    width: 12px;
+    height: 4px;
+    background: var(--copper);
+  }
+
+  .pin-right:nth-child(5) { top: 20%; }
+  .pin-right:nth-child(6) { top: 40%; }
+  .pin-right:nth-child(7) { top: 60%; }
+  .pin-right:nth-child(8) { top: 80%; }
+
+  .component-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 4px;
+    border: 2px solid var(--copper);
+    display: block;
+    margin: 0 auto 1em auto;
+    object-fit: cover;
+  }
+
+  .component-label {
+    font-size: 0.75rem;
+    color: var(--copper);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5em;
+  }
+
+  .component-name {
+    font-size: 1rem;
+    color: var(--silkscreen);
+    font-weight: bold;
+  }
+
+  .ic-notch {
+    width: 20px;
+    height: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border: 2px solid var(--copper);
+    border-top: none;
+    margin: 0 auto 0.75em auto;
+  }
+
+  /* ── CARD INTERNALS ── */
+  .card-designation {
+    font-size: 0.7rem;
+    color: var(--trace-green);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.25em;
+    opacity: 0.7;
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+    color: var(--silkscreen);
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    line-height: 1.3;
+  }
+
+  .card-meta {
+    font-size: 0.75rem;
+    color: var(--copper);
+    margin-bottom: 0.75em;
+    letter-spacing: 0.05em;
+  }
+
+  .card-meta span {
+    display: block;
+    margin-bottom: 0.15em;
+  }
+
+  .card-type {
+    color: var(--trace-green);
+  }
+
+  .card-body {
+    font-size: 0.85rem;
+    color: var(--silkscreen);
+    opacity: 0.85;
+    line-height: 1.7;
+  }
+
+  .card-body p {
+    margin-bottom: 0.75em;
+  }
+
+  /* ── LED INDICATORS ── */
+  .led {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 0.4em;
+    vertical-align: middle;
+  }
+
+  .led--red {
+    background: var(--led-red);
+    box-shadow: 0 0 6px var(--led-red);
+  }
+
+  .led--green {
+    background: var(--trace-green);
+    box-shadow: 0 0 6px var(--trace-green);
+  }
+
+  .led--amber {
+    background: var(--solder-gold);
+    box-shadow: 0 0 6px var(--solder-gold);
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--pcb-darkest);
+    border: 1px solid var(--trace-dim);
+    padding: 1em;
+    margin: 1em 0;
+    font-size: 0.78rem;
+    overflow-x: auto;
+    color: var(--trace-green);
+    line-height: 1.5;
+    white-space: pre;
+  }
+
+  .code-comment {
+    color: #4a7a4a;
+  }
+
+  .code-key {
+    color: var(--copper);
+  }
+
+  .code-string {
+    color: var(--solder-gold);
+  }
+
+  .code-deprecated {
+    color: var(--led-red);
+    text-decoration: line-through;
+  }
+
+  /* ── FOOTER ── */
+  .pcb-footer {
+    margin-top: 3em;
+    padding: 1.5em 0;
+    border-top: 1px solid var(--trace-dim);
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--copper);
+    letter-spacing: 0.15em;
+  }
+
+  .pcb-footer::before {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 2px;
+    margin: 0 auto 1.5em auto;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--trace-dim) 10%,
+      var(--trace-green) 30%,
+      var(--trace-green) 70%,
+      var(--trace-dim) 90%,
+      transparent 100%
+    );
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .pcb-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .card--featured {
+      grid-column: span 1;
+    }
+
+    .hero-title {
+      font-size: 1.4rem;
+    }
+
+    .hero-subtitle {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  @media (max-width: 600px) {
+    body {
+      padding: 1em;
+    }
+
+    .pcb-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .card--featured {
+      grid-column: span 1;
+    }
+
+    .card--hero {
+      flex-direction: column;
+      text-align: center;
+      gap: 1em;
+      padding: 1.5em;
+    }
+
+    .hero-avatar-wrapper::after {
+      display: none;
+    }
+
+    .hero-title {
+      font-size: 1.2rem;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-subtitle {
+      letter-spacing: 0.1em;
+      font-size: 0.7rem;
+    }
+
+    .card {
+      padding: 1.2em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="pcb-grid">
+
+  <!-- ═══════════ HERO CARD ═══════════ -->
+  <div class="card card--hero">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="hero-avatar-wrapper">
+      <img src="avatar.webp" alt="keeb avatar" class="hero-avatar">
+    </div>
+    <div class="hero-text">
+      <div class="hero-title">KEEB.DEV &mdash; SCHEMATIC REV 4.2</div>
+      <div class="hero-subtitle">CIRCUIT BOARD // EST. 2022</div>
+      <div class="hero-trace-line"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ COMPONENT CARD (IC Chip) ═══════════ -->
+  <div class="card card--component">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <!-- Pin legs left -->
+    <span class="pin-left" style="top:20%"></span>
+    <span class="pin-left" style="top:40%"></span>
+    <span class="pin-left" style="top:60%"></span>
+    <span class="pin-left" style="top:80%"></span>
+    <!-- Pin legs right -->
+    <span class="pin-right" style="top:20%"></span>
+    <span class="pin-right" style="top:40%"></span>
+    <span class="pin-right" style="top:60%"></span>
+    <span class="pin-right" style="top:80%"></span>
+    <div class="ic-notch"></div>
+    <div class="component-label">IC PACKAGE // KEEB-MCU-01</div>
+    <img src="supreme_commander.png" alt="Supreme Commander" class="component-avatar">
+    <div class="component-name">SUPREME COMMANDER</div>
+    <div class="component-label" style="margin-top:0.5em">SYSTEM ARCHITECT // DIP-8</div>
+  </div>
+
+  <!-- ═══════════ U1: The Lore ═══════════ -->
+  <div class="card">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--green"></span>U1</div>
+    <div class="card-title">The Lore</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2022-05-28</span>
+      <span>TYPE: <span class="card-type">CORE</span></span>
+    </div>
+    <div class="card-body">
+      <p>The origin story of keeb.dev. Every board has a first trace, every signal needs a source. This is where the oscillator crystal was first soldered down and the clock started running.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ U2: I made a keylogger ═══════════ -->
+  <div class="card">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--green"></span>U2</div>
+    <div class="card-title">I made a keylogger</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2022-06-12</span>
+      <span>TYPE: <span class="card-type">SECURITY</span></span>
+    </div>
+    <div class="card-body">
+      <p>An exploration into keystroke capture at the hardware level. Intercepting signals on the data bus between the keyboard controller and the host. Educational purposes only&mdash;understanding the attack surface is the first step to defense.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ U3: Hexo & VSCode ═══════════ -->
+  <div class="card">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--green"></span>U3</div>
+    <div class="card-title">Hexo &amp; VSCode</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2022-05-28</span>
+      <span>TYPE: <span class="card-type">TOOLING</span></span>
+    </div>
+    <div class="card-body">
+      <p>Wiring up the development environment. Getting Hexo static site generation to play nicely with VSCode&mdash;configuring the toolchain so the signal path from markdown to deployed HTML is clean and repeatable.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ U4: Virtualization from scratch ═══════════ -->
+  <div class="card">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--green"></span>U4</div>
+    <div class="card-title">Virtualization from scratch</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2023-07-03</span>
+      <span>TYPE: <span class="card-type">COMPUTE</span></span>
+    </div>
+    <div class="card-body">
+      <p>Peeling back the layers of abstraction to understand how virtual machines actually work at the silicon level. Hypervisors, ring privileges, hardware-assisted virtualization&mdash;building the mental model from bare metal up.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ U5: Terraform with Glitter ═══════════ -->
+  <div class="card">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--red"></span>U5</div>
+    <div class="card-title">Terraform with Glitter</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2025-09-25</span>
+      <span>TYPE: <span class="card-type">INFRA</span></span>
+    </div>
+    <div class="card-body">
+      <p>Infrastructure as code, but make it sparkle. Taking the declarative approach to cloud provisioning and layering on the kind of polish that makes your colleagues ask &ldquo;wait, how did you do that?&rdquo; Terraform plans with style.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ U6: AI is great at parsing ═══════════ -->
+  <div class="card">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--red"></span>U6</div>
+    <div class="card-title">AI is great at parsing</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2025-09-26</span>
+      <span>TYPE: <span class="card-type">AI/ML</span></span>
+    </div>
+    <div class="card-body">
+      <p>LLMs turn out to be remarkably good at the unglamorous work of pulling structured data out of unstructured text. Forget the hype about AGI&mdash;the real value is in turning messy inputs into clean signals.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ U7: Claude Sonnet 4.5 & System Initiative ═══════════ -->
+  <div class="card">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--red"></span>U7</div>
+    <div class="card-title">Claude Sonnet 4.5 &amp; System Initiative</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2025-09-29</span>
+      <span>TYPE: <span class="card-type">AI/ML</span></span>
+    </div>
+    <div class="card-body">
+      <p>Putting Claude Sonnet 4.5 through its paces with System Initiative&mdash;testing how well the model handles infrastructure modeling, component relationships, and the kind of systems thinking that DevOps demands at scale.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ U8: AI-Native Infrastructure ═══════════ -->
+  <div class="card">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--red"></span>U8</div>
+    <div class="card-title">AI-Native Infrastructure</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2026-02-03</span>
+      <span>TYPE: <span class="card-type">INFRA</span></span>
+    </div>
+    <div class="card-body">
+      <p>What happens when you design infrastructure with AI as a first-class citizen instead of bolting it on after the fact? Rethinking the stack from the ground up&mdash;from provisioning to observability&mdash;with machine intelligence woven into every layer.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ U9: MCP Is Dead [FEATURED] ═══════════ -->
+  <div class="card card--featured">
+    <span class="via-tl"></span>
+    <span class="via-tr"></span>
+    <span class="via-bl"></span>
+    <span class="via-br"></span>
+    <span class="trace-top"></span>
+    <span class="trace-bottom"></span>
+    <span class="trace-left"></span>
+    <span class="trace-right"></span>
+    <div class="card-designation"><span class="led led--amber"></span>U9 // FEATURED</div>
+    <div class="card-title">MCP Is Dead</div>
+    <div class="card-meta">
+      <span>MFG DATE: 2026-02-03</span>
+      <span>TYPE: <span class="card-type">PROTOCOL [FEATURED]</span></span>
+    </div>
+    <div class="card-body">
+      <p>The Model Context Protocol was supposed to be the USB-C of AI tooling&mdash;one connector to rule them all, a universal interface that would let any model talk to any tool through a single, elegant specification. The pitch was compelling: stop reinventing the wheel with bespoke integrations, agree on a shared protocol, and let the ecosystem flourish. For about six months, it felt like the future had arrived early.</p>
+
+      <p>Then reality set in. What actually happened was that MCP became less like USB-C and more like that drawer in your kitchen full of charging cables from devices you no longer own. Every major vendor shipped their own &ldquo;MCP-compatible&rdquo; connector that was subtly, infuriatingly incompatible with everyone else&rsquo;s. Anthropic&rsquo;s reference implementation diverged from OpenAI&rsquo;s interpretation, which bore only a passing resemblance to what Google shipped, which was unrecognizable next to whatever Meta decided to do. The spec was technically open, but &ldquo;technically open&rdquo; and &ldquo;practically interoperable&rdquo; turned out to be very different things.</p>
+
+      <p>The fragmentation ran deeper than just transport layers. Tool schemas drifted. Context window negotiation became a vendor-specific dance. The &ldquo;universal&rdquo; tool description format spawned three competing extensions, each backed by a different consortium of companies who claimed theirs was the true successor to the original vision. Developers who had bet on MCP as a stable foundation found themselves maintaining compatibility shims that were more complex than the integrations MCP was supposed to replace.</p>
+
+      <p>Community fatigue set in fast. The MCP Discord went from excited builders sharing implementations to exhausted maintainers arguing about whether breaking changes in point releases constituted a governance failure or a natural evolution. Conference talks shifted from &ldquo;How to build with MCP&rdquo; to &ldquo;Lessons learned from the MCP experiment.&rdquo; The gap between the specification&rsquo;s ambition and the implementation reality became a running joke&mdash;people started calling it the &ldquo;Maybe Compatible Protocol.&rdquo;</p>
+
+      <p>What killed MCP was not any single technical failure but the gravitational pull of platform economics. When interoperability conflicts with competitive advantage, competitive advantage wins every time. The protocol lives on in name, scattered across legacy configs and abandoned repos, a monument to the perennial hope that this time, surely, the industry would agree on a standard before fragmenting it into oblivion.</p>
+
+      <div class="code-block"><span class="code-comment">// mcp-config.json (DEPRECATED)</span>
+<span class="code-comment">// WARNING: This configuration format is no longer</span>
+<span class="code-comment">// supported as of MCP spec v2.3.0</span>
+{
+  <span class="code-key">"mcpVersion"</span>: <span class="code-string">"1.0.0"</span>,
+  <span class="code-key">"transport"</span>: <span class="code-deprecated">"stdio"</span>,
+  <span class="code-key">"tools"</span>: [
+    {
+      <span class="code-key">"name"</span>: <span class="code-string">"file_reader"</span>,
+      <span class="code-key">"description"</span>: <span class="code-string">"Read files from local filesystem"</span>,
+      <span class="code-key">"inputSchema"</span>: {
+        <span class="code-key">"type"</span>: <span class="code-string">"object"</span>,
+        <span class="code-key">"properties"</span>: {
+          <span class="code-key">"path"</span>: {
+            <span class="code-key">"type"</span>: <span class="code-string">"string"</span>,
+            <span class="code-key">"description"</span>: <span class="code-string">"Absolute file path"</span>
+          }
+        }
+      }
+    }
+  ],
+  <span class="code-key">"contextWindow"</span>: {
+    <span class="code-key">"negotiation"</span>: <span class="code-deprecated">"auto"</span>,
+    <span class="code-key">"maxTokens"</span>: <span class="code-string">128000</span>,
+    <span class="code-key">"vendor"</span>: <span class="code-deprecated">"anthropic-v1"</span>
+  }
+}</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="pcb-footer">
+  BOARD REV 4.2 // FABRICATED 2026-02-03 // ALL TRACES ACTIVE
+</footer>
+
+</body>
+</html>

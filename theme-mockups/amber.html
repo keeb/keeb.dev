@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev -- VT220 Warm Terminal</title>
+<style>
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:        #ffb000;
+    --amber-bright: #ffc030;
+    --amber-dim:    #aa7700;
+    --amber-bold:   #ffcc44;
+    --gold:         #ffe088;
+    --bg:           #1a1400;
+    --bg-code:      #221a00;
+    --glow-sm:      0 0 2px #ffb00044;
+    --glow-md:      0 0 8px #ffb000, 0 0 20px #ff880044;
+    --glow-lg:      0 0 8px #ffb000, 0 0 20px #ff880044, 0 0 40px #ffb00022;
+  }
+
+  html {
+    font-size: 16px;
+    background: #0d0a00;
+  }
+
+  /* Flicker animation */
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    25% { opacity: 0.99; }
+    50% { opacity: 0.97; }
+    75% { opacity: 0.98; }
+  }
+
+  body {
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    background: #0d0a00;
+    color: var(--amber);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    line-height: 1.725;
+    animation: flicker 0.15s infinite;
+  }
+
+  /* ============================================================
+     CRT CONTAINER
+     ============================================================ */
+  .crt-monitor {
+    position: relative;
+    width: 100%;
+    max-width: 48rem;
+    background: #1a1400;
+    border-radius: 18px;
+    padding: 6px;
+    box-shadow:
+      0 0 0 2px #2a2000,
+      0 0 60px rgba(255, 176, 0, 0.05),
+      0 8px 40px rgba(0, 0, 0, 0.8);
+  }
+
+  .crt-screen {
+    position: relative;
+    background: var(--bg);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 80px rgba(255, 176, 0, 0.03),
+      inset 0 0 120px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Scanline overlay -- subtle */
+  .crt-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0, 0, 0, 0.08) 3px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+    border-radius: 14px;
+  }
+
+  /* Vignette */
+  .crt-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 60%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+    pointer-events: none;
+    z-index: 11;
+    border-radius: 14px;
+  }
+
+  .crt-content {
+    position: relative;
+    z-index: 5;
+    padding: 36px 40px;
+  }
+
+  /* ============================================================
+     ASCII HEADER
+     ============================================================ */
+  #ascii-art {
+    color: var(--amber);
+    text-shadow: var(--glow-md);
+    margin-bottom: 28px;
+    white-space: pre;
+    display: block;
+  }
+
+  /* Cursor blink */
+  @keyframes cursor-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  #terminal-cursor {
+    color: var(--amber);
+    text-shadow: 0 0 8px var(--amber);
+    animation: cursor-blink 1s step-end infinite;
+  }
+
+  /* ============================================================
+     AVATAR
+     ============================================================ */
+  .avatar-section {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .avatar-img {
+    width: 88px;
+    height: 88px;
+    border-radius: 4px;
+    image-rendering: auto;
+    filter: sepia(1) saturate(2) brightness(0.85) hue-rotate(-10deg);
+    border: 1px solid var(--amber-dim);
+    box-shadow: 0 0 16px rgba(255, 176, 0, 0.15);
+  }
+
+  /* ============================================================
+     NAV
+     ============================================================ */
+  .site-nav {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 0.9rem;
+  }
+
+  .site-nav a {
+    color: var(--amber-bright);
+    text-decoration: none;
+    text-shadow: var(--glow-sm);
+    transition: all 0.2s;
+  }
+
+  .site-nav a:hover {
+    text-shadow: var(--glow-md);
+    color: var(--amber-bold);
+  }
+
+  .site-nav .sep {
+    color: var(--amber-dim);
+    margin: 0 10px;
+  }
+
+  /* ============================================================
+     POST LIST
+     ============================================================ */
+  .section-label {
+    font-size: 0.75rem;
+    color: var(--amber-dim);
+    text-shadow: var(--glow-sm);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 176, 0, 0.1);
+  }
+
+  .post-list {
+    list-style: none;
+    margin-bottom: 36px;
+  }
+
+  .post-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255, 176, 0, 0.06);
+    gap: 12px;
+  }
+
+  .post-list li:last-child {
+    border-bottom: none;
+  }
+
+  .post-link {
+    color: var(--amber-bright);
+    text-decoration: none;
+    text-shadow: var(--glow-sm);
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .post-link:hover {
+    color: var(--amber-bold);
+    text-shadow: var(--glow-md);
+  }
+
+  .post-date {
+    font-size: 0.72rem;
+    color: var(--amber-dim);
+    text-shadow: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ============================================================
+     ARTICLE / FEATURED POST
+     ============================================================ */
+  .article-separator {
+    border: none;
+    border-top: 1px solid rgba(255, 176, 0, 0.12);
+    margin: 32px 0;
+  }
+
+  .article-section {
+    margin-bottom: 36px;
+  }
+
+  .article-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--amber-bold);
+    text-shadow: var(--glow-md);
+    margin-bottom: 6px;
+  }
+
+  .article-meta {
+    font-size: 0.72rem;
+    color: var(--amber-dim);
+    margin-bottom: 20px;
+  }
+
+  .article-body {
+    font-size: 0.88rem;
+    color: var(--amber);
+    text-shadow: var(--glow-sm);
+    line-height: 1.725;
+  }
+
+  .article-body p {
+    margin-bottom: 14px;
+  }
+
+  .article-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .article-body strong {
+    color: var(--amber-bold);
+    font-weight: 700;
+  }
+
+  .article-body code {
+    background: var(--bg-code);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 0.84rem;
+    border: 1px solid rgba(255, 176, 0, 0.12);
+    color: var(--amber-bright);
+  }
+
+  .article-body blockquote {
+    border-left: 3px solid var(--amber-dim);
+    padding: 10px 16px;
+    margin: 16px 0;
+    color: var(--gold);
+    text-shadow: 0 0 2px rgba(255, 224, 136, 0.2);
+    background: rgba(255, 176, 0, 0.03);
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+  }
+
+  .article-body blockquote p {
+    margin-bottom: 0;
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .site-footer {
+    border-top: 1px solid rgba(255, 176, 0, 0.12);
+    padding-top: 20px;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--amber-dim);
+    text-shadow: var(--glow-sm);
+    line-height: 1.8;
+  }
+
+  .site-footer .hl {
+    color: var(--amber);
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 680px) {
+    body { padding: 10px; }
+
+    .crt-monitor {
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .crt-screen { border-radius: 8px; }
+
+    .crt-content {
+      padding: 20px 16px;
+    }
+
+    .post-list li {
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 0;
+    }
+
+    .avatar-img {
+      width: 64px;
+      height: 64px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .crt-content { padding: 14px 10px; }
+    .site-nav a { font-size: 0.8rem; }
+  }
+
+  /* ============================================================
+     AMBER GLOW PULSE -- subtle ambient warmth
+     ============================================================ */
+  @keyframes amber-pulse {
+    0%   { text-shadow: var(--glow-md); }
+    50%  { text-shadow: var(--glow-lg); }
+    100% { text-shadow: var(--glow-md); }
+  }
+
+  #ascii-art {
+    animation: amber-pulse 6s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<!-- CRT Container -->
+<div class="crt-monitor">
+  <div class="crt-screen">
+    <div class="crt-content">
+
+      <!-- ==================== ASCII HEADER ==================== -->
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">&block;</span>
+</pre>
+
+      <!-- ==================== AVATAR ==================== -->
+      <div class="avatar-section">
+        <img
+          src="avatar.webp"
+          alt="keeb.dev avatar"
+          class="avatar-img"
+        />
+      </div>
+
+      <!-- ==================== NAV ==================== -->
+      <nav class="site-nav">
+        <a href="#">Home</a>
+        <span class="sep">|</span>
+        <a href="#">About</a>
+        <span class="sep">|</span>
+        <a href="#">Writing</a>
+      </nav>
+
+      <!-- ==================== POST LIST ==================== -->
+      <section>
+        <div class="section-label">// recent posts</div>
+        <ul class="post-list">
+          <li>
+            <a href="#" class="post-link">MCP Is Dead</a>
+            <span class="post-date">2026-02-03</span>
+          </li>
+          <li>
+            <a href="#" class="post-link">AI-Native Infrastructure</a>
+            <span class="post-date">2026-02-03</span>
+          </li>
+          <li>
+            <a href="#" class="post-link">Claude Sonnet 4.5 &amp; System Initiative</a>
+            <span class="post-date">2025-09-29</span>
+          </li>
+          <li>
+            <a href="#" class="post-link">AI is great at parsing</a>
+            <span class="post-date">2025-09-26</span>
+          </li>
+          <li>
+            <a href="#" class="post-link">Terraform with Glitter</a>
+            <span class="post-date">2025-09-25</span>
+          </li>
+          <li>
+            <a href="#" class="post-link">Virtualization from scratch</a>
+            <span class="post-date">2023-07-03</span>
+          </li>
+          <li>
+            <a href="#" class="post-link">I made a keylogger</a>
+            <span class="post-date">2022-06-12</span>
+          </li>
+          <li>
+            <a href="#" class="post-link">Hexo &amp; VSCode</a>
+            <span class="post-date">2022-05-28</span>
+          </li>
+          <li>
+            <a href="#" class="post-link">The Lore</a>
+            <span class="post-date">2022-05-28</span>
+          </li>
+        </ul>
+      </section>
+
+      <hr class="article-separator">
+
+      <!-- ==================== FEATURED ARTICLE ==================== -->
+      <article class="article-section">
+        <h2 class="article-title">Hexo &amp; VSCode</h2>
+        <div class="article-meta">2022-05-28 &mdash; keeb</div>
+        <div class="article-body">
+          <p>
+            When I set out to build this site I had a few constraints in mind: it had to be
+            statically generated, trivially deployable, and comfortable to write in. I have
+            used Hugo, Jekyll, and a half-dozen bespoke static-site generators over the years,
+            but <strong>Hexo</strong> hit a sweet spot I did not expect. It is Node-based, fast
+            enough for a personal blog, and the theme ecosystem&mdash;while smaller than
+            Hugo's&mdash;has some genuinely well-crafted entries. The Cactus theme in
+            particular felt right: minimal, terminal-adjacent, and easy to bend to my will
+            with a few hours of CSS surgery.
+          </p>
+          <p>
+            The real unlock was the authoring workflow. Every post is a Markdown file in
+            <code>app/web/overlay/writing/</code>, and VSCode with a handful of extensions
+            turns into a surprisingly competent writing environment. Spell-check, Markdown
+            preview, integrated terminal for <code>hexo generate</code>&mdash;it all Just
+            Works. I mapped a keybinding to spin up the local Docker preview so I can see
+            rendered output in under two seconds from saving a file.
+          </p>
+          <p>
+            The deploy pipeline is equally simple: a single shell script that builds the
+            Docker image, generates the static output, and symlinks it into the Nginx
+            document root with a timestamped directory. Rollback is just pointing the symlink
+            at the previous timestamp. No CI service, no build queue, no YAML pipeline
+            definitions&mdash;just <code>./scripts/deploy.sh</code> and a cup of coffee.
+          </p>
+          <blockquote>
+            <p>
+              The best tools are the ones that disappear. You stop thinking about the tool
+              and start thinking about the work. Hexo and VSCode, together, get close to
+              that ideal for me&mdash;a warm terminal, a blinking cursor, and nothing else
+              between thought and published word.
+            </p>
+          </blockquote>
+        </div>
+      </article>
+
+      <!-- ==================== FOOTER ==================== -->
+      <footer class="site-footer">
+        <span class="hl">keeb.dev</span> &copy; 2022&ndash;2026<br>
+        powered by mass quantities of mass-produced caffeine<br>
+        warm amber glow &mdash; like reading by firelight through a CRT
+      </footer>
+
+    </div><!-- .crt-content -->
+  </div><!-- .crt-screen -->
+</div><!-- .crt-monitor -->
+
+</body>
+</html>

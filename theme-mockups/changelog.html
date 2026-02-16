@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — Changelog</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1d1f21;
+    color: #c9cacc;
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin-left: 2rem;
+    margin-right: auto;
+    padding: 2rem 1rem;
+  }
+
+  a { color: rgba(212,128,170,1); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  h1, h2, h3 { color: #ffffff; }
+
+  code {
+    background: #2a2c2e;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: inherit;
+  }
+
+  blockquote {
+    color: #ccffb6;
+    border-left: 3px solid #ccffb6;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+  }
+
+  /* ASCII header */
+  @keyframes wave-animation {
+    0%, 30%, 100% { color: #c9cacc; }
+    5% { background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    10% { background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    15% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    20% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    25% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  }
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  #terminal-cursor { animation: blink 1s step-end infinite; color: rgba(212,128,170,1); }
+  #ascii-art { animation: wave-animation 8s ease-in-out infinite; color: #c9cacc; font-size: 0.65rem; overflow: hidden; white-space: pre; }
+
+  .header-section {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 1.5rem;
+  }
+
+  /* Changelog grid layout */
+  .changelog {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+  }
+
+  .year-group {
+    display: contents;
+  }
+
+  .year-gutter {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    border-right: 1px solid #333;
+    padding-right: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    height: fit-content;
+  }
+
+  .year-label {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #d480aa;
+    line-height: 1.2;
+  }
+
+  .year-posts {
+    border-top: 1px solid #333;
+    padding: 1rem 0 2rem 1.5rem;
+  }
+
+  .year-group:first-child .year-posts {
+    border-top: none;
+  }
+
+  .year-group:first-child .year-gutter {
+    /* no top border on first group gutter either */
+  }
+
+  .post-entry {
+    margin-bottom: 1.5rem;
+  }
+
+  .post-entry:last-child {
+    margin-bottom: 0;
+  }
+
+  .post-title {
+    font-size: 1.05em;
+    font-weight: bold;
+  }
+
+  .post-title a {
+    color: rgba(212,128,170,1);
+  }
+
+  .post-date {
+    color: #908d8d;
+    font-size: 0.85em;
+    margin-bottom: 0.3rem;
+  }
+
+  .post-excerpt {
+    color: #c9cacc;
+    margin-top: 0.3rem;
+    font-size: 0.92em;
+    line-height: 1.5;
+  }
+
+  /* Featured post full body */
+  .post-body {
+    margin-top: 0.75rem;
+    font-size: 0.92em;
+    line-height: 1.7;
+  }
+
+  .post-body p {
+    margin-bottom: 0.8rem;
+  }
+
+  .post-body h3 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-size: 1em;
+  }
+
+  .featured-tag {
+    display: inline-block;
+    background: #d480aa;
+    color: #1d1f21;
+    font-size: 0.7em;
+    padding: 0.1em 0.5em;
+    border-radius: 2px;
+    margin-left: 0.5em;
+    vertical-align: middle;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header-section">
+<pre id="ascii-art" style="font-family: monospace; line-height: normal;">
+      ..                                  ..              ..                     _
+< .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+  </div>
+
+  <div class="changelog">
+
+    <!-- 2026 -->
+    <div class="year-group">
+      <div class="year-gutter">
+        <div class="year-label">2026</div>
+      </div>
+      <div class="year-posts">
+
+        <div class="post-entry">
+          <div class="post-date">2026-02-03</div>
+          <div class="post-title"><a href="#">MCP Is Dead</a></div>
+          <div class="post-excerpt">The Model Context Protocol had a good run, but the ecosystem moved on faster than the spec could keep up. Here's what replaced it and why the transition was inevitable.</div>
+        </div>
+
+        <div class="post-entry">
+          <div class="post-date">2026-02-03</div>
+          <div class="post-title"><a href="#">AI-Native Infrastructure</a></div>
+          <div class="post-excerpt">What does infrastructure look like when it's designed from the ground up for AI workloads? Not bolted on, not retrofitted &mdash; native. A look at the emerging patterns.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 2025 -->
+    <div class="year-group">
+      <div class="year-gutter">
+        <div class="year-label">2025</div>
+      </div>
+      <div class="year-posts">
+
+        <div class="post-entry">
+          <div class="post-date">2025-09-29</div>
+          <div class="post-title"><a href="#">Claude Sonnet 4.5 &amp; System Initiative</a></div>
+          <div class="post-excerpt">Exploring the intersection of Claude Sonnet 4.5's capabilities with System Initiative's infrastructure-as-code platform. A practical walkthrough of AI-assisted ops.</div>
+        </div>
+
+        <div class="post-entry">
+          <div class="post-date">2025-09-26</div>
+          <div class="post-title"><a href="#">AI is great at parsing</a></div>
+          <div class="post-excerpt">Turns out large language models are unreasonably good at parsing messy, unstructured data. Faster than writing a regex, more robust than a hand-rolled parser.</div>
+        </div>
+
+        <div class="post-entry">
+          <div class="post-date">2025-09-25</div>
+          <div class="post-title"><a href="#">Terraform with Glitter</a></div>
+          <div class="post-excerpt">Adding a dash of polish to Terraform workflows. Custom providers, better output formatting, and making infrastructure code that's actually pleasant to read.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 2023 -->
+    <div class="year-group">
+      <div class="year-gutter">
+        <div class="year-label">2023</div>
+      </div>
+      <div class="year-posts">
+
+        <div class="post-entry">
+          <div class="post-date">2023-07-03</div>
+          <div class="post-title"><a href="#">Virtualization from scratch</a></div>
+          <div class="post-excerpt">Building a minimal hypervisor from the ground up using KVM. From CPU virtualization primitives to a working VM that boots a kernel &mdash; understanding every layer along the way.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 2022 -->
+    <div class="year-group">
+      <div class="year-gutter">
+        <div class="year-label">2022</div>
+      </div>
+      <div class="year-posts">
+
+        <div class="post-entry">
+          <div class="post-date">2022-06-12</div>
+          <div class="post-title"><a href="#">I made a keylogger</a></div>
+          <div class="post-excerpt">A deep dive into input event handling on Linux. How keyloggers actually work under the hood, the kernel interfaces they exploit, and what defenses exist.</div>
+        </div>
+
+        <div class="post-entry">
+          <div class="post-date">2022-05-28</div>
+          <div class="post-title"><a href="#">Hexo &amp; VSCode</a><span class="featured-tag">FEATURED</span></div>
+          <div class="post-body">
+            <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+            <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+            <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+            <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+
+            <h3>Asset Management</h3>
+
+            <p>One of the early pain points was handling images and other assets in posts. Hexo's default asset pipeline assumes a flat structure, which gets messy fast when you have dozens of posts each with their own screenshots and diagrams. The <code>hexo-asset-link</code> plugin solves this cleanly &mdash; enable <code>post_asset_folder: true</code> in your <code>_config.yml</code> and each post gets its own directory. Reference images with standard Markdown syntax and the plugin rewrites the paths at build time.</p>
+
+            <p>The real trick is pairing this with <strong>Docker volume mounts</strong>. Your source tree lives on the host, the Hexo build runs inside the container, and the asset folder convention means everything just works. No path gymnastics, no build-step hacks. You write Markdown, you drop images next to the <code>.md</code> file, and the output is a clean static site with all the assets in the right place. It sounds simple because it is &mdash; which is exactly the point.</p>
+          </div>
+        </div>
+
+        <div class="post-entry">
+          <div class="post-date">2022-05-28</div>
+          <div class="post-title"><a href="#">The Lore</a></div>
+          <div class="post-excerpt">The origin story. Why this blog exists, what keeb.dev means, and the circuitous path from mechanical keyboards to infrastructure engineering.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- .changelog -->
+
+</div><!-- .container -->
+
+</body>
+</html>

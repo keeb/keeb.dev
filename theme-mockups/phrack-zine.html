@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev :: a hacker zine</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: #000;
+  color: #ccc;
+  font-family: "Courier New", Courier, "Lucida Console", Monaco, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+body {
+  max-width: 78ch;
+  margin: 0 auto;
+  padding: 1em;
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+pre {
+  white-space: pre;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.2;
+  color: #fff;
+  overflow-x: auto;
+}
+
+.masthead pre {
+  color: #fff;
+}
+
+.section-header {
+  color: #fff;
+  text-align: center;
+  padding: 1em 0 0.5em 0;
+}
+
+.divider {
+  color: #666;
+  overflow: hidden;
+}
+
+.meta {
+  color: #888;
+}
+
+.article-title {
+  color: #fff;
+}
+
+.toc-number {
+  color: #888;
+}
+
+.body-text {
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.body-text p {
+  margin-bottom: 1em;
+}
+
+.avatar-decoration {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  image-rendering: pixelated;
+}
+
+.footer-text {
+  color: #666;
+}
+
+.post-link {
+  color: #fff;
+}
+
+.post-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.dots {
+  color: #444;
+}
+
+@media (max-width: 600px) {
+  html {
+    font-size: 12px;
+  }
+  body {
+    padding: 0.5em;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+<pre>
+                     _        _            _
+                    | |      | |          | |
+                    | | _____| |__      __| | _____   __
+                    | |/ / _ \ '_ \    / _` |/ _ \ \ / /
+                    |   &lt;  __/  __/ _ | (_| |  __/\ V /
+                    |_|\_\___|_|  (_)  \__,_|\___| \_/
+
+</pre>
+<pre>
+              =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+                          a personal hacker zine
+                       vol. 1 :: issues 0x00 - 0x08
+              =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+                  "the keyboard is mightier than the sword"
+
+                         published :: 2026-02-06
+                         author   :: keeb
+                         contact  :: https://keeb.dev
+</pre>
+</div>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Prologue ]==========================================================
+</pre></div>
+
+<pre class="body-text">
+  <img src="avatar.webp" alt="keeb" class="avatar-decoration"> keeb here.
+
+  This is a collection of writings on hacking, infrastructure,
+  security, AI, and whatever else crosses my terminal. No ads.
+  No tracking. No frameworks. Just text.
+
+  If you're reading this, you already know.
+
+</pre>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Table of Contents ]=================================================
+</pre></div>
+
+<pre>
+  article                                              date        issue
+  -------                                              ----        -----
+  0x01  The Lore ................................... 2022-05-28  vol.1 #1
+  0x02  Hexo &amp; VSCode ............................. 2022-05-28  vol.1 #1
+  0x03  I made a keylogger ......................... 2022-06-12  vol.1 #2
+  0x04  Virtualization from scratch ................ 2023-07-03  vol.1 #3
+  0x05  Terraform with Glitter ..................... 2025-09-25  vol.1 #4
+  0x06  AI is great at parsing ..................... 2025-09-26  vol.1 #4
+  0x07  Claude Sonnet 4.5 &amp; System Initiative ...... 2025-09-29  vol.1 #4
+  0x08  AI-Native Infrastructure ................... 2026-02-03  vol.1 #5
+  0x09  MCP Is Dead ................................ 2026-02-03  vol.1 #5
+
+</pre>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x01 ]======================================================
+==                                                                     =
+==  The Lore                                                           =
+==                                                                     =
+==  by keeb                                          2022-05-28        =
+==                                                   vol.1 issue #1    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ origin story -- every hacker has one ]
+</pre>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x02 ]======================================================
+==                                                                     =
+==  Hexo &amp; VSCode                                                     =
+==                                                                     =
+==  by keeb                                          2022-05-28        =
+==                                                   vol.1 issue #1    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ tools of the trade -- setting up the publishing pipeline ]
+</pre>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x03 ]======================================================
+==                                                                     =
+==  I made a keylogger                                                 =
+==                                                                     =
+==  by keeb                                          2022-06-12        =
+==                                                   vol.1 issue #2    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ security research -- understanding input capture ]
+</pre>
+
+<div class="body-text">
+<p>
+  There's a particular kind of knowledge you can only get by building
+  the thing yourself.  Reading about keyloggers in a textbook tells
+  you what they do.  Building one tells you how the entire input
+  pipeline of an operating system actually works -- from the moment a
+  key is pressed on the hardware, through the interrupt handler, into
+  the kernel's input subsystem, and finally up to userspace where your
+  program is sitting there, quietly listening.
+</p>
+<p>
+  I built a keylogger as a learning exercise.  Not to deploy it, not
+  to steal credentials, but to understand the attack surface.  If you
+  want to defend against something, you need to know exactly how it
+  operates.  The best locksmiths know how to pick locks.  The best
+  security engineers know how to write malware.  That's not a
+  contradiction -- it's a prerequisite.
+</p>
+<p>
+  The implementation itself was straightforward.  Hook into the input
+  events, buffer the keystrokes, write them out.  What surprised me
+  was how little code it took.  The entire thing fit in fewer lines
+  than most people's .bashrc.  That's the lesson: the barrier to
+  building offensive tools is absurdly low.  The only real defense is
+  understanding the attack deeply enough to detect and prevent it at
+  every layer.
+</p>
+<p>
+  The exercise reinforced something I already believed: you learn more
+  from building than from reading.  Every hacker knows this.  The
+  documentation is the source code.  The classroom is the terminal.
+</p>
+</div>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x04 ]======================================================
+==                                                                     =
+==  Virtualization from scratch                                        =
+==                                                                     =
+==  by keeb                                          2023-07-03        =
+==                                                   vol.1 issue #3    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ low-level -- peeling back the hypervisor ]
+</pre>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x05 ]======================================================
+==                                                                     =
+==  Terraform with Glitter                                             =
+==                                                                     =
+==  by keeb                                          2025-09-25        =
+==                                                   vol.1 issue #4    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ infrastructure -- making IaC less painful ]
+</pre>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x06 ]======================================================
+==                                                                     =
+==  AI is great at parsing                                             =
+==                                                                     =
+==  by keeb                                          2025-09-26        =
+==                                                   vol.1 issue #4    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ AI -- letting the machine do the boring work ]
+</pre>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x07 ]======================================================
+==                                                                     =
+==  Claude Sonnet 4.5 &amp; System Initiative                             =
+==                                                                     =
+==  by keeb                                          2025-09-29        =
+==                                                   vol.1 issue #4    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ AI -- when the model starts making its own moves ]
+</pre>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x08 ]======================================================
+==                                                                     =
+==  AI-Native Infrastructure                                           =
+==                                                                     =
+==  by keeb                                          2026-02-03        =
+==                                                   vol.1 issue #5    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ AI/infra -- building systems that think ]
+</pre>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ Article 0x09 ]======================================================
+==                                                                     =
+==  MCP Is Dead                                                        =
+==                                                                     =
+==  by keeb                                          2026-02-03        =
+==                                                   vol.1 issue #5    =
+========================================================================
+</pre></div>
+
+<pre class="meta">
+  [ AI -- protocols come and protocols go ]
+</pre>
+
+<br>
+
+<div class="divider"><pre>------------------------------------------------------------------------</pre></div>
+
+<div class="section-header"><pre>
+==[ EOF ]===============================================================
+</pre></div>
+
+<pre class="footer-text">
+
+  keeb.dev zine vol. 1
+  published 2026-02-06
+
+  ---------------------------------------------------------------
+
+  greets:   the mass, the &lt;1%, anyone still reading plain text
+  written:  in a terminal, as god intended
+  powered:  by caffeine, curiosity, and too many mechanical keyboards
+  hosted:   on infrastructure I actually understand
+
+  ---------------------------------------------------------------
+
+  "information wants to be free"
+
+  all content (c) keeb -- do whatever you want with it
+  if you learned something, pass it on
+
+  ---------------------------------------------------------------
+
+  this file is best viewed in a terminal:
+
+      $ curl -s https://keeb.dev/zine.txt | less
+
+  ---------------------------------------------------------------
+
+</pre>
+
+</body>
+</html>

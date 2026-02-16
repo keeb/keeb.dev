@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INVESTIGATION BOARD -- CASE #2022-KEEB</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 15px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #2a2520;
+    color: #1a1a1a;
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* Corkboard texture: layered gradients for grainy/bumpy pattern */
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(60, 45, 30, 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(70, 55, 35, 0.2) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 80%, rgba(55, 40, 28, 0.25) 0%, transparent 45%),
+      repeating-conic-gradient(
+        rgba(50, 38, 25, 0.06) 0deg,
+        transparent 1deg,
+        transparent 3deg,
+        rgba(50, 38, 25, 0.04) 4deg,
+        transparent 5deg
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(80, 60, 40, 0.05) 3px,
+        rgba(80, 60, 40, 0.05) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 3px,
+        rgba(80, 60, 40, 0.04) 3px,
+        rgba(80, 60, 40, 0.04) 4px
+      ),
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 5px,
+        rgba(90, 70, 45, 0.03) 5px,
+        rgba(90, 70, 45, 0.03) 6px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 7px,
+        rgba(70, 50, 30, 0.03) 7px,
+        rgba(70, 50, 30, 0.03) 8px
+      );
+  }
+
+  /* ===== PINBOARD CONTAINER ===== */
+  .pinboard {
+    position: relative;
+    min-height: 200vh;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* ===== BOARD LABEL ===== */
+  .board-label {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f0e8d8;
+    border: 2px solid #999;
+    padding: 6px 28px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.2em;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  /* ===== PUSH PIN (default, on cards via ::before) ===== */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 5px 5px, #ee4444, #aa1111 60%, #881111);
+    box-shadow: 1px 2px 3px rgba(0,0,0,0.5);
+    z-index: 10;
+  }
+
+  /* ===== BASE CARD STYLE ===== */
+  .card {
+    position: absolute;
+    background: #f8f4e8;
+    padding: 20px;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+    /* subtle paper texture */
+    background-image:
+      linear-gradient(180deg, rgba(0,0,0,0.01) 0%, transparent 2px, transparent 98%, rgba(0,0,0,0.02) 100%),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 28px,
+        rgba(180,170,150,0.06) 28px,
+        rgba(180,170,150,0.06) 29px
+      );
+    z-index: 2;
+  }
+
+  /* ===== CASE FILE (MAIN CARD) ===== */
+  .case-file {
+    top: 80px;
+    left: 5%;
+    width: 500px;
+    transform: rotate(-1deg);
+    background: #f0e8d8;
+    border: 1px solid #c8b89a;
+    padding: 0;
+    z-index: 5;
+  }
+
+  .case-file::before {
+    top: -6px;
+    left: 30%;
+  }
+
+  .case-file .folder-tab {
+    background: #d4c4a0;
+    border-bottom: 1px solid #b8a880;
+    padding: 8px 20px;
+    width: 200px;
+    border-radius: 6px 6px 0 0;
+    margin-left: 20px;
+    margin-top: -1px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: #555;
+  }
+
+  .case-file .folder-body {
+    padding: 24px;
+  }
+
+  .case-file h2 {
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+    color: #1a1a1a;
+    border-bottom: 2px solid #1a1a1a;
+    display: inline-block;
+    padding-bottom: 2px;
+  }
+
+  .case-file .case-date {
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 14px;
+  }
+
+  .case-file .case-notes {
+    font-size: 0.85rem;
+    color: #333;
+    line-height: 1.75;
+  }
+
+  .case-file .case-notes p {
+    margin-bottom: 10px;
+    text-indent: 2em;
+  }
+
+  .case-file .case-notes p:first-child {
+    text-indent: 0;
+  }
+
+  /* PRIORITY stamp */
+  .stamp-priority {
+    position: absolute;
+    top: 40px;
+    right: 20px;
+    border: 3px solid #cc3333;
+    color: #cc3333;
+    padding: 4px 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 0.2em;
+    transform: rotate(12deg);
+    opacity: 0.7;
+  }
+
+  /* CLASSIFIED stamp */
+  .stamp-classified {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    border: 3px solid #cc3333;
+    color: #cc3333;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    transform: rotate(-8deg);
+    opacity: 0.75;
+  }
+
+  /* ===== SURVEILLANCE PHOTO (avatar.webp) ===== */
+  .photo-card {
+    background: #f8f4e8;
+    padding: 12px 12px 30px 12px;
+    text-align: center;
+  }
+
+  .photo-card img {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+  }
+
+  .photo-surveillance {
+    top: 60px;
+    left: 55%;
+    width: 250px;
+    transform: rotate(-3deg);
+    z-index: 6;
+  }
+
+  /* Tape strips on surveillance photo */
+  .photo-surveillance::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(2deg);
+    width: 70px;
+    height: 20px;
+    background: rgba(255, 255, 240, 0.55);
+    border: 1px solid rgba(200, 195, 175, 0.3);
+    z-index: 11;
+  }
+
+  .tape-strip-left {
+    position: absolute;
+    top: 6px;
+    left: -10px;
+    width: 60px;
+    height: 18px;
+    background: rgba(255, 255, 240, 0.5);
+    border: 1px solid rgba(200, 195, 175, 0.25);
+    transform: rotate(-15deg);
+    z-index: 11;
+  }
+
+  .photo-caption {
+    font-family: 'Courier New', monospace;
+    font-size: 0.65rem;
+    color: #555;
+    margin-top: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ===== SECOND PHOTO (supreme_commander.png) ===== */
+  .photo-commander {
+    top: 200px;
+    left: 70%;
+    width: 200px;
+    transform: rotate(2deg);
+    z-index: 4;
+  }
+
+  .photo-commander img {
+    max-width: 170px;
+  }
+
+  .photo-commander .tape-strip-right {
+    position: absolute;
+    top: 4px;
+    right: -8px;
+    width: 55px;
+    height: 18px;
+    background: rgba(255, 255, 240, 0.5);
+    border: 1px solid rgba(200, 195, 175, 0.25);
+    transform: rotate(10deg);
+    z-index: 11;
+  }
+
+  /* ===== STICKY NOTE ===== */
+  .sticky-note {
+    position: absolute;
+    top: 40px;
+    left: 45%;
+    width: 180px;
+    background: #fff8a0;
+    padding: 24px 16px 16px 16px;
+    transform: rotate(5deg);
+    font-family: 'Segoe Script', 'Comic Sans MS', cursive, fantasy;
+    font-size: 1.05rem;
+    color: #333;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+    z-index: 8;
+    line-height: 1.4;
+    /* subtle yellow gradient for realism */
+    background-image: linear-gradient(180deg, #fff8a0 0%, #f5ee88 100%);
+  }
+
+  .sticky-note::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 5px 5px, #ee4444, #aa1111 60%, #881111);
+    box-shadow: 1px 2px 3px rgba(0,0,0,0.5);
+    z-index: 10;
+  }
+
+  .sticky-note .underline {
+    text-decoration: underline;
+    text-decoration-color: #0044cc;
+    font-weight: bold;
+  }
+
+  .sticky-sub {
+    font-size: 0.75rem;
+    margin-top: 8px;
+    color: #666;
+  }
+
+  /* ===== EVIDENCE CARDS ===== */
+  .evidence-card {
+    width: 280px;
+    padding: 22px 18px 18px 18px;
+  }
+
+  .evidence-tag {
+    font-size: 0.65rem;
+    color: #cc3333;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .evidence-card h3 {
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+  }
+
+  .evidence-date {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .evidence-summary {
+    font-size: 0.8rem;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  /* Evidence card positions */
+  .evidence-b {
+    top: 500px;
+    left: 8%;
+    transform: rotate(2deg);
+  }
+
+  .evidence-c {
+    top: 480px;
+    left: 35%;
+    transform: rotate(-2deg);
+  }
+
+  .evidence-d {
+    top: 520px;
+    left: 60%;
+    transform: rotate(1deg);
+  }
+
+  .evidence-e {
+    top: 850px;
+    left: 12%;
+    transform: rotate(-1deg);
+  }
+
+  .evidence-f {
+    top: 830px;
+    left: 40%;
+    transform: rotate(3deg);
+  }
+
+  .evidence-g {
+    top: 870px;
+    left: 65%;
+    transform: rotate(-2deg);
+  }
+
+  .evidence-h {
+    top: 1150px;
+    left: 20%;
+    transform: rotate(1deg);
+  }
+
+  .evidence-i {
+    top: 1180px;
+    left: 50%;
+    transform: rotate(-3deg);
+  }
+
+  /* ===== RED STRINGS ===== */
+  .red-string {
+    position: absolute;
+    height: 2px;
+    background: #cc3333;
+    z-index: 1;
+    opacity: 0.75;
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+
+  /* String 1: Surveillance photo to Commander photo */
+  .string-photos {
+    top: 190px;
+    left: calc(55% + 125px);
+    width: 200px;
+    transform: rotate(28deg);
+  }
+
+  /* String 2: Case file to Evidence B (keylogger) */
+  .string-case-to-b {
+    top: 330px;
+    left: calc(5% + 250px);
+    width: 280px;
+    transform: rotate(38deg);
+  }
+
+  /* String 3: Sticky note to Evidence H (AI-native) */
+  .string-sticky-to-h {
+    top: 170px;
+    left: calc(45% + 90px);
+    width: 820px;
+    transform: rotate(52deg);
+  }
+
+  /* String 4: Case file to Evidence C (Hexo) */
+  .string-case-to-c {
+    top: 310px;
+    left: calc(5% + 350px);
+    width: 320px;
+    transform: rotate(30deg);
+  }
+
+  /* ===== LINKS ===== */
+  a {
+    color: #0044cc;
+    text-decoration: none;
+    border-bottom: 1px dashed #0044cc;
+  }
+
+  a:hover {
+    color: #0033aa;
+    border-bottom-style: solid;
+  }
+
+  /* ===== RESPONSIVE: UNPIN BELOW 768px ===== */
+  @media (max-width: 768px) {
+    .pinboard {
+      position: static;
+      min-height: auto;
+      padding: 60px 12px 20px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .board-label {
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 0.7rem;
+      padding: 6px 16px;
+    }
+
+    .card,
+    .sticky-note,
+    .photo-surveillance,
+    .photo-commander,
+    .case-file,
+    .evidence-card {
+      position: static !important;
+      transform: none !important;
+      width: 100% !important;
+      max-width: 500px;
+      margin: 14px auto !important;
+    }
+
+    .red-string {
+      display: none;
+    }
+
+    .case-file {
+      order: 1;
+    }
+
+    .sticky-note {
+      order: 2;
+      width: 100% !important;
+      max-width: 500px !important;
+    }
+
+    .photo-surveillance {
+      order: 3;
+    }
+
+    .photo-commander {
+      order: 4;
+    }
+
+    .evidence-b { order: 5; }
+    .evidence-c { order: 6; }
+    .evidence-d { order: 7; }
+    .evidence-e { order: 8; }
+    .evidence-f { order: 9; }
+    .evidence-g { order: 10; }
+    .evidence-h { order: 11; }
+    .evidence-i { order: 12; }
+
+    .photo-card img {
+      max-width: 200px;
+    }
+
+    .tape-strip-left,
+    .tape-strip-right {
+      display: none;
+    }
+
+    .photo-surveillance::after {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="pinboard">
+
+  <!-- Board Label -->
+  <div class="board-label">INVESTIGATION BOARD &mdash; CASE #2022-KEEB</div>
+
+  <!-- ===== RED STRINGS ===== -->
+  <!-- String: Surveillance photo <-> Commander photo -->
+  <div class="red-string string-photos"></div>
+  <!-- String: Case file <-> Evidence B (Keylogger) -->
+  <div class="red-string string-case-to-b"></div>
+  <!-- String: Sticky note <-> Evidence H (AI-native) -->
+  <div class="red-string string-sticky-to-h"></div>
+  <!-- String: Case file <-> Evidence C (Hexo) -->
+  <div class="red-string string-case-to-c"></div>
+
+  <!-- ===== STICKY NOTE ===== -->
+  <div class="sticky-note">
+    <span class="underline">WHO IS KEEB?</span>
+    <div class="sticky-sub">
+      Technologist. Builder. Obsessive.<br>
+      Active since mid-90s.<br>
+      All leads converge here.
+    </div>
+  </div>
+
+  <!-- ===== CASE FILE #001 ===== -->
+  <div class="card case-file">
+    <div class="folder-tab">CASE FILE #001</div>
+    <div class="folder-body">
+      <div class="stamp-priority">PRIORITY</div>
+      <h2>The Lore</h2>
+      <div class="case-date">DATE OPENED: 2022-05-28 // CLASSIFICATION: OPEN</div>
+      <div class="case-notes">
+        <p>INVESTIGATOR'S NOTE: Subject's digital footprint traces back to the mid-1990s. First confirmed contact with computing technology was an MS-DOS terminal running Mad Dog McCree on a Tandy system, approximately 1993. Subject was 8 years old. This appears to be the inciting event.</p>
+
+        <p>The trail goes cold for a brief period before resurfacing with an unauthorized America Online subscription, funded through a creative exploitation of blank checks left by negligent guardians. This early pattern of resourceful circumvention of access controls is consistent with all subsequent behavior observed.</p>
+
+        <p>Subject chose Hexo as the static site generator for this operation, paired with a heavily modified Cactus theme. The technology stack suggests someone who prefers control over convenience -- Docker containers, custom Nginx configurations, multiple subdomains. The infrastructure is overengineered for a personal blog, which is precisely the point. The blog is not the mission. The blog is the cover.</p>
+
+        <p>Analysis of commit history reveals an obsessive pattern: long periods of silence followed by bursts of intense activity. Topics range from low-level system hacking (keyloggers, virtualization) to high-level infrastructure criticism (Terraform, AI agents). Subject appears to operate at both extremes simultaneously. No middle ground detected.</p>
+
+        <p>RECOMMENDATION: Continue surveillance. Subject shows no signs of slowing down. Recent activity suggests an escalation into AI-native tooling and infrastructure automation. The rabbit hole goes deeper than initially assessed.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SURVEILLANCE PHOTO (avatar.webp) ===== -->
+  <div class="card photo-card photo-surveillance">
+    <div class="tape-strip-left"></div>
+    <img src="avatar.webp" alt="Surveillance photo of subject">
+    <div class="photo-caption">SUBJECT: KEEB // STATUS: ACTIVE</div>
+  </div>
+
+  <!-- ===== SECOND PHOTO (supreme_commander.png) ===== -->
+  <div class="card photo-card photo-commander">
+    <div class="tape-strip-right"></div>
+    <img src="supreme_commander.png" alt="Known associate">
+    <div class="photo-caption">KNOWN ASSOCIATE // SEE FILE</div>
+  </div>
+
+  <!-- ===== EVIDENCE CARDS ===== -->
+
+  <!-- EXHIBIT B: I made a keylogger -->
+  <div class="card evidence-card evidence-b">
+    <div class="evidence-tag">EXHIBIT B</div>
+    <h3>I Made a Keylogger</h3>
+    <div class="evidence-date">2022-06-12</div>
+    <div class="evidence-summary">Subject constructed a keylogger for Windows, ostensibly to replicate tiling window manager hotkeys. The real motive may be deeper -- this demonstrates comfort with low-level input interception and system hooks.</div>
+  </div>
+
+  <!-- EXHIBIT C: Hexo & VSCode -->
+  <div class="card evidence-card evidence-c">
+    <div class="evidence-tag">EXHIBIT C</div>
+    <h3>Hexo &amp; VSCode</h3>
+    <div class="evidence-date">2022-05-28</div>
+    <div class="evidence-summary">Detailed operational notes on the blog's static site generator setup. Subject documents their own toolchain with suspicious thoroughness -- deployment scripts, theme modifications, the full pipeline from markdown to production.</div>
+  </div>
+
+  <!-- EXHIBIT D: Virtualization from scratch -->
+  <div class="card evidence-card evidence-d">
+    <div class="evidence-tag">EXHIBIT D</div>
+    <h3>Virtualization from Scratch</h3>
+    <div class="evidence-date">2023-07-03</div>
+    <div class="evidence-summary">Subject bypasses off-the-shelf hypervisors like Proxmox to configure QEMU/KVM from raw components. Manual bridge networking, direct kernel access. Consistent with pattern of preferring total control over convenience.</div>
+  </div>
+
+  <!-- EXHIBIT E: Terraform with Glitter -->
+  <div class="card evidence-card evidence-e">
+    <div class="evidence-tag">EXHIBIT E</div>
+    <h3>Terraform With Glitter</h3>
+    <div class="evidence-date">2025-09-25</div>
+    <div class="evidence-summary">A pointed takedown of HashiCorp's "Project Infragraph" announcement. Subject accuses the company of rebranding the same broken infrastructure-as-code paradigm with AI marketing veneer. Tone: hostile but technically precise.</div>
+  </div>
+
+  <!-- EXHIBIT F: AI is great at parsing -->
+  <div class="card evidence-card evidence-f">
+    <div class="evidence-tag">EXHIBIT F</div>
+    <h3>AI Is Great at Parsing</h3>
+    <div class="evidence-date">2025-09-26</div>
+    <div class="evidence-summary">Subject replaced years of hand-tuned regex parsers in a personal media management service with a local AI model. The efficiency gain was immediate. Shows willingness to discard own work when a better tool emerges.</div>
+  </div>
+
+  <!-- EXHIBIT G: Claude Sonnet 4.5 & System Initiative -->
+  <div class="card evidence-card evidence-g">
+    <div class="evidence-tag">EXHIBIT G</div>
+    <h3>Claude Sonnet 4.5 &amp; System Initiative</h3>
+    <div class="evidence-date">2025-09-29</div>
+    <div class="evidence-summary">Subject stress-tests Anthropic's Claude model against real infrastructure automation. Uses System Initiative to translate natural language into infrastructure changes. Assessment: cautiously optimistic, technically demanding.</div>
+  </div>
+
+  <!-- EXHIBIT H: AI-Native Infrastructure -->
+  <div class="card evidence-card evidence-h">
+    <div class="evidence-tag">EXHIBIT H</div>
+    <h3>AI-Native Infrastructure</h3>
+    <div class="evidence-date">2026-02-03</div>
+    <div class="evidence-summary">Subject deploys Claude alongside "swamp," an AI-native automation framework, to autonomously describe and manage Proxmox infrastructure. This represents a significant escalation -- the AI is now writing its own tools.</div>
+  </div>
+
+  <!-- EXHIBIT I: MCP Is Dead -->
+  <div class="card evidence-card evidence-i">
+    <div class="stamp-classified">CLASSIFIED</div>
+    <div class="evidence-tag">EXHIBIT I</div>
+    <h3>MCP Is Dead</h3>
+    <div class="evidence-date">2026-02-03</div>
+    <div class="evidence-summary">Subject declares the Model Context Protocol obsolete. Claims human-designed tool interfaces for AI consumption are fundamentally backwards. Argues AI should create its own capabilities. Dangerously coherent thesis.</div>
+  </div>
+
+</div>
+
+</body>
+</html>

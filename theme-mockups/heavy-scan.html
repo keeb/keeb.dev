@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev -- Maximum CRT</title>
+<style>
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #1d1f21;
+    --text:      #c9cacc;
+    --pink:      #d480aa;
+    --cyan:      #00ffff;
+    --meta:      #908d8d;
+    --quote:     #ccffb6;
+    --bold:      #ffffff;
+    --link:      rgba(212, 128, 170, 1);
+    --font-mono: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  }
+
+  html {
+    font-size: 16px;
+    background: #0a0a0a;
+  }
+
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.725;
+    min-height: 100vh;
+    overflow-x: hidden;
+    /* Chromatic aberration on all text */
+    text-shadow:
+      -0.5px 0 rgba(255, 0, 0, 0.15),
+       0.5px 0 rgba(0, 100, 255, 0.15);
+  }
+
+  ::selection {
+    background: rgba(212, 128, 170, 0.3);
+    color: var(--bold);
+  }
+
+  a {
+    color: var(--pink);
+    text-decoration: none;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+  }
+
+  a:hover {
+    color: var(--cyan);
+    text-shadow:
+      0 0 8px rgba(0, 255, 255, 0.4),
+      -0.5px 0 rgba(255, 0, 0, 0.2),
+       0.5px 0 rgba(0, 100, 255, 0.2);
+  }
+
+  /* ============================================================
+     STATIC NOISE BURST -- shows on page load, fades out
+     ============================================================ */
+  .static-noise {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background: repeating-conic-gradient(
+      #111 0%, #333 0.5%, #000 1%, #222 1.5%, #0a0a0a 2%
+    );
+    background-size: 200px 200px;
+    animation: static-burst 0.5s steps(4) forwards;
+    mix-blend-mode: normal;
+  }
+
+  .static-noise::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.03) 2px,
+        rgba(255, 255, 255, 0.03) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.02),
+        rgba(0, 255, 0, 0.02) 1px,
+        rgba(0, 0, 255, 0.02) 2px
+      );
+    animation: static-shift 0.1s steps(3) 4;
+  }
+
+  @keyframes static-burst {
+    0%   { opacity: 1; }
+    60%  { opacity: 0.8; }
+    80%  { opacity: 0.3; }
+    100% { opacity: 0; visibility: hidden; }
+  }
+
+  @keyframes static-shift {
+    0%   { transform: translateX(-5px) translateY(-2px); }
+    33%  { transform: translateX(3px) translateY(4px); }
+    66%  { transform: translateX(-2px) translateY(-3px); }
+    100% { transform: translateX(4px) translateY(1px); }
+  }
+
+  /* ============================================================
+     VIGNETTE OVERLAY
+     ============================================================ */
+  .vignette::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.6) 100%);
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ============================================================
+     SCANLINES OVERLAY -- thick, every 2px
+     ============================================================ */
+  .scanlines::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 1px,
+      rgba(0, 0, 0, 0.3) 1px,
+      rgba(0, 0, 0, 0.3) 2px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* ============================================================
+     BARREL DISTORTION CONTAINER
+     ============================================================ */
+  .crt-warp {
+    perspective: 800px;
+    min-height: 100vh;
+  }
+
+  .crt-warp-inner {
+    transform: rotateX(0.6deg) rotateY(0deg);
+    transform-origin: center center;
+    transform-style: preserve-3d;
+    min-height: 100vh;
+    /* Subtle inward shadow to reinforce curvature */
+    box-shadow:
+      inset 0 0 80px rgba(0, 0, 0, 0.3),
+      inset 0 0 200px rgba(0, 0, 0, 0.15);
+  }
+
+  /* ============================================================
+     CONTENT CONTAINER
+     ============================================================ */
+  .container {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============================================================
+     CRT FLICKER
+     ============================================================ */
+  @keyframes crt-flicker {
+    0%   { opacity: 1; }
+    3%   { opacity: 0.985; }
+    6%   { opacity: 1; }
+    42%  { opacity: 0.992; }
+    44%  { opacity: 1; }
+    88%  { opacity: 0.996; }
+    90%  { opacity: 1; }
+    100% { opacity: 1; }
+  }
+
+  .container {
+    animation: crt-flicker 4s infinite;
+  }
+
+  /* ============================================================
+     ASCII ART HEADER -- wave animation
+     ============================================================ */
+  #ascii-art {
+    position: relative;
+    animation: wave-animation 8s ease-in-out infinite;
+    margin: 0;
+    padding: 0;
+    white-space: pre;
+    /* Cyan glow on the header */
+    text-shadow:
+      0 0 6px rgba(0, 255, 255, 0.25),
+      0 0 20px rgba(0, 255, 255, 0.08),
+      -0.5px 0 rgba(255, 0, 0, 0.18),
+       0.5px 0 rgba(0, 100, 255, 0.18);
+  }
+
+  #terminal-cursor {
+    color: var(--pink);
+    animation: cursor-blink 1s infinite;
+    font-size: 1em;
+    font-family: monospace;
+    vertical-align: top;
+    margin-left: 0.2em;
+  }
+
+  @keyframes cursor-blink {
+    0%, 50%  { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* Wave gradient animation cycling through pink accent */
+  @keyframes wave-animation {
+    0% {
+      color: var(--text);
+    }
+    5% {
+      background: linear-gradient(90deg, var(--pink) -20%, var(--pink) 0%, var(--text) 15%, var(--text) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    10% {
+      background: linear-gradient(90deg, var(--text) 0%, var(--pink) 10%, var(--pink) 25%, var(--text) 40%, var(--text) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    15% {
+      background: linear-gradient(90deg, var(--text) 0%, var(--text) 20%, var(--pink) 35%, var(--pink) 50%, var(--text) 65%, var(--text) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    20% {
+      background: linear-gradient(90deg, var(--text) 0%, var(--text) 45%, var(--pink) 60%, var(--pink) 75%, var(--text) 90%, var(--text) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    25% {
+      background: linear-gradient(90deg, var(--text) 0%, var(--text) 70%, var(--pink) 85%, var(--pink) 100%, var(--text) 115%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    30%, 100% {
+      color: var(--text);
+    }
+  }
+
+  /* ============================================================
+     AVATAR
+     ============================================================ */
+  .avatar-section {
+    text-align: center;
+    margin: 1.5rem 0 1rem;
+  }
+
+  .avatar-section img {
+    width: 96px;
+    height: 96px;
+    border-radius: 4px;
+    image-rendering: auto;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.2)) brightness(1.02);
+    border: 1px solid rgba(0, 255, 255, 0.15);
+  }
+
+  /* ============================================================
+     NAV
+     ============================================================ */
+  .site-nav {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(212, 128, 170, 0.15);
+  }
+
+  .site-nav a {
+    color: var(--pink);
+    font-size: 0.9rem;
+    padding: 0 0.8rem;
+    border-right: 1px dotted var(--pink);
+    transition: all 0.2s ease;
+  }
+
+  .site-nav a:last-child {
+    border-right: none;
+  }
+
+  .site-nav a:hover {
+    color: var(--cyan);
+    text-shadow:
+      0 0 8px rgba(0, 255, 255, 0.4),
+      -0.5px 0 rgba(255, 0, 0, 0.2),
+       0.5px 0 rgba(0, 100, 255, 0.2);
+  }
+
+  /* ============================================================
+     POST LIST
+     ============================================================ */
+  .section-label {
+    font-size: 0.8rem;
+    color: var(--meta);
+    letter-spacing: 0.06em;
+    text-transform: lowercase;
+    margin-bottom: 0.8rem;
+  }
+
+  .post-list {
+    list-style: none;
+    margin-bottom: 2.5rem;
+  }
+
+  .post-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.005) 0%, transparent 50%, rgba(255, 0, 150, 0.005) 100%);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    gap: 12px;
+  }
+
+  .post-item:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.02) 0%, transparent 50%, rgba(212, 128, 170, 0.02) 100%);
+    border-color: rgba(212, 128, 170, 0.3);
+    box-shadow: 0 0 20px rgba(212, 128, 170, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .post-item a {
+    color: var(--text);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .post-item a:hover {
+    color: var(--pink);
+  }
+
+  .post-date {
+    font-size: 0.8rem;
+    color: var(--meta);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    text-shadow: none;
+  }
+
+  /* ============================================================
+     ARTICLE
+     ============================================================ */
+  .article-separator {
+    border: none;
+    border-top: 1px solid rgba(0, 255, 255, 0.1);
+    margin: 2rem 0;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), rgba(212, 128, 170, 0.2), transparent);
+    height: 1px;
+  }
+
+  .article-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .article-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 0.25rem;
+    text-shadow:
+      0 0 10px rgba(212, 128, 170, 0.1),
+      -0.5px 0 rgba(255, 0, 0, 0.15),
+       0.5px 0 rgba(0, 100, 255, 0.15);
+  }
+
+  .article-meta {
+    font-size: 0.85rem;
+    color: var(--meta);
+    margin-bottom: 1.25rem;
+    text-shadow: none;
+  }
+
+  .article-body {
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.725;
+  }
+
+  .article-body p {
+    margin-bottom: 1rem;
+  }
+
+  .article-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .article-body code {
+    background: rgba(0, 255, 255, 0.05);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    color: var(--cyan);
+  }
+
+  .article-body blockquote {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.02) 0%, rgba(204, 255, 182, 0.02) 100%);
+    border-left: 3px solid rgba(204, 255, 182, 0.4);
+    border-radius: 4px;
+    color: var(--quote);
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(204, 255, 182, 0.05);
+  }
+
+  .article-body blockquote p {
+    margin: 0;
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .site-footer {
+    border-top: 1px solid rgba(212, 128, 170, 0.15);
+    padding-top: 1.25rem;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--meta);
+    line-height: 1.8;
+    text-shadow: none;
+  }
+
+  .site-footer .highlight {
+    color: var(--pink);
+    text-shadow:
+      0 0 6px rgba(212, 128, 170, 0.2),
+      -0.5px 0 rgba(255, 0, 0, 0.12),
+       0.5px 0 rgba(0, 100, 255, 0.12);
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 680px) {
+    .container {
+      padding: 1rem;
+    }
+
+    .post-item {
+      flex-direction: column;
+      gap: 2px;
+      padding: 0.6rem 0.8rem;
+    }
+
+    #ascii-art {
+      font-size: clamp(0.25rem, 0.9vw, 0.7rem) !important;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .site-nav a {
+      font-size: 0.78rem;
+      padding: 0 0.5rem;
+    }
+  }
+
+  /* ============================================================
+     ROLLING SCAN LINE -- subtle horizontal beam
+     ============================================================ */
+  @keyframes scan-roll {
+    0%   { top: -5%; }
+    100% { top: 105%; }
+  }
+
+  .scan-beam {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(0, 255, 255, 0.04),
+      rgba(212, 128, 170, 0.03),
+      transparent
+    );
+    pointer-events: none;
+    z-index: 998;
+    animation: scan-roll 8s linear infinite;
+  }
+
+  /* ============================================================
+     PHOSPHOR PERSISTENCE -- subtle afterglow on text
+     ============================================================ */
+  @keyframes phosphor-pulse {
+    0%   { filter: brightness(1) contrast(1); }
+    50%  { filter: brightness(1.015) contrast(1.01); }
+    100% { filter: brightness(1) contrast(1); }
+  }
+
+  .crt-warp-inner {
+    animation: phosphor-pulse 6s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<!-- Static noise burst on page load -->
+<div class="static-noise"></div>
+
+<!-- Vignette overlay -->
+<div class="vignette">
+
+<!-- Scanlines overlay -->
+<div class="scanlines">
+
+<!-- Rolling scan beam -->
+<div class="scan-beam"></div>
+
+<!-- Barrel distortion wrapper -->
+<div class="crt-warp">
+<div class="crt-warp-inner">
+
+<div class="container">
+
+  <!-- ==================== ASCII HEADER ==================== -->
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+
+  <!-- ==================== AVATAR ==================== -->
+  <div class="avatar-section">
+    <img src="avatar.webp" alt="keeb.dev avatar" />
+  </div>
+
+  <!-- ==================== NAV ==================== -->
+  <nav class="site-nav">
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Writing</a>
+  </nav>
+
+  <!-- ==================== POST LIST ==================== -->
+  <section>
+    <div class="section-label">// writing</div>
+    <ul class="post-list">
+      <li class="post-item">
+        <a href="#">MCP Is Dead</a>
+        <span class="post-date">2026-02-03</span>
+      </li>
+      <li class="post-item">
+        <a href="#">AI-Native Infrastructure</a>
+        <span class="post-date">2026-02-03</span>
+      </li>
+      <li class="post-item">
+        <a href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+        <span class="post-date">2025-09-29</span>
+      </li>
+      <li class="post-item">
+        <a href="#">AI is great at parsing</a>
+        <span class="post-date">2025-09-26</span>
+      </li>
+      <li class="post-item">
+        <a href="#">Terraform with Glitter</a>
+        <span class="post-date">2025-09-25</span>
+      </li>
+      <li class="post-item">
+        <a href="#">Virtualization from scratch</a>
+        <span class="post-date">2023-07-03</span>
+      </li>
+      <li class="post-item">
+        <a href="#">I made a keylogger</a>
+        <span class="post-date">2022-06-12</span>
+      </li>
+      <li class="post-item">
+        <a href="#">Hexo &amp; VSCode</a>
+        <span class="post-date">2022-05-28</span>
+      </li>
+      <li class="post-item">
+        <a href="#">The Lore</a>
+        <span class="post-date">2022-05-28</span>
+      </li>
+    </ul>
+  </section>
+
+  <hr class="article-separator">
+
+  <!-- ==================== FEATURED ARTICLE ==================== -->
+  <article class="article-section">
+    <h2 class="article-title">Hexo &amp; VSCode</h2>
+    <div class="article-meta">2022-05-28 &mdash; keeb</div>
+    <div class="article-body">
+      <p>
+        Setting up Hexo as a static site generator turned out to be one of those
+        decisions that compounds in value over time. The initial draw was simplicity:
+        Markdown files in, static HTML out, no database to babysit, no PHP runtime
+        to patch. But the real payoff came from how naturally it fits into a
+        developer workflow. You write posts in the same editor you write code in,
+        you version control them with Git, and deployment is a single command away.
+      </p>
+      <p>
+        VSCode becomes the perfect companion here. With its built-in Markdown
+        preview, integrated terminal, and Git support, you never have to leave the
+        editor. I have a workspace configured with the Hexo project at the root,
+        a couple of snippets for frontmatter templates, and a task that runs
+        <code>hexo server</code> in the background for live preview. The feedback
+        loop is tight: save a file, glance at the browser, iterate.
+      </p>
+      <p>
+        The theme system is where things get interesting. Hexo uses EJS templates
+        and Stylus for CSS preprocessing, which gives you enough rope to build
+        something genuinely custom without drowning in framework abstractions.
+        The Cactus theme I started from was clean and minimal, but over time it
+        has accumulated layers of personality&mdash;custom color schemes, modified
+        layouts, little visual touches that make the site feel less like a template
+        and more like a place.
+      </p>
+      <blockquote>
+        <p>The best blogging setup is the one that gets out of your way and lets
+        you write. Hexo with VSCode is exactly that&mdash;invisible infrastructure
+        that just works.</p>
+      </blockquote>
+    </div>
+  </article>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="site-footer">
+    <span class="highlight">keeb.dev</span> &copy; 2022&ndash;2026<br>
+    powered by mass quantities of mass-produced caffeine<br>
+    signal / noise &mdash; all signal, no noise
+  </footer>
+
+</div><!-- .container -->
+
+</div><!-- .crt-warp-inner -->
+</div><!-- .crt-warp -->
+
+</div><!-- .scanlines -->
+</div><!-- .vignette -->
+
+</body>
+</html>

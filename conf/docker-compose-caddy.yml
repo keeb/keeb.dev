@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   caddy:
     image: caddy:2-alpine
@@ -8,25 +6,25 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-      - ../app/web/overlay/public:/usr/share/nginx/html:ro
-      - ../app/static:/usr/share/nginx/static:ro
-      - ../app/web/overlay/slate:/usr/share/nginx/slate:ro
-      - ../app/web/overlay/bio:/usr/share/nginx/bio:ro
-      - ../app/web/overlay/start:/usr/share/nginx/start:ro
-    environment:
-      - CADDY_EMAIL=admin@keeb.dev
-    networks:
-      - web
+      - ./site-active:/srv/keeb.dev/site:ro
+      - /home/keeb/static:/srv/keeb.dev/static:ro
+      - /home/keeb/slate:/srv/keeb.dev/slate:ro
+      - /home/keeb/bio:/srv/keeb.dev/bio:ro
+      - /home/keeb/start:/srv/keeb.dev/start:ro
+      - /home/keeb/gameswiththebois.com/site:/srv/gameswiththebois.com/site:ro
 
-networks:
-  web:
-    external: false
+  counter:
+    image: php:apache
+    container_name: counter
+    restart: unless-stopped
+    volumes:
+      - /home/keeb/old-school-counter:/var/www/html
 
 volumes:
   caddy_data:
-    external: true
   caddy_config:

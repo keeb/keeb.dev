@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — Corrupted Signal</title>
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  background: #1d1f21;
+  color: #c9cacc;
+  line-height: 1.725;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ============================================
+   NOISE OVERLAY — very subtle grain flicker
+   ============================================ */
+body::after {
+  content: "";
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.03) 2px,
+      rgba(255,255,255,0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.02) 2px,
+      rgba(255,255,255,0.02) 4px
+    );
+  animation: noise-flicker 0.15s infinite steps(3);
+}
+
+@keyframes noise-flicker {
+  0%   { transform: translate(0, 0); }
+  33%  { transform: translate(-1px, 1px); }
+  66%  { transform: translate(1px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ============================================
+   HORIZONTAL TEAR — VHS tracking error
+   ============================================ */
+body::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.08) 10%,
+    rgba(0,255,255,0.12) 30%,
+    rgba(255,255,255,0.1) 50%,
+    rgba(212,128,170,0.1) 70%,
+    rgba(255,255,255,0.06) 90%,
+    transparent 100%
+  );
+  z-index: 9998;
+  pointer-events: none;
+  animation: tear-sweep 8s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes tear-sweep {
+  0%   { top: -2px; }
+  100% { top: 100vh; }
+}
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+.container {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 2rem 0 0;
+  position: relative;
+  z-index: 1;
+}
+
+a {
+  color: rgba(212,128,170,1);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+strong {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+blockquote {
+  color: #ccffb6;
+  border-left: 2px solid #ccffb6;
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+code {
+  color: rgba(212,128,170,1);
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ============================================
+   ASCII HEADER — with glitch clones
+   ============================================ */
+.ascii-header {
+  padding: 3rem 0 2rem 0;
+}
+
+.ascii-header pre {
+  color: #c9cacc;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Glitch wrapper holds the original + two clones */
+.glitch-wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+/* The glitch clone layers */
+.glitch-clone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.glitch-clone pre {
+  font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  font-size: clamp(0.35rem, 1.1vw, 0.85rem);
+  line-height: normal;
+  white-space: pre;
+  overflow: hidden;
+}
+
+.glitch-clone.red {
+  animation: glitch-1 3s infinite linear;
+}
+
+.glitch-clone.red pre {
+  color: rgba(255, 0, 80, 0.5);
+}
+
+.glitch-clone.cyan {
+  animation: glitch-2 3s infinite linear;
+}
+
+.glitch-clone.cyan pre {
+  color: rgba(0, 255, 255, 0.5);
+}
+
+/* Hide the cursor block in glitch clones */
+.glitch-clone .terminal-cursor-clone {
+  visibility: hidden;
+}
+
+@keyframes glitch-1 {
+  0%, 87%, 100% {
+    clip-path: inset(0 0 100% 0);
+    transform: translateX(0);
+  }
+  88% {
+    clip-path: inset(20% 0 60% 0);
+    transform: translateX(-3px);
+  }
+  90% {
+    clip-path: inset(50% 0 20% 0);
+    transform: translateX(3px);
+  }
+  92% {
+    clip-path: inset(10% 0 70% 0);
+    transform: translateX(-2px);
+  }
+  94% {
+    clip-path: inset(80% 0 5% 0);
+    transform: translateX(4px);
+  }
+  96% {
+    clip-path: inset(0 0 100% 0);
+    transform: translateX(0);
+  }
+}
+
+@keyframes glitch-2 {
+  0%, 85%, 100% {
+    clip-path: inset(0 0 100% 0);
+    transform: translateX(0);
+  }
+  86% {
+    clip-path: inset(60% 0 10% 0);
+    transform: translateX(4px);
+  }
+  88% {
+    clip-path: inset(15% 0 55% 0);
+    transform: translateX(-3px);
+  }
+  90% {
+    clip-path: inset(40% 0 30% 0);
+    transform: translateX(2px);
+  }
+  92% {
+    clip-path: inset(70% 0 10% 0);
+    transform: translateX(-4px);
+  }
+  93% {
+    clip-path: inset(5% 0 80% 0);
+    transform: translateX(3px);
+  }
+  95% {
+    clip-path: inset(0 0 100% 0);
+    transform: translateX(0);
+  }
+}
+
+/* Cursor blink */
+#terminal-cursor {
+  color: rgba(212,128,170,1);
+  animation: cursor-blink 1s infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ============================================
+   AVATAR SECTION
+   ============================================ */
+.avatar-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 3rem 0;
+}
+
+.avatar-section img {
+  width: 80px;
+  height: 80px;
+  display: block;
+}
+
+.avatar-section p {
+  max-width: 40ch;
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+nav {
+  padding: 2rem 0;
+}
+
+nav a {
+  margin-right: 1.5rem;
+}
+
+/* Subtle RGB split on nav links on hover */
+nav a:hover {
+  text-shadow: -1px 0 rgba(255,0,0,0.3), 1px 0 rgba(0,255,255,0.3);
+}
+
+/* ============================================
+   POST LIST
+   ============================================ */
+.post-list {
+  list-style: none;
+  padding: 3rem 0;
+}
+
+.post-list li {
+  padding: 0.5rem 0;
+}
+
+.post-date {
+  color: #908d8d;
+  margin-right: 1.5rem;
+}
+
+/* ============================================
+   FEATURED POST — with RGB split on content
+   ============================================ */
+.featured-post {
+  padding: 4rem 0;
+}
+
+.featured-post h2 {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.featured-post .meta {
+  color: #908d8d;
+  margin-bottom: 2rem;
+}
+
+.featured-post p {
+  margin-bottom: 1.5rem;
+}
+
+/* RGB split animation on featured post content */
+.featured-post .content {
+  animation: rgb-split 4.5s infinite;
+}
+
+@keyframes rgb-split {
+  0%, 94%, 100% {
+    text-shadow: none;
+  }
+  95% {
+    text-shadow: -2px 0 rgba(255,0,0,0.4), 2px 0 rgba(0,255,255,0.4);
+  }
+  96% {
+    text-shadow: 2px 0 rgba(255,0,0,0.3), -2px 0 rgba(0,255,255,0.3);
+  }
+  97% {
+    text-shadow: -1px 0 rgba(255,0,0,0.5), 1px 0 rgba(0,255,255,0.5);
+  }
+  98% {
+    text-shadow: 1px 0 rgba(255,0,0,0.35), -1px 0 rgba(0,255,255,0.35);
+  }
+  99% {
+    text-shadow: -2px 0 rgba(255,0,0,0.25), 2px 0 rgba(0,255,255,0.25);
+  }
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+footer {
+  padding: 4rem 0 3rem 0;
+  color: #908d8d;
+}
+
+/* ============================================
+   OCCASIONAL FULL-PAGE MICRO-GLITCH
+   ============================================ */
+@keyframes page-glitch {
+  0%, 97%, 100% {
+    transform: none;
+    filter: none;
+  }
+  97.5% {
+    transform: translateX(-1px) skewX(-0.5deg);
+    filter: hue-rotate(10deg);
+  }
+  98% {
+    transform: translateX(1px) skewX(0.3deg);
+    filter: hue-rotate(-5deg);
+  }
+  98.5% {
+    transform: none;
+    filter: none;
+  }
+}
+
+.container {
+  animation: page-glitch 7s infinite;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ASCII Header with Glitch Effect -->
+  <div class="ascii-header">
+    <div class="glitch-wrapper">
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+      <!-- Glitch clone: red channel -->
+      <div class="glitch-clone red" aria-hidden="true">
+<pre style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span class="terminal-cursor-clone">█</span>
+</pre>
+      </div>
+      <!-- Glitch clone: cyan channel -->
+      <div class="glitch-clone cyan" aria-hidden="true">
+<pre style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span class="terminal-cursor-clone">█</span>
+</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avatar & Bio -->
+  <section class="avatar-section">
+    <img src="avatar.webp" alt="avatar">
+    <div>
+      <p>Hacker, builder, breaker of things. Writing about infrastructure, dev tooling, virtualization, AI, and whatever else compiles. All opinions are <strong>my own</strong> and probably wrong.</p>
+    </div>
+  </section>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Writing</a>
+  </nav>
+
+  <!-- Post List -->
+  <ul class="post-list">
+    <li>
+      <span class="post-date">2026-02-03</span>
+      <a href="#">MCP Is Dead</a>
+    </li>
+    <li>
+      <span class="post-date">2026-02-03</span>
+      <a href="#">AI-Native Infrastructure</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-29</span>
+      <a href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-26</span>
+      <a href="#">AI is great at parsing</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-25</span>
+      <a href="#">Terraform with Glitter</a>
+    </li>
+    <li>
+      <span class="post-date">2023-07-03</span>
+      <a href="#">Virtualization from scratch</a>
+    </li>
+    <li>
+      <span class="post-date">2022-06-12</span>
+      <a href="#">I made a keylogger</a>
+    </li>
+    <li>
+      <span class="post-date">2022-05-28</span>
+      <a href="#">Hexo &amp; VSCode</a>
+    </li>
+    <li>
+      <span class="post-date">2022-05-28</span>
+      <a href="#">The Lore</a>
+    </li>
+  </ul>
+
+  <!-- Featured Post -->
+  <article class="featured-post">
+    <h2>Hexo &amp; VSCode</h2>
+    <p class="meta">2022-05-28</p>
+
+    <div class="content">
+      <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+      <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+      <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+      <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+    </div>
+  </article>
+
+  <!-- Footer -->
+  <footer>
+    keeb.dev &mdash; 2026
+  </footer>
+
+</div>
+
+</body>
+</html>

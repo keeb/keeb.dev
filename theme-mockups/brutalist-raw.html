@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev</title>
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 0 !important;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  background: #fff;
+  color: #000;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.5;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+}
+
+a {
+  color: #ff6600;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 3px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.site-header {
+  border-bottom: 5px solid #000;
+  padding: 2rem 1.5rem;
+}
+
+.site-header__inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.site-title {
+  font-size: 6rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  font-family: Arial, Helvetica, sans-serif;
+  display: block;
+  color: #000;
+}
+
+.site-title span {
+  color: #ff6600;
+}
+
+.site-tagline {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  margin-top: 0.5rem;
+  color: #000;
+}
+
+.site-tagline code {
+  background: #000;
+  color: #ff6600;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* ============================================
+   NAV
+   ============================================ */
+
+.site-nav {
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1.5rem;
+  border-bottom: 3px solid #ff6600;
+}
+
+.site-nav__inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  gap: 2rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.site-nav a {
+  color: #fff;
+}
+
+.site-nav a:hover {
+  color: #ff6600;
+}
+
+/* ============================================
+   MAIN LAYOUT
+   ============================================ */
+
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ============================================
+   AVATAR SECTION
+   ============================================ */
+
+.avatar-section {
+  padding: 2rem 0;
+  border-bottom: 3px solid #000;
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.avatar-section img {
+  border: 5px solid #000;
+  display: block;
+  width: 120px;
+  height: 120px;
+  image-rendering: pixelated;
+}
+
+.avatar-section__text {
+  flex: 1;
+  min-width: 250px;
+}
+
+.avatar-section__text h2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.avatar-section__text p {
+  font-size: 0.85rem;
+  max-width: 50ch;
+}
+
+.avatar-section__text p strong {
+  color: #ff6600;
+}
+
+/* ============================================
+   COMMENT / HTML DECORATION
+   ============================================ */
+
+.html-comment {
+  color: #999;
+  font-size: 0.7rem;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 1rem 0 0.25rem 0;
+  user-select: none;
+}
+
+/* ============================================
+   POST LIST
+   ============================================ */
+
+.post-list-header {
+  padding: 1.5rem 0 0.75rem 0;
+  border-bottom: 3px solid #000;
+}
+
+.post-list-header h2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.post-list {
+  list-style: none;
+}
+
+.post-list li {
+  border-bottom: 1px solid #000;
+  padding: 0.75rem 0;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.post-list li:last-child {
+  border-bottom: 3px solid #000;
+}
+
+.post-date {
+  font-size: 0.7rem;
+  font-family: 'Courier New', Courier, monospace;
+  color: #000;
+  white-space: nowrap;
+  min-width: 10ch;
+  font-weight: 700;
+  background: #000;
+  color: #fff;
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+
+.post-title-link {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   SAMPLE POST
+   ============================================ */
+
+.sample-post {
+  padding: 2rem 0;
+  border-bottom: 5px solid #000;
+}
+
+.sample-post__meta {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: #000;
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+}
+
+.sample-post h2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  border-bottom: 3px solid #ff6600;
+  padding-bottom: 1rem;
+}
+
+.sample-post__body {
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 65ch;
+}
+
+.sample-post__body p {
+  margin-bottom: 1rem;
+}
+
+.sample-post__body p:last-child {
+  margin-bottom: 0;
+}
+
+.sample-post__body code {
+  background: #000;
+  color: #ff6600;
+  padding: 1px 5px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+}
+
+.sample-post__body blockquote {
+  border-left: 5px solid #ff6600;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  background: #f5f5f5;
+  font-style: italic;
+}
+
+/* ============================================
+   SEPARATOR
+   ============================================ */
+
+.sep {
+  background: #000;
+  color: #ff6600;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.65rem;
+  padding: 0.25rem 0;
+  text-align: center;
+  letter-spacing: 0.5em;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.site-footer {
+  background: #000;
+  color: #fff;
+  padding: 1.5rem;
+  border-top: 5px solid #ff6600;
+}
+
+.site-footer__inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.site-footer__left {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+}
+
+.site-footer__right {
+  font-size: 0.65rem;
+  font-family: 'Courier New', Courier, monospace;
+  color: #888;
+}
+
+.site-footer a {
+  color: #ff6600;
+}
+
+/* ============================================
+   SOURCE BLOCK — decorative exposed HTML
+   ============================================ */
+
+.source-decoration {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.65rem;
+  color: #bbb;
+  padding: 0.5rem 0;
+  user-select: none;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 600px) {
+  .site-title {
+    font-size: 3rem;
+  }
+
+  .post-list-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .sample-post h2 {
+    font-size: 2rem;
+  }
+
+  .post-list li {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .post-date {
+    display: inline-block;
+  }
+
+  .avatar-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-nav__inner {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .site-footer__inner {
+    flex-direction: column;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- HEADER                                       -->
+<!-- ============================================ -->
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a href="#" class="site-title" style="text-decoration:none;color:#000;">KEEB<span>.</span>DEV</a>
+    <div class="site-tagline">A PERSONAL HACKER BLOG &mdash; <code>&lt;since 2022 /&gt;</code></div>
+  </div>
+</header>
+
+<!-- ============================================ -->
+<!-- NAV                                          -->
+<!-- ============================================ -->
+
+<nav class="site-nav">
+  <div class="site-nav__inner">
+    <a href="#">INDEX</a>
+    <a href="#">ARCHIVE</a>
+    <a href="#">ABOUT</a>
+    <a href="#">SOURCE</a>
+  </div>
+</nav>
+
+<!-- ============================================ -->
+<!-- MAIN CONTENT                                 -->
+<!-- ============================================ -->
+
+<main class="main">
+
+  <!-- ========================================== -->
+  <!-- AVATAR / BIO                               -->
+  <!-- ========================================== -->
+
+  <div class="html-comment">&lt;!-- avatar.webp :: 120x120 :: raw, no filter --&gt;</div>
+
+  <section class="avatar-section">
+    <img src="avatar.webp" alt="avatar.webp" title="avatar.webp — blue pixel art hacker">
+    <div class="avatar-section__text">
+      <h2>WHO IS THIS</h2>
+      <p>Hacker, builder, breaker of things. Writing about infrastructure, dev tooling, virtualization, AI, and whatever else compiles. All opinions are <strong>my own</strong> and probably wrong.</p>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- POST LIST                                  -->
+  <!-- ========================================== -->
+
+  <div class="html-comment">&lt;!-- begin post_list[] --&gt;</div>
+
+  <div class="post-list-header">
+    <h2>ALL POSTS</h2>
+  </div>
+
+  <ul class="post-list">
+    <li>
+      <span class="post-date">2026-02-03</span>
+      <a href="#" class="post-title-link">MCP IS DEAD</a>
+    </li>
+    <li>
+      <span class="post-date">2026-02-03</span>
+      <a href="#" class="post-title-link">AI-NATIVE INFRASTRUCTURE</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-29</span>
+      <a href="#" class="post-title-link">CLAUDE SONNET 4.5 &amp; SYSTEM INITIATIVE</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-26</span>
+      <a href="#" class="post-title-link">AI IS GREAT AT PARSING</a>
+    </li>
+    <li>
+      <span class="post-date">2025-09-25</span>
+      <a href="#" class="post-title-link">TERRAFORM WITH GLITTER</a>
+    </li>
+    <li>
+      <span class="post-date">2023-07-03</span>
+      <a href="#" class="post-title-link">VIRTUALIZATION FROM SCRATCH</a>
+    </li>
+    <li>
+      <span class="post-date">2022-06-12</span>
+      <a href="#" class="post-title-link">I MADE A KEYLOGGER</a>
+    </li>
+    <li>
+      <span class="post-date">2022-05-28</span>
+      <a href="#" class="post-title-link">HEXO &amp; VSCODE</a>
+    </li>
+    <li>
+      <span class="post-date">2022-05-28</span>
+      <a href="#" class="post-title-link">THE LORE</a>
+    </li>
+  </ul>
+
+  <div class="html-comment">&lt;!-- end post_list[] :: 9 entries rendered --&gt;</div>
+
+  <!-- ========================================== -->
+  <!-- SEPARATOR                                  -->
+  <!-- ========================================== -->
+
+  <div class="sep">//////////////////////////////////////////////////////////////////////</div>
+
+  <!-- ========================================== -->
+  <!-- SAMPLE POST                                -->
+  <!-- ========================================== -->
+
+  <div class="source-decoration">&lt;article id="hexo-vscode" class="post" data-date="2022-05-28"&gt;</div>
+
+  <article class="sample-post">
+    <div class="sample-post__meta">2022-05-28 &mdash; READING TIME: 4 MIN</div>
+    <h2>HEXO &amp; VSCODE</h2>
+    <div class="sample-post__body">
+      <p>Setting up a proper development workflow for a Hexo blog inside VSCode turned out to be one of those tasks that sounds trivial and then eats your entire afternoon. The goal was simple: write Markdown, preview it live, and deploy without touching a browser or running manual build commands. The reality involved Docker containers, file watchers, and a fair amount of profanity.</p>
+
+      <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+
+      <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+      <p>Asset management was the last piece. Hexo's <code>post_asset_folder</code> option creates a directory alongside each post for images and other files. Combined with the <code>hexo-asset-link</code> plugin, you can reference images with plain Markdown syntax and they resolve correctly in both the editor preview and the generated site. No more broken image paths in production while everything looks fine locally.</p>
+    </div>
+  </article>
+
+  <div class="source-decoration">&lt;/article&gt;</div>
+
+</main>
+
+<!-- ============================================ -->
+<!-- FOOTER                                       -->
+<!-- ============================================ -->
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__left">KEEB.DEV &mdash; NO FRAMEWORKS WERE HARMED</div>
+    <div class="site-footer__right">&lt;/html&gt; &mdash; <a href="#">src</a> &mdash; 2026</div>
+  </div>
+</footer>
+
+</body>
+</html>

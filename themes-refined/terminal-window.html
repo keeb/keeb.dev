@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev</title>
+<style>
+  @keyframes wave-animation {
+    0%, 30%, 100% { color: #c9cacc; }
+    5% { background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    10% { background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    15% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    20% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    25% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #1d1f21;
+    color: #c9cacc;
+    font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Lucida Console", Monaco, monospace;
+    font-size: 17px;
+    line-height: 1.7;
+    padding: 0 3%;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 200%;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+    animation: scanline 10s linear infinite;
+    z-index: 9999;
+  }
+
+  ::selection {
+    background: #d480aa;
+    color: #1d1f21;
+  }
+
+  /* --- ASCII Header --- */
+  .ascii-header {
+    text-align: center;
+    padding: 2rem 0 1rem;
+    overflow: hidden;
+  }
+
+  .ascii-header pre {
+    display: inline-block;
+    font-size: clamp(0.35rem, 1.1vw, 0.85rem);
+    line-height: normal;
+    color: #d5a1aa;
+    animation: wave-animation 8s ease-in-out infinite;
+    text-align: left;
+  }
+
+  .ascii-cursor {
+    color: #d480aa;
+    animation: blink 1s step-end infinite;
+  }
+
+  /* --- Nav --- */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 0 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .nav-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #d480aa33;
+    object-fit: cover;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .nav-links a {
+    color: #d480aa;
+    text-decoration: none;
+    padding: 0 0.6rem;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: #fff;
+  }
+
+  .nav-sep {
+    color: #908d8d;
+    user-select: none;
+  }
+
+  /* --- Terminal Window --- */
+  .terminal-window {
+    max-width: 80rem;
+    margin: 0 auto 3rem;
+    border: 1px solid #908d8d;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .terminal-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #282a2e;
+    border-bottom: 1px solid #908d8d;
+  }
+
+  .terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .terminal-dot.red { background: #ff5f56; }
+  .terminal-dot.yellow { background: #ffbd2e; }
+  .terminal-dot.green { background: #27c93f; }
+
+  .terminal-title {
+    color: #908d8d;
+    font-size: 0.85rem;
+    margin-left: 6px;
+  }
+
+  .terminal-body {
+    display: flex;
+  }
+
+  /* --- Sidebar --- */
+  .sidebar {
+    width: 40%;
+    min-width: 0;
+    background: #1a1c1e;
+    border-right: 1px solid #333537;
+    padding: 1.25rem 1rem;
+    overflow-x: auto;
+  }
+
+  .sidebar-prompt {
+    margin-bottom: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .prompt-user {
+    color: #d480aa;
+    font-weight: bold;
+  }
+
+  .prompt-cmd {
+    color: #c9cacc;
+  }
+
+  .file-tree {
+    font-size: 0.9em;
+    line-height: 1.55;
+    white-space: pre;
+    margin: 0;
+    font-family: inherit;
+  }
+
+  .tree-dir {
+    color: #d5a1aa;
+    font-weight: bold;
+  }
+
+  .tree-branch {
+    color: #908d8d;
+  }
+
+  .tree-link {
+    color: #c9cacc;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .tree-link:hover {
+    color: #d480aa;
+  }
+
+  .tree-link.active {
+    color: #d480aa;
+  }
+
+  .sidebar-bottom-prompt {
+    margin-top: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .cursor-blink {
+    color: #d480aa;
+    animation: blink 1s step-end infinite;
+  }
+
+  /* --- Content Area --- */
+  .content {
+    width: 60%;
+    min-width: 0;
+    background: #1d1f21;
+    padding: 2rem 2.5rem;
+    overflow-x: auto;
+  }
+
+  .content h1 {
+    color: #d480aa;
+    font-size: 1.6rem;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+  }
+
+  .content .article-date {
+    color: #908d8d;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  .content h2 {
+    color: #d5a1aa;
+    font-size: 1.2rem;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .content p {
+    margin-bottom: 1.1rem;
+    color: #c9cacc;
+  }
+
+  .content a {
+    color: #d480aa;
+    text-decoration: none;
+    border-bottom: 1px solid #d480aa55;
+    transition: border-color 0.2s;
+  }
+
+  .content a:hover {
+    border-bottom-color: #d480aa;
+    color: #fff;
+  }
+
+  .content code {
+    background: #282a2e;
+    color: #d480aa;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.92em;
+    font-family: inherit;
+  }
+
+  .content blockquote {
+    border-left: 3px solid #d480aa;
+    margin: 1.25rem 0;
+    padding: 0.5rem 1rem;
+    color: #ccffb6;
+    background: #1a1c1e;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .content blockquote p {
+    color: #ccffb6;
+    margin-bottom: 0;
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 768px) {
+    .terminal-body {
+      flex-direction: column;
+    }
+
+    .sidebar {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid #333537;
+    }
+
+    .content {
+      width: 100%;
+      padding: 1.5rem 1.25rem;
+    }
+
+    .ascii-header pre {
+      font-size: clamp(0.25rem, 2.2vw, 0.65rem);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ASCII Header -->
+<div class="ascii-header">
+<pre>
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'
+</pre><span class="ascii-cursor">█</span>
+</div>
+
+<!-- Nav Bar -->
+<nav class="nav-bar">
+  <img class="nav-avatar" src="avatar.webp" alt="avatar">
+  <div class="nav-links">
+    <a href="#">home</a>
+    <span class="nav-sep">|</span>
+    <a href="#">writing</a>
+    <span class="nav-sep">|</span>
+    <a href="#">about</a>
+    <span class="nav-sep">|</span>
+    <a href="#">github</a>
+  </div>
+</nav>
+
+<!-- Terminal Window -->
+<div class="terminal-window">
+
+  <!-- Title Bar -->
+  <div class="terminal-titlebar">
+    <span class="terminal-dot red"></span>
+    <span class="terminal-dot yellow"></span>
+    <span class="terminal-dot green"></span>
+    <span class="terminal-title">keeb@dev: ~/writing</span>
+  </div>
+
+  <!-- Body -->
+  <div class="terminal-body">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-prompt">
+        <span class="prompt-user">keeb@dev:~$</span> <span class="prompt-cmd">tree ~/writing/</span>
+      </div>
+<pre class="file-tree"><span class="tree-dir">keeb.dev/</span>
+<span class="tree-branch">├──</span> <a class="tree-link" href="#">about.md</a>
+<span class="tree-branch">├──</span> <a class="tree-link" href="#">avatar.webp</a>
+<span class="tree-branch">└──</span> <span class="tree-dir">writing/</span>
+<span class="tree-branch">    ├──</span> <span class="tree-dir">2022/</span>
+<span class="tree-branch">    │   ├──</span> <a class="tree-link" href="#">the-lore.md</a>
+<span class="tree-branch">    │   ├──</span> <a class="tree-link active" href="#">hexo-and-vscode.md</a>
+<span class="tree-branch">    │   └──</span> <a class="tree-link" href="#">i-made-a-keylogger.md</a>
+<span class="tree-branch">    ├──</span> <span class="tree-dir">2023/</span>
+<span class="tree-branch">    │   └──</span> <a class="tree-link" href="#">virtualization-from-scratch.md</a>
+<span class="tree-branch">    ├──</span> <span class="tree-dir">2025/</span>
+<span class="tree-branch">    │   ├──</span> <a class="tree-link" href="#">terraform-with-glitter.md</a>
+<span class="tree-branch">    │   ├──</span> <a class="tree-link" href="#">ai-is-great-at-parsing.md</a>
+<span class="tree-branch">    │   └──</span> <a class="tree-link" href="#">claude-sonnet-4.5-system-initiative.md</a>
+<span class="tree-branch">    └──</span> <span class="tree-dir">2026/</span>
+<span class="tree-branch">        ├──</span> <a class="tree-link" href="#">ai-native-infrastructure.md</a>
+<span class="tree-branch">        └──</span> <a class="tree-link" href="#">mcp-is-dead.md</a></pre>
+      <div class="sidebar-bottom-prompt">
+        <span class="prompt-user">keeb@dev:~$</span> <span class="cursor-blink">█</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <h1>Hexo &amp; VSCode</h1>
+      <span class="article-date">2022-09-14</span>
+
+      <p>
+        I finally sat down and wired up a proper blogging workflow. The stack is simple on purpose:
+        <a href="https://hexo.io">Hexo</a> generates the static files, a custom Cactus theme handles
+        the look, and the whole thing ships inside a Docker container that Nginx serves to the world.
+        No CMS, no database, no JavaScript framework on the frontend. Just markdown files rendered
+        into HTML, the way the web was meant to work.
+      </p>
+
+      <h2>The editing loop</h2>
+
+      <p>
+        VSCode is where all the writing happens. I keep the site repo open with the integrated
+        terminal split below, running <code>hexo server</code> in watch mode so every save
+        triggers a rebuild. The preview refreshes in a side browser tab, and the feedback loop
+        is tight enough that I never leave the editor. A couple of workspace-level snippets handle
+        front-matter boilerplate: type <code>newpost</code>, tab, fill in the title, and I am
+        writing within seconds. The <code>hexo-asset-link</code> plugin resolves image paths
+        from per-post asset folders, so dropping a screenshot into the right directory is all it
+        takes to embed it.
+      </p>
+
+      <blockquote>
+        <p>
+          The best writing setup is the one where the distance between thought and published
+          word is as short as possible.
+        </p>
+      </blockquote>
+
+      <p>
+        Deployment is a single <code>./scripts/deploy.sh</code> invocation. The script pulls the
+        latest Docker image, runs <code>hexo generate</code> inside the container, and drops the
+        output into a timestamped directory. A symlink swap makes the new version live atomically
+        -- no downtime, no half-rendered pages. If something goes wrong I can point the symlink
+        back to the previous build in under a second. It is not Kubernetes, but for a personal
+        site it hits the sweet spot between reliability and simplicity.
+      </p>
+
+      <h2>Why this matters</h2>
+
+      <p>
+        There is something satisfying about a deploy pipeline you can hold in your head entirely.
+        Every piece is visible: the markdown source, the theme templates, the Nginx config, the
+        shell script that ties them together. When the whole system fits on a single screen of
+        documentation, you actually maintain it instead of letting it rot. That is the real payoff
+        -- not the tech, but the fact that six months from now I will still understand how it works
+        and will still want to write.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

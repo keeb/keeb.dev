@@ -1,20 +1,37 @@
 <!DOCTYPE html>
 <html<%= config.language ? " lang=" + config.language.substring(0, 2) : ""%>>
 <%- partial('_partial/head') %>
-<body class="max-width mx-auto px3 <%- theme.direction -%>">
+<body>
     <% if (is_post()) { %>
-      <%- partial('_partial/post/actions_desktop') %>
-    <% } %>
-    <div class="content index py4 <%= is_home() ? 'h-card' : '' %>">
-        <% if (!is_post()) { %>
-          <%- partial('_partial/header') %>
-        <% } %>
+      <%- partial('_partial/header') %>
+      <a href="<%- url_for('/') %>" class="avatar-link"><img src="<%- url_for('/images/avatar.webp') %>" alt="keeb avatar"></a>
+      <div class="layout">
+        <div class="sidebar">
+          <div class="sidebar-inner">
+            <div class="sidebar-content">
+              <nav class="sidebar-nav">
+                <% for (var key in theme.nav) { %>
+                  <a href="<%- url_for(theme.nav[key]) %>"><%= key %></a><% if (Object.keys(theme.nav).indexOf(key) < Object.keys(theme.nav).length - 1) { %><span class="sep">|</span><% } %>
+                <% } %>
+              </nav>
+              <%- partial('_partial/tree') %>
+            </div>
+          </div>
+        </div>
+        <div class="divider" id="divider"></div>
+        <div class="content">
+          <%- body %>
+          <%- partial('_partial/footer') %>
+        </div>
+      </div>
+      <div class="expand-tab" id="expand-tab">&#9654;</div>
+    <% } else { %>
+      <%- partial('_partial/header') %>
+      <div class="content homepage">
         <%- body %>
-        <% if (is_post()) { %>
-          <%- partial('_partial/post/actions_mobile') %>
-        <% } %>
         <%- partial('_partial/footer') %>
-    </div>
+      </div>
+    <% } %>
     <%- partial('_partial/styles') %>
     <%- partial('_partial/scripts') %>
 </body>

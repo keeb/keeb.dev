@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — tmux</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #1d1f21;
+    color: #c9cacc;
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  a { color: rgba(212,128,170,1); text-decoration: none; }
+  a:hover { text-decoration: underline; color: #e8a0c4; }
+
+  code {
+    background: #2a2c2e;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #ccffb6;
+  }
+
+  blockquote {
+    border-left: 2px solid #444;
+    padding-left: 1em;
+    margin: 1em 0;
+    color: #ccffb6;
+    font-style: italic;
+  }
+
+  h3 { color: #ffffff; margin: 1.2em 0 0.6em 0; font-size: 1.1em; }
+
+  /* --- Layout --- */
+  .tmux-frame {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .ascii-header {
+    flex-shrink: 0;
+    padding: 0.5rem 0.75rem 0;
+    border-bottom: 1px solid #444;
+    background: #1d1f21;
+    overflow: hidden;
+  }
+
+  .tmux-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .tmux-top-row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    min-height: 0;
+  }
+
+  /* Panes */
+  .pane {
+    position: relative;
+    background: #1d1f21;
+    overflow-y: auto;
+    padding: 1.8rem 1rem 1rem 1rem;
+  }
+
+  .pane::-webkit-scrollbar { width: 6px; }
+  .pane::-webkit-scrollbar-track { background: #1d1f21; }
+  .pane::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+  .pane::-webkit-scrollbar-thumb:hover { background: #666; }
+
+  .pane-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #005f00;
+    color: #c9cacc;
+    font-size: 0.75rem;
+    padding: 0 0.5em;
+    z-index: 2;
+    line-height: 1.4;
+  }
+
+  /* Left pane — featured post */
+  .pane-main {
+    width: 65%;
+    border-right: 1px solid #444;
+  }
+
+  /* Right pane — post list */
+  .pane-posts {
+    width: 35%;
+  }
+
+  /* Bottom pane — info */
+  .pane-info {
+    height: 6rem;
+    flex-shrink: 0;
+    border-top: 1px solid #444;
+    padding: 1.8rem 1rem 0.5rem 1rem;
+    overflow-y: auto;
+  }
+
+  /* --- tmux status bar --- */
+  .tmux-status {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #005f00;
+    color: #ffffff;
+    font-size: 0.8rem;
+    padding: 0.15rem 0.75rem;
+    height: 1.4rem;
+    line-height: 1.4rem;
+  }
+
+  .tmux-status-left span.session {
+    background: #007f00;
+    padding: 0 0.4em;
+    margin-right: 0.5em;
+  }
+
+  .tmux-status-left span.window-active {
+    color: #ffffff;
+    font-weight: bold;
+  }
+
+  .tmux-status-left span.window-inactive {
+    color: #a0d0a0;
+  }
+
+  .tmux-status-right {
+    color: #c0e8c0;
+  }
+
+  /* --- Post list items --- */
+  .post-item {
+    padding: 0.5em 0;
+    border-bottom: 1px solid #2a2c2e;
+  }
+
+  .post-item:last-child { border-bottom: none; }
+
+  .post-date {
+    color: #908d8d;
+    font-size: 0.8em;
+  }
+
+  .post-title a {
+    color: rgba(212,128,170,1);
+  }
+
+  .post-item.featured {
+    background: #2a2c2e;
+    padding: 0.5em;
+    border-left: 2px solid #d480aa;
+  }
+
+  .featured-badge {
+    color: #ccffb6;
+    font-size: 0.7em;
+    margin-left: 0.5em;
+  }
+
+  /* --- Info pane --- */
+  .info-line {
+    color: #908d8d;
+    font-size: 0.85em;
+    line-height: 1.6;
+  }
+
+  .info-line span.val { color: #c9cacc; }
+  .info-line span.hl { color: #ccffb6; }
+
+  /* --- Featured post content --- */
+  .featured-content p {
+    margin-bottom: 0.8em;
+  }
+
+  .featured-content h2.post-heading {
+    color: #ffffff;
+    font-size: 1.2em;
+    margin-bottom: 0.2em;
+  }
+
+  .featured-content .post-meta {
+    color: #908d8d;
+    font-size: 0.85em;
+    margin-bottom: 1.2em;
+  }
+
+  /* --- Animations --- */
+  @keyframes wave-animation {
+    0%, 30%, 100% { color: #c9cacc; }
+    5% { background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    10% { background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    15% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    20% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    25% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  #terminal-cursor {
+    animation: blink 1s step-end infinite;
+    color: rgba(212,128,170,1);
+  }
+
+  #ascii-art {
+    animation: wave-animation 8s ease-in-out infinite;
+    color: #c9cacc;
+    font-size: 0.65rem;
+    overflow: hidden;
+    white-space: pre;
+    line-height: normal;
+    font-family: monospace;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="tmux-frame">
+
+  <!-- ASCII Header -->
+  <div class="ascii-header">
+<pre id="ascii-art" style="font-family: monospace; line-height: normal;">
+      ..                                  ..              ..                     _
+< .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">&#x2588;</span>
+</pre>
+  </div>
+
+  <!-- tmux body -->
+  <div class="tmux-body">
+
+    <!-- Top row: main + posts -->
+    <div class="tmux-top-row">
+
+      <!-- Left pane: Featured post -->
+      <div class="pane pane-main">
+        <span class="pane-label">[0:main]</span>
+        <div class="featured-content">
+          <h2 class="post-heading">Hexo &amp; VSCode</h2>
+          <div class="post-meta">2022-05-28 &mdash; keeb</div>
+
+          <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+          <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+          <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+          <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+
+          <h3>Asset Management</h3>
+
+          <p>One of the early pain points was handling images and other assets in posts. Hexo's default asset pipeline assumes a flat structure, which gets messy fast when you have dozens of posts each with their own screenshots and diagrams. The <code>hexo-asset-link</code> plugin solves this cleanly &mdash; enable <code>post_asset_folder: true</code> in your <code>_config.yml</code> and each post gets its own directory. Reference images with standard Markdown syntax and the plugin rewrites the paths at build time.</p>
+
+          <p>The real trick is pairing this with <strong>Docker volume mounts</strong>. Your source tree lives on the host, the Hexo build runs inside the container, and the asset folder convention means everything just works. No path gymnastics, no build-step hacks. You write Markdown, you drop images next to the <code>.md</code> file, and the output is a clean static site with all the assets in the right place. It sounds simple because it is &mdash; which is exactly the point.</p>
+        </div>
+      </div>
+
+      <!-- Right pane: Post list -->
+      <div class="pane pane-posts">
+        <span class="pane-label">[1:posts]</span>
+
+        <div class="post-item">
+          <div class="post-date">2026-02-03</div>
+          <div class="post-title"><a href="#">MCP Is Dead</a></div>
+        </div>
+
+        <div class="post-item">
+          <div class="post-date">2026-02-03</div>
+          <div class="post-title"><a href="#">AI-Native Infrastructure</a></div>
+        </div>
+
+        <div class="post-item">
+          <div class="post-date">2025-09-29</div>
+          <div class="post-title"><a href="#">Claude Sonnet 4.5 &amp; System Initiative</a></div>
+        </div>
+
+        <div class="post-item">
+          <div class="post-date">2025-09-26</div>
+          <div class="post-title"><a href="#">AI is great at parsing</a></div>
+        </div>
+
+        <div class="post-item">
+          <div class="post-date">2025-09-25</div>
+          <div class="post-title"><a href="#">Terraform with Glitter</a></div>
+        </div>
+
+        <div class="post-item">
+          <div class="post-date">2023-07-03</div>
+          <div class="post-title"><a href="#">Virtualization from scratch</a></div>
+        </div>
+
+        <div class="post-item">
+          <div class="post-date">2022-06-12</div>
+          <div class="post-title"><a href="#">I made a keylogger</a></div>
+        </div>
+
+        <div class="post-item featured">
+          <div class="post-date">2022-05-28 <span class="featured-badge">[FEATURED]</span></div>
+          <div class="post-title"><a href="#">Hexo &amp; VSCode</a></div>
+        </div>
+
+        <div class="post-item">
+          <div class="post-date">2022-05-28</div>
+          <div class="post-title"><a href="#">The Lore</a></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom pane: Info -->
+    <div class="pane pane-info">
+      <span class="pane-label">[2:info]</span>
+      <div class="info-line">$ uname -a</div>
+      <div class="info-line"><span class="val">Linux keeb.dev 6.18.2-arch2-1 #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux</span></div>
+      <div class="info-line" style="margin-top: 0.3em;">
+        <span class="hl">keeb</span> &mdash; Infrastructure engineer. Writing about systems, virtualization, AI tooling, and the terminal-native workflow. Opinions are compiled from source.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- tmux status bar -->
+  <div class="tmux-status">
+    <div class="tmux-status-left">
+      <span class="session">[keeb]</span>
+      <span class="window-active">0:main* </span>
+      <span class="window-inactive">1:posts- </span>
+      <span class="window-inactive">2:info</span>
+    </div>
+    <div class="tmux-status-right">
+      "keeb.dev" 15:42 06-Feb-26
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

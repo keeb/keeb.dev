@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev BBS - Node 1</title>
+<style>
+  @font-face {
+    font-family: 'Fallback Mono';
+    src: local('Courier New'), local('Consolas'), local('monospace');
+  }
+
+  :root {
+    --amber: #ffb000;
+    --amber-dim: #cc8800;
+    --amber-bright: #ffcc33;
+    --amber-glow: rgba(255, 176, 0, 0.15);
+    --cyan: #55ffff;
+    --cyan-dim: #00aaaa;
+    --white: #aaaaaa;
+    --white-bright: #ffffff;
+    --red: #ff5555;
+    --green: #55ff55;
+    --green-dim: #00aa00;
+    --blue: #5555ff;
+    --blue-bright: #55aaff;
+    --magenta: #ff55ff;
+    --magenta-dim: #aa00aa;
+    --yellow: #ffff55;
+    --bg: #0a0a00;
+    --bg-highlight: #1a1400;
+    --scanline: rgba(0, 0, 0, 0.08);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--amber-dim) var(--bg);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--amber);
+    font-family: 'Courier New', Consolas, 'Liberation Mono', monospace;
+    line-height: 1.4;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* CRT Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      var(--scanline) 2px,
+      var(--scanline) 4px
+    );
+  }
+
+  /* Subtle screen flicker */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+  }
+
+  .terminal {
+    max-width: 82ch;
+    margin: 0 auto;
+    padding: 1rem 0.5rem;
+    position: relative;
+  }
+
+  /* ============================================ */
+  /*  TOP BAR - Connection Info                    */
+  /* ============================================ */
+  .connection-bar {
+    color: var(--white);
+    font-size: 0.85rem;
+    padding: 0.25rem 0;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .connection-bar .baud {
+    color: var(--green-dim);
+  }
+
+  .connection-bar .node {
+    color: var(--cyan-dim);
+  }
+
+  /* ============================================ */
+  /*  HEADER - ANSI Art Banner                     */
+  /* ============================================ */
+  .ansi-header {
+    color: var(--amber-bright);
+    white-space: pre;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 8px var(--amber-glow);
+  }
+
+  .ansi-header .accent {
+    color: var(--cyan);
+  }
+
+  .ansi-header .dim {
+    color: var(--amber-dim);
+  }
+
+  .ansi-header .bright {
+    color: var(--yellow);
+  }
+
+  /* ============================================ */
+  /*  SYSOP SECTION                                */
+  /* ============================================ */
+  .sysop-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .sysop-badge {
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .sysop-badge .frame {
+    white-space: pre;
+    font-size: 0.8rem;
+    line-height: 1.15;
+    color: var(--cyan);
+  }
+
+  .sysop-badge .frame .label {
+    color: var(--yellow);
+    font-weight: bold;
+  }
+
+  .sysop-badge img {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+    display: block;
+    margin: 0 auto;
+    border: 1px solid var(--cyan-dim);
+  }
+
+  .sysop-info {
+    color: var(--white);
+    font-size: 0.9rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sysop-info .name {
+    color: var(--amber-bright);
+    font-weight: bold;
+  }
+
+  .sysop-info .tagline {
+    color: var(--amber-dim);
+    font-style: italic;
+  }
+
+  .sysop-info .detail {
+    color: var(--white);
+  }
+
+  .sysop-info .detail .val {
+    color: var(--green);
+  }
+
+  /* ============================================ */
+  /*  SEPARATOR LINES                              */
+  /* ============================================ */
+  .separator {
+    color: var(--amber-dim);
+    white-space: pre;
+    overflow: hidden;
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+
+  .separator.double {
+    color: var(--cyan-dim);
+  }
+
+  .separator .title {
+    color: var(--amber-bright);
+    font-weight: bold;
+  }
+
+  .separator.double .title {
+    color: var(--cyan);
+  }
+
+  /* ============================================ */
+  /*  MENU BAR                                     */
+  /* ============================================ */
+  .menu-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .menu-item {
+    color: var(--white);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.1s;
+  }
+
+  .menu-item:hover {
+    color: var(--amber-bright);
+  }
+
+  .menu-item .hotkey {
+    color: var(--yellow);
+    font-weight: bold;
+  }
+
+  .menu-item .hotkey-bracket {
+    color: var(--white);
+  }
+
+  .menu-item.active {
+    color: var(--amber-bright);
+  }
+
+  .menu-item.active .hotkey {
+    color: var(--red);
+  }
+
+  /* ============================================ */
+  /*  MESSAGE LIST (Post Listing)                  */
+  /* ============================================ */
+  .msg-list-header {
+    white-space: pre;
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+
+  .msg-list-header .col-header {
+    color: var(--cyan);
+    font-weight: bold;
+  }
+
+  .msg-list {
+    list-style: none;
+    margin-bottom: 0.5rem;
+  }
+
+  .msg-list li {
+    display: flex;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    cursor: pointer;
+    padding: 0 0.25rem;
+    border-left: 2px solid transparent;
+    transition: background 0.1s, border-color 0.1s;
+  }
+
+  .msg-list li:hover {
+    background: var(--bg-highlight);
+    border-left-color: var(--amber);
+  }
+
+  .msg-list li.selected {
+    background: var(--bg-highlight);
+    border-left-color: var(--yellow);
+  }
+
+  .msg-num {
+    color: var(--yellow);
+    width: 5ch;
+    flex-shrink: 0;
+    text-align: right;
+    padding-right: 1ch;
+  }
+
+  .msg-date {
+    color: var(--green);
+    width: 12ch;
+    flex-shrink: 0;
+  }
+
+  .msg-status {
+    color: var(--magenta-dim);
+    width: 3ch;
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .msg-title {
+    color: var(--amber);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .msg-list li:hover .msg-title {
+    color: var(--amber-bright);
+  }
+
+  .msg-list li.selected .msg-title {
+    color: var(--white-bright);
+  }
+
+  .msg-area {
+    color: var(--cyan-dim);
+    width: 8ch;
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 0.85rem;
+  }
+
+  /* ============================================ */
+  /*  POST CONTENT VIEWER                          */
+  /* ============================================ */
+  .post-viewer {
+    margin: 1rem 0;
+  }
+
+  .post-frame {
+    white-space: pre;
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+
+  .post-frame .border {
+    color: var(--cyan-dim);
+  }
+
+  .post-frame .title-text {
+    color: var(--white-bright);
+    font-weight: bold;
+  }
+
+  .post-frame .meta {
+    color: var(--green);
+  }
+
+  .post-frame .meta-label {
+    color: var(--cyan);
+  }
+
+  .post-content {
+    padding: 0.75rem 1ch;
+    color: var(--white);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    border-left: 1px solid var(--cyan-dim);
+    border-right: 1px solid var(--cyan-dim);
+    background: rgba(0, 170, 170, 0.02);
+  }
+
+  .post-content p {
+    margin-bottom: 1em;
+  }
+
+  .post-content p:last-child {
+    margin-bottom: 0;
+  }
+
+  .post-content .highlight {
+    color: var(--amber-bright);
+  }
+
+  .post-content .emphasis {
+    color: var(--green);
+  }
+
+  .post-bottom-frame {
+    white-space: pre;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    color: var(--cyan-dim);
+  }
+
+  .post-nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    font-size: 0.85rem;
+    color: var(--white);
+  }
+
+  .post-nav .nav-key {
+    color: var(--yellow);
+    font-weight: bold;
+  }
+
+  /* ============================================ */
+  /*  STATUS BAR                                   */
+  /* ============================================ */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.25rem 0;
+    font-size: 0.8rem;
+    color: var(--white);
+    border-top: 1px solid var(--amber-dim);
+    margin-top: 0.5rem;
+  }
+
+  .status-bar .time {
+    color: var(--green);
+  }
+
+  .status-bar .caller {
+    color: var(--cyan-dim);
+  }
+
+  .status-bar .security {
+    color: var(--magenta-dim);
+  }
+
+  /* ============================================ */
+  /*  COMMAND PROMPT                                */
+  /* ============================================ */
+  .prompt-area {
+    margin-top: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .prompt-line {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+
+  .prompt-prefix {
+    color: var(--cyan);
+    white-space: nowrap;
+  }
+
+  .prompt-cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.1em;
+    background: var(--amber);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ============================================ */
+  /*  FOOTER                                       */
+  /* ============================================ */
+  .footer {
+    margin-top: 1.5rem;
+    padding-top: 0.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  .footer .frame {
+    white-space: pre;
+    color: var(--amber-dim);
+    line-height: 1.2;
+  }
+
+  .footer .copy {
+    color: var(--white);
+    margin-top: 0.25rem;
+  }
+
+  .footer .copy .name {
+    color: var(--amber);
+  }
+
+  .footer .ansi-art {
+    color: var(--amber-dim);
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    line-height: 1.1;
+    white-space: pre;
+  }
+
+  /* ============================================ */
+  /*  RESPONSIVE                                   */
+  /* ============================================ */
+  @media (max-width: 700px) {
+    html { font-size: 12px; }
+    .terminal { padding: 0.5rem 0.25rem; }
+    .sysop-section { flex-direction: column; align-items: center; text-align: center; }
+    .msg-area { display: none; }
+    .msg-date { width: 10ch; }
+    .msg-num { width: 4ch; }
+    .menu-bar { gap: 0.25rem 1rem; justify-content: center; }
+    .connection-bar { justify-content: center; text-align: center; }
+    .post-nav { flex-direction: column; gap: 0.25rem; }
+  }
+
+  @media (max-width: 480px) {
+    html { font-size: 11px; }
+    .msg-status { display: none; }
+    .ansi-header { font-size: 0.7rem; }
+    .sysop-badge .frame { font-size: 0.7rem; }
+    .post-frame { font-size: 0.8rem; }
+  }
+
+  /* ============================================ */
+  /*  SUBTLE PHOSPHOR GLOW                         */
+  /* ============================================ */
+  .terminal {
+    text-shadow: 0 0 2px var(--amber-glow);
+  }
+
+  /* Selection styling */
+  ::selection {
+    background: var(--amber-dim);
+    color: var(--bg);
+  }
+</style>
+</head>
+<body>
+
+<div class="terminal">
+
+  <!-- Connection Bar -->
+  <div class="connection-bar">
+    <span class="baud">COM1: 14400,N,8,1</span>
+    <span class="node">Node 1 of 4</span>
+    <span>ANSI detected</span>
+  </div>
+
+  <!-- ANSI Art Header -->
+  <div class="ansi-header"><span class="dim">   ___________________________________________________________</span>
+<span class="dim">  /</span>                                                           <span class="dim">\</span>
+<span class="dim"> |</span>  <span class="accent">##  ##</span>  <span class="bright">######</span>  <span class="accent">######</span>  <span class="bright">######</span>         <span class="accent">####</span>   <span class="bright">######</span>  <span class="accent">##  ##</span>  <span class="dim">|</span>
+<span class="dim"> |</span>  <span class="accent">## ##</span>   <span class="bright">##</span>      <span class="accent">##</span>      <span class="bright">##  ##</span>        <span class="accent">##  ##</span>  <span class="bright">##</span>      <span class="accent">## ##</span>   <span class="dim">|</span>
+<span class="dim"> |</span>  <span class="accent">####</span>    <span class="bright">####</span>    <span class="accent">####</span>    <span class="bright">######</span>  <span class="dim">====</span>  <span class="accent">##  ##</span>  <span class="bright">####</span>    <span class="accent">####</span>    <span class="dim">|</span>
+<span class="dim"> |</span>  <span class="accent">## ##</span>   <span class="bright">##</span>      <span class="accent">##</span>      <span class="bright">##  ##</span>        <span class="accent">##  ##</span>  <span class="bright">##</span>      <span class="accent">## ##</span>   <span class="dim">|</span>
+<span class="dim"> |</span>  <span class="accent">##  ##</span>  <span class="bright">######</span>  <span class="accent">######</span>  <span class="bright">######</span>   <span class="dim">*</span>    <span class="accent">####</span>   <span class="bright">######</span>  <span class="accent">##  ##</span>  <span class="dim">|</span>
+<span class="dim"> |</span>                                                           <span class="dim">|</span>
+<span class="dim"> |</span>          <span style="color:var(--white)">A Hacker's Notebook  //  Est. 2022</span>              <span class="dim">|</span>
+<span class="dim">  \___________________________________________________________/</span></div>
+
+  <!-- Separator -->
+  <div class="separator">
+<span class="dim">+</span>============================================================<span class="dim">+</span></div>
+
+  <!-- SysOp Section -->
+  <div class="sysop-section">
+    <div class="sysop-badge">
+      <div class="frame"><span style="color:var(--cyan-dim)">+----------+</span>
+<span style="color:var(--cyan-dim)">|</span>          <span style="color:var(--cyan-dim)">|</span>
+<span style="color:var(--cyan-dim)">|</span>          <span style="color:var(--cyan-dim)">|</span>
+<span style="color:var(--cyan-dim)">|</span>          <span style="color:var(--cyan-dim)">|</span>
+<span style="color:var(--cyan-dim)">|</span>          <span style="color:var(--cyan-dim)">|</span>
+<span style="color:var(--cyan-dim)">+----------+</span>
+<span class="label">[  SysOp  ]</span></div>
+      <img src="avatar.webp" alt="SysOp Avatar"
+           style="position:relative; margin-top:-6.8em; margin-bottom:2.3em;">
+    </div>
+
+    <div class="sysop-info">
+      <div class="name">keeb</div>
+      <div class="tagline">"Just another mass of mass in the mass"</div>
+      <br>
+      <div class="detail">Board   : <span class="val">keeb.dev BBS</span></div>
+      <div class="detail">SysOp   : <span class="val">keeb</span></div>
+      <div class="detail">Location: <span class="val">The Internet</span></div>
+      <div class="detail">Software: <span class="val">HexoBoard v6.3.0</span></div>
+      <div class="detail">Nodes   : <span class="val">4</span></div>
+      <div class="detail">Since   : <span class="val">May 2022</span></div>
+    </div>
+  </div>
+
+  <!-- Menu Separator -->
+  <div class="separator double"><span style="color:var(--cyan-dim)">=</span>==<span style="color:var(--cyan-dim)">[</span> <span class="title">Main Menu</span> <span style="color:var(--cyan-dim)">]</span>======================================================<span style="color:var(--cyan-dim)">=</span></div>
+
+  <!-- Menu Bar -->
+  <div class="menu-bar">
+    <a class="menu-item active" href="#messages">
+      <span class="hotkey-bracket">[</span><span class="hotkey">M</span><span class="hotkey-bracket">]</span>essage Base
+    </a>
+    <a class="menu-item" href="#">
+      <span class="hotkey-bracket">[</span><span class="hotkey">F</span><span class="hotkey-bracket">]</span>ile Areas
+    </a>
+    <a class="menu-item" href="#">
+      <span class="hotkey-bracket">[</span><span class="hotkey">B</span><span class="hotkey-bracket">]</span>ulletins
+    </a>
+    <a class="menu-item" href="#">
+      <span class="hotkey-bracket">[</span><span class="hotkey">W</span><span class="hotkey-bracket">]</span>ho's Online
+    </a>
+    <a class="menu-item" href="#">
+      <span class="hotkey-bracket">[</span><span class="hotkey">S</span><span class="hotkey-bracket">]</span>tats
+    </a>
+    <a class="menu-item" href="#">
+      <span class="hotkey-bracket">[</span><span class="hotkey">G</span><span class="hotkey-bracket">]</span>oodbye
+    </a>
+  </div>
+
+  <!-- Message List Separator -->
+  <div class="separator double"><span style="color:var(--cyan-dim)">=</span>==<span style="color:var(--cyan-dim)">[</span> <span class="title">Message Base: General</span> <span style="color:var(--cyan-dim)">]</span>=========================================<span style="color:var(--cyan-dim)">=</span></div>
+
+  <!-- Message List Header -->
+  <div class="msg-list-header">
+<span class="col-header">  Msg# Date         Subject                                  Area</span>
+<span style="color:var(--cyan-dim)">  ---- ----------- ---------------------------------------- -------</span></div>
+
+  <!-- Message List -->
+  <ul class="msg-list" id="messages">
+    <li class="selected" onclick="this.classList.toggle('selected')">
+      <span class="msg-num">1</span>
+      <span class="msg-date">05-28-2022</span>
+      <span class="msg-status">*</span>
+      <span class="msg-title">The Lore</span>
+      <span class="msg-area">General</span>
+    </li>
+    <li>
+      <span class="msg-num">2</span>
+      <span class="msg-date">05-28-2022</span>
+      <span class="msg-status">&nbsp;</span>
+      <span class="msg-title">Hexo &amp; VSCode</span>
+      <span class="msg-area">Dev</span>
+    </li>
+    <li>
+      <span class="msg-num">3</span>
+      <span class="msg-date">06-12-2022</span>
+      <span class="msg-status">&nbsp;</span>
+      <span class="msg-title">I made a keylogger</span>
+      <span class="msg-area">Hacking</span>
+    </li>
+    <li>
+      <span class="msg-num">4</span>
+      <span class="msg-date">07-03-2023</span>
+      <span class="msg-status">&nbsp;</span>
+      <span class="msg-title">Virtualization from scratch</span>
+      <span class="msg-area">Dev</span>
+    </li>
+    <li>
+      <span class="msg-num">5</span>
+      <span class="msg-date">09-25-2025</span>
+      <span class="msg-status">&nbsp;</span>
+      <span class="msg-title">Terraform with Glitter</span>
+      <span class="msg-area">Infra</span>
+    </li>
+    <li>
+      <span class="msg-num">6</span>
+      <span class="msg-date">09-26-2025</span>
+      <span class="msg-status">&nbsp;</span>
+      <span class="msg-title">AI is great at parsing</span>
+      <span class="msg-area">AI</span>
+    </li>
+    <li>
+      <span class="msg-num">7</span>
+      <span class="msg-date">09-29-2025</span>
+      <span class="msg-status">&nbsp;</span>
+      <span class="msg-title">Claude Sonnet 4.5 &amp; System Initiative</span>
+      <span class="msg-area">AI</span>
+    </li>
+    <li>
+      <span class="msg-num">8</span>
+      <span class="msg-date">02-03-2026</span>
+      <span class="msg-status">N</span>
+      <span class="msg-title">AI-Native Infrastructure</span>
+      <span class="msg-area">Infra</span>
+    </li>
+    <li>
+      <span class="msg-num">9</span>
+      <span class="msg-date">02-03-2026</span>
+      <span class="msg-status">N</span>
+      <span class="msg-title">MCP Is Dead</span>
+      <span class="msg-area">AI</span>
+    </li>
+  </ul>
+
+  <!-- Post Viewer -->
+  <div class="post-viewer">
+    <div class="post-frame"><span class="border">+==============================================================+</span>
+<span class="border">|</span> Msg #<span style="color:var(--yellow)">1</span>                                                        <span class="border">|</span>
+<span class="border">|</span> <span class="meta-label">From :</span> <span class="meta">keeb</span>                                                  <span class="border">|</span>
+<span class="border">|</span> <span class="meta-label">Date :</span> <span class="meta">Sat May 28 2022  00:00:00</span>                            <span class="border">|</span>
+<span class="border">|</span> <span class="meta-label">Subj :</span> <span class="title-text">The Lore</span>                                              <span class="border">|</span>
+<span class="border">|</span> <span class="meta-label">Area :</span> <span class="meta">General</span>                                               <span class="border">|</span>
+<span class="border">+--------------------------------------------------------------+</span></div>
+
+    <div class="post-content">
+      <p>
+This is <span class="highlight">keeb.dev</span> -- a hacker's notebook. A journal of sorts, tracking
+the things I build, break, and learn along the way. It started as a place to
+dump notes about whatever I was working on at the time, and it grew into
+something I actually care about maintaining.
+      </p>
+      <p>
+Every entry here is a snapshot of a problem I was wrestling with, a tool I was
+building, or an idea that wouldn't leave me alone until I wrote it down. Some
+of it is polished. Most of it isn't. That's the point -- <span class="emphasis">this is a working
+notebook, not a portfolio</span>.
+      </p>
+      <p>
+If you're reading this, you probably found your way here through some search
+engine query about a niche technical problem. Welcome. Look around. The
+<span class="highlight">message base</span> is open, the files are free, and the SysOp is usually lurking
+somewhere on Node 1.
+      </p>
+      <p>
+<span style="color:var(--amber-dim)">--- keeb</span>
+      </p>
+    </div>
+
+    <div class="post-bottom-frame">+==============================================================+</div>
+
+    <div class="post-nav">
+      <span><span class="nav-key">[P]</span>revious  <span class="nav-key">[N]</span>ext  <span class="nav-key">[R]</span>eply</span>
+      <span><span class="nav-key">[T]</span>hread  <span class="nav-key">[L]</span>ist  <span class="nav-key">[Q]</span>uit</span>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>Time left: <span class="time">58:32</span></span>
+    <span class="caller">Caller #1,337</span>
+    <span class="security">Security: 100</span>
+  </div>
+
+  <!-- Command Prompt -->
+  <div class="prompt-area">
+    <div class="separator"><span style="color:var(--cyan-dim)">-</span>--<span style="color:var(--cyan-dim)">[</span> <span class="title">Command</span> <span style="color:var(--cyan-dim)">]</span>-------------------------------------------------------<span style="color:var(--cyan-dim)">-</span></div>
+    <div class="prompt-line">
+      <span class="prompt-prefix">keeb.dev&gt;&nbsp;</span>
+      <span class="prompt-cursor"></span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="frame">+----------------------------------------------------------+
+|  <span style="color:var(--cyan-dim)">keeb.dev BBS</span>  <span style="color:var(--white)">-</span>  <span style="color:var(--amber)">A Hacker's Notebook</span>  <span style="color:var(--white)">-</span>  <span style="color:var(--green-dim)">Est. 2022</span>     |
+|  <span style="color:var(--white)">Running HexoBoard on Alpine Linux</span>                      |
+|  <span style="color:var(--white)">FidoNet 1:1/0  -  keeb@keeb.dev</span>                        |
++----------------------------------------------------------+</div>
+    <div class="ansi-art">
+        <span style="color:var(--amber-dim)">  _/  _/</span>
+        <span style="color:var(--amber-dim)"> _/_/</span>       <span style="color:var(--white)">Thanks for calling.</span>
+        <span style="color:var(--amber-dim)">_/  _/</span>      <span style="color:var(--white)">Call again soon.</span>
+        <span style="color:var(--amber-dim)"> _/_/</span>
+        <span style="color:var(--amber-dim)">_/  _/</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

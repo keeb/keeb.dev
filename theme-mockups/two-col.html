@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — Split Below Header</title>
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  background: #1d1f21;
+  color: #c9cacc;
+  line-height: 1.7;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(212, 128, 170, 0.25);
+  color: #fff;
+}
+
+a {
+  color: rgba(212, 128, 170, 1);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+strong {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+blockquote {
+  color: #ccffb6;
+  border-left: 2px solid #ccffb6;
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+code {
+  color: rgba(212, 128, 170, 1);
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ============================================================
+   SCANLINES OVERLAY
+   ============================================================ */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.015) 3px,
+    rgba(0, 0, 0, 0.015) 4px
+  );
+}
+
+/* ============================================================
+   WAVE ANIMATION
+   ============================================================ */
+@keyframes wave-animation {
+  0%, 30%, 100% { color: #c9cacc; }
+  5% {
+    background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  10% {
+    background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  15% {
+    background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  20% {
+    background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  25% {
+    background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* ============================================================
+   CURSOR BLINK
+   ============================================================ */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+#terminal-cursor {
+  animation: blink 1s step-end infinite;
+  color: rgba(212, 128, 170, 1);
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header-area {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem 2rem;
+  text-align: center;
+}
+
+#ascii-art {
+  color: #d5a1aa;
+  animation: wave-animation 8s ease-in-out infinite;
+  display: inline-block;
+  text-align: left;
+  white-space: pre;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   TWO-COLUMN LAYOUT
+   ============================================================ */
+.split-container {
+  display: flex;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 2rem 4rem 2rem;
+  gap: 0;
+}
+
+/* ============================================================
+   LEFT SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: 35%;
+  flex-shrink: 0;
+  position: sticky;
+  top: 1rem;
+  align-self: flex-start;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding-right: 2rem;
+  padding-top: 0.5rem;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #908d8d;
+  border-radius: 2px;
+}
+
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar-section img {
+  width: 60px;
+  height: 60px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.bio {
+  font-size: 0.85rem;
+  color: #908d8d;
+  line-height: 1.5;
+}
+
+/* Navigation */
+.sidebar nav {
+  margin-bottom: 1.5rem;
+}
+
+.sidebar nav a {
+  margin-right: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.sidebar hr {
+  border: none;
+  border-top: 1px solid #908d8d;
+  margin-bottom: 1.5rem;
+  opacity: 0.4;
+}
+
+/* Post list */
+.post-list {
+  list-style: none;
+}
+
+.post-list li {
+  padding: 0.35rem 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.post-list li.active a {
+  color: rgba(212, 128, 170, 1);
+}
+
+.post-list li.active .post-date {
+  color: rgba(212, 128, 170, 0.6);
+}
+
+.post-date {
+  color: #908d8d;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.post-list a {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.post-list a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   RIGHT CONTENT
+   ============================================================ */
+.content {
+  width: 65%;
+  border-left: 1px solid #908d8d;
+  padding-left: 2rem;
+  padding-top: 0.5rem;
+  min-height: 80vh;
+}
+
+.content h2 {
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.content .meta {
+  color: #908d8d;
+  font-size: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.content p {
+  margin-bottom: 1.5rem;
+}
+
+.content h3 {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 2rem 3rem 2rem;
+  color: #908d8d;
+  font-size: 0.85rem;
+  border-top: 1px solid #908d8d;
+  opacity: 0.5;
+}
+
+/* ============================================================
+   RESPONSIVE — MOBILE
+   ============================================================ */
+@media (max-width: 768px) {
+  .split-container {
+    flex-direction: column;
+    padding: 0 1.5rem 3rem 1.5rem;
+  }
+
+  .sidebar {
+    width: 100%;
+    position: relative;
+    top: 0;
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #908d8d;
+  }
+
+  .content {
+    width: 100%;
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .header-area {
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== FULL-WIDTH ASCII HEADER ========== -->
+<div class="header-area">
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.35rem, 1.1vw, 0.85rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">█</span>
+</pre>
+</div>
+
+<!-- ========== TWO-COLUMN SPLIT ========== -->
+<div class="split-container">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="avatar-section">
+      <img src="avatar.webp" alt="avatar">
+      <p class="bio">Hacker, builder, breaker of things. Infrastructure, dev tooling, AI, and whatever else compiles.</p>
+    </div>
+
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Writing</a>
+    </nav>
+
+    <hr>
+
+    <ul class="post-list">
+      <li>
+        <span class="post-date">2026-02-03</span>
+        <a href="#">MCP Is Dead</a>
+      </li>
+      <li>
+        <span class="post-date">2026-02-03</span>
+        <a href="#">AI-Native Infrastructure</a>
+      </li>
+      <li>
+        <span class="post-date">2025-09-29</span>
+        <a href="#">Claude Sonnet 4.5 &amp; System Initiative</a>
+      </li>
+      <li>
+        <span class="post-date">2025-09-26</span>
+        <a href="#">AI is great at parsing</a>
+      </li>
+      <li>
+        <span class="post-date">2025-09-25</span>
+        <a href="#">Terraform with Glitter</a>
+      </li>
+      <li>
+        <span class="post-date">2023-07-03</span>
+        <a href="#">Virtualization from scratch</a>
+      </li>
+      <li>
+        <span class="post-date">2022-06-12</span>
+        <a href="#">I made a keylogger</a>
+      </li>
+      <li class="active">
+        <span class="post-date">2022-05-28</span>
+        <a href="#">Hexo &amp; VSCode</a>
+      </li>
+      <li>
+        <span class="post-date">2022-05-28</span>
+        <a href="#">The Lore</a>
+      </li>
+    </ul>
+
+  </aside>
+
+  <!-- RIGHT CONTENT -->
+  <main class="content">
+
+    <article>
+      <h2>Hexo &amp; VSCode</h2>
+      <p class="meta">2022-05-28</p>
+
+      <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+      <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+      <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+
+      <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+
+      <h3>Asset Management</h3>
+
+      <p>One of the early pain points was handling images and other assets in posts. Hexo's default asset pipeline assumes a flat structure, which gets messy fast when you have dozens of posts each with their own screenshots and diagrams. The <code>hexo-asset-link</code> plugin solves this cleanly &mdash; enable <code>post_asset_folder: true</code> in your <code>_config.yml</code> and each post gets its own directory. Reference images with standard Markdown syntax and the plugin rewrites the paths at build time.</p>
+
+      <p>The real trick is pairing this with <strong>Docker volume mounts</strong>. Your source tree lives on the host, the Hexo build runs inside the container, and the asset folder convention means everything just works. No path gymnastics, no build-step hacks. You write Markdown, you drop images next to the <code>.md</code> file, and the output is a clean static site with all the assets in the right place. It sounds simple because it is &mdash; which is exactly the point.</p>
+    </article>
+
+  </main>
+
+</div>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  keeb.dev &mdash; 2026
+</footer>
+
+</body>
+</html>

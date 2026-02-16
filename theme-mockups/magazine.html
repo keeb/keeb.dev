@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev -- magazine</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: #1d1f21;
+    color: #c9cacc;
+    font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin-left: 2rem;
+    margin-right: auto;
+    padding: 1.5rem 0 3rem 0;
+  }
+
+  /* ── ASCII Header ── */
+  #ascii-art {
+    animation: wave-animation 8s ease-in-out infinite;
+    color: #c9cacc;
+    font-size: 0.65rem;
+    overflow: hidden;
+    white-space: pre;
+    margin-bottom: 1.5rem;
+    line-height: normal;
+    font-family: monospace;
+  }
+
+  @keyframes wave-animation {
+    0%, 30%, 100% { color: #c9cacc; }
+    5% { background: linear-gradient(90deg, #d480aa -20%, #d480aa 0%, #c9cacc 15%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    10% { background: linear-gradient(90deg, #c9cacc 0%, #d480aa 10%, #d480aa 25%, #c9cacc 40%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    15% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 20%, #d480aa 35%, #d480aa 50%, #c9cacc 65%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    20% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 45%, #d480aa 60%, #d480aa 75%, #c9cacc 90%, #c9cacc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    25% { background: linear-gradient(90deg, #c9cacc 0%, #c9cacc 70%, #d480aa 85%, #d480aa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  #terminal-cursor {
+    animation: blink 1s step-end infinite;
+    color: rgba(212,128,170,1);
+  }
+
+  /* ── Book Spread ── */
+  .book-spread {
+    display: flex;
+    position: relative;
+  }
+
+  .page {
+    width: 50%;
+    padding: 2rem;
+    min-height: 700px;
+    position: relative;
+  }
+
+  .page-left {
+    background: #1e1e22;
+    border-radius: 4px 0 0 4px;
+  }
+
+  .page-right {
+    background: #1a1a1e;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* ── Center Spine ── */
+  .spine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 12px;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(0,0,0,0.35) 20%,
+      rgba(0,0,0,0.55) 45%,
+      rgba(0,0,0,0.6) 50%,
+      rgba(0,0,0,0.55) 55%,
+      rgba(0,0,0,0.35) 80%,
+      transparent 100%
+    );
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .page-left {
+    box-shadow: inset -8px 0 16px -8px rgba(0,0,0,0.4);
+  }
+
+  .page-right {
+    box-shadow: inset 8px 0 16px -8px rgba(0,0,0,0.4);
+  }
+
+  /* ── Typography ── */
+  h1, h2, h3, h4 {
+    color: #ffffff;
+    font-weight: normal;
+  }
+
+  .featured-label {
+    font-size: 0.75rem;
+    color: #908d8d;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.25rem;
+  }
+
+  .featured-title {
+    font-size: 1.6rem;
+    color: #ffffff;
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+  }
+
+  .featured-date {
+    font-size: 0.8rem;
+    color: #908d8d;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #333;
+  }
+
+  .article-body p {
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .article-body h3 {
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #ffffff;
+  }
+
+  .article-body a {
+    color: rgba(212,128,170,1);
+    text-decoration: none;
+  }
+
+  .article-body a:hover {
+    text-decoration: underline;
+  }
+
+  .article-body code {
+    background: rgba(255,255,255,0.06);
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+    font-size: 0.92em;
+    color: #d480aa;
+  }
+
+  .article-body blockquote {
+    display: none; /* hidden in flow; shown as pull quote instead */
+  }
+
+  /* ── Drop Cap ── */
+  .drop-cap::first-letter {
+    float: left;
+    font-size: 3.5em;
+    line-height: 0.8;
+    padding-right: 0.1em;
+    color: #d480aa;
+    font-weight: normal;
+  }
+
+  /* ── Pull Quote ── */
+  .pull-quote {
+    margin: 1.75rem 1rem;
+    padding: 1rem 0;
+    text-align: center;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: #ccffb6;
+    line-height: 1.6;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+  }
+
+  .pull-quote::before {
+    content: "/* ";
+    font-style: normal;
+    color: #908d8d;
+  }
+
+  .pull-quote::after {
+    content: " */";
+    font-style: normal;
+    color: #908d8d;
+  }
+
+  /* ── Page Numbers ── */
+  .page-number {
+    position: absolute;
+    bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: #908d8d;
+  }
+
+  .page-left .page-number {
+    left: 2rem;
+  }
+
+  .page-right .page-number {
+    right: 2rem;
+  }
+
+  /* ── Right Page: Index ── */
+  .section-heading {
+    font-size: 1.1rem;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid #333;
+  }
+
+  .post-index {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+
+  .post-index li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.35rem 0;
+    border-bottom: 1px dotted #2a2a2e;
+    font-size: 0.9rem;
+  }
+
+  .post-index li:last-child {
+    border-bottom: none;
+  }
+
+  .post-index .post-title {
+    color: #c9cacc;
+  }
+
+  .post-index .post-title a {
+    color: rgba(212,128,170,1);
+    text-decoration: none;
+  }
+
+  .post-index .post-title a:hover {
+    text-decoration: underline;
+  }
+
+  .post-index .post-date {
+    color: #908d8d;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    margin-left: 1rem;
+  }
+
+  .post-index .featured-marker {
+    color: #d480aa;
+    font-size: 0.75rem;
+    margin-left: 0.4rem;
+  }
+
+  .about-section,
+  .colophon-section {
+    margin-top: 1.75rem;
+  }
+
+  .about-section p,
+  .colophon-section p {
+    font-size: 0.88rem;
+    color: #908d8d;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+  }
+
+  .colophon-section p {
+    font-size: 0.82rem;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ── ASCII Header ── -->
+  <pre id="ascii-art" style="font-family: monospace; line-height: normal;">
+      ..                                  ..              ..                     _
+< .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">&block;</span>
+  </pre>
+
+  <!-- ── Book Spread ── -->
+  <div class="book-spread">
+
+    <!-- Spine shadow -->
+    <div class="spine"></div>
+
+    <!-- ── Left Page: Featured Article ── -->
+    <div class="page page-left">
+
+      <div class="featured-label">Featured Article</div>
+      <h1 class="featured-title">Hexo &amp; VSCode</h1>
+      <div class="featured-date">2022-05-28</div>
+
+      <div class="article-body">
+
+        <p class="drop-cap"><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+
+        <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+
+        <div class="pull-quote">The best dev environment is one where the distance between thought and published output is as close to zero as possible.</div>
+
+        <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+
+        <h3>Asset Management</h3>
+
+        <p>One of the early pain points was handling images and other assets in posts. Hexo's default asset pipeline assumes a flat structure, which gets messy fast when you have dozens of posts each with their own screenshots and diagrams. The <code>hexo-asset-link</code> plugin solves this cleanly &mdash; enable <code>post_asset_folder: true</code> in your <code>_config.yml</code> and each post gets its own directory. Reference images with standard Markdown syntax and the plugin rewrites the paths at build time.</p>
+
+        <p>The real trick is pairing this with <strong>Docker volume mounts</strong>. Your source tree lives on the host, the Hexo build runs inside the container, and the asset folder convention means everything just works. No path gymnastics, no build-step hacks. You write Markdown, you drop images next to the <code>.md</code> file, and the output is a clean static site with all the assets in the right place. It sounds simple because it is &mdash; which is exactly the point.</p>
+
+      </div>
+
+      <div class="page-number">1</div>
+    </div>
+
+    <!-- ── Right Page: Index / About / Colophon ── -->
+    <div class="page page-right">
+
+      <h2 class="section-heading">Index</h2>
+
+      <ul class="post-index">
+        <li>
+          <span class="post-title">MCP Is Dead</span>
+          <span class="post-date">2026-02-03</span>
+        </li>
+        <li>
+          <span class="post-title">AI-Native Infrastructure</span>
+          <span class="post-date">2026-02-03</span>
+        </li>
+        <li>
+          <span class="post-title">Claude Sonnet 4.5 &amp; System Initiative</span>
+          <span class="post-date">2025-09-29</span>
+        </li>
+        <li>
+          <span class="post-title">AI is great at parsing</span>
+          <span class="post-date">2025-09-26</span>
+        </li>
+        <li>
+          <span class="post-title">Terraform with Glitter</span>
+          <span class="post-date">2025-09-25</span>
+        </li>
+        <li>
+          <span class="post-title">Virtualization from scratch</span>
+          <span class="post-date">2023-07-03</span>
+        </li>
+        <li>
+          <span class="post-title">I made a keylogger</span>
+          <span class="post-date">2022-06-12</span>
+        </li>
+        <li>
+          <span class="post-title"><a href="#">Hexo &amp; VSCode</a><span class="featured-marker">&larr; FEATURED</span></span>
+          <span class="post-date">2022-05-28</span>
+        </li>
+        <li>
+          <span class="post-title">The Lore</span>
+          <span class="post-date">2022-05-28</span>
+        </li>
+      </ul>
+
+      <div class="about-section">
+        <h2 class="section-heading">About</h2>
+        <p>keeb.dev is a personal engineering blog covering infrastructure, developer tooling, and the occasional deep-dive into systems programming. Written by someone who has been staring at terminals for longer than is probably healthy, and who still believes the best interface is a blinking cursor.</p>
+      </div>
+
+      <div class="colophon-section">
+        <h2 class="section-heading">Colophon</h2>
+        <p>Published with Hexo. Served by Nginx. Hosted in Docker. Set in monospace.</p>
+      </div>
+
+      <div class="page-number">2</div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

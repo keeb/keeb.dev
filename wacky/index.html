@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — The Broadsheet</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --text: #22272a;
+    --accent-red: #cc2a41;
+    --accent-teal: #567c77;
+    --accent-gray: #666;
+    --serif: Georgia, 'Times New Roman', 'Noto Serif', serif;
+    --mono: 'Menlo', 'Cascadia Code', 'Fira Mono', 'Consolas', monospace;
+    --sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  a { color: var(--accent-teal); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .broadsheet {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     MASTHEAD
+     ═══════════════════════════════════════════ */
+  .masthead {
+    text-align: center;
+    border-bottom: 4px double var(--text);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+
+  .masthead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent-gray);
+    padding: 0 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .masthead h1 {
+    font-family: var(--serif);
+    font-size: clamp(4rem, 12vw, 9rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 0.85;
+    margin: 0.15rem 0;
+    color: var(--text);
+  }
+
+  .masthead-rule {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent-gray);
+    margin-top: 0.5rem;
+  }
+
+  .masthead-rule::before,
+  .masthead-rule::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--text);
+  }
+
+  .dateline {
+    border-top: 1px solid var(--accent-gray);
+    border-bottom: 1px solid var(--accent-gray);
+    padding: 0.3rem 0;
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--accent-gray);
+  }
+
+  /* ═══════════════════════════════════════════
+     MAIN GRID
+     ═══════════════════════════════════════════ */
+  .grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 1.5rem 2rem;
+    margin-top: 1.25rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     1. LEAD STORY — AI-Native Infrastructure
+     ═══════════════════════════════════════════ */
+  .lead-story {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    border-right: 1px solid var(--text);
+    padding-right: 2rem;
+  }
+
+  .lead-story .kicker {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--accent-red);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  .lead-story h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+
+  .lead-story h2 a { color: inherit; }
+  .lead-story h2 a:hover { color: var(--accent-red); text-decoration: none; }
+
+  .lead-meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent-gray);
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .lead-excerpt {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    line-height: 1.7;
+    text-align: justify;
+    hyphens: auto;
+    color: #333;
+  }
+
+  .lead-excerpt::first-letter {
+    float: left;
+    font-size: 4.5rem;
+    line-height: 0.75;
+    font-weight: 900;
+    margin-right: 0.1em;
+    margin-top: 0.08em;
+    color: var(--accent-red);
+    font-family: var(--serif);
+  }
+
+  .lead-tags {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .lead-tags span {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: var(--text);
+    color: var(--bg);
+    padding: 0.15rem 0.5rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     2. CLASSIFIED — MCP Is Dead
+     ═══════════════════════════════════════════ */
+  .classified {
+    grid-column: 2;
+    grid-row: 1;
+    background: #e8dcc8;
+    padding: 1.75rem 1.5rem 1.5rem;
+    position: relative;
+    border: 2px solid #b8a88a;
+    overflow: hidden;
+  }
+
+  .classified::before {
+    content: 'CLASSIFIED';
+    position: absolute;
+    top: 1.5rem;
+    right: -1.5rem;
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--accent-red);
+    letter-spacing: 0.3em;
+    transform: rotate(28deg);
+    opacity: 0.35;
+    border: 3px solid var(--accent-red);
+    padding: 0.2rem 1.5rem;
+    pointer-events: none;
+  }
+
+  .classified::after {
+    content: 'TOP SECRET';
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.5rem;
+    font-family: var(--sans);
+    font-size: 0.55rem;
+    font-weight: 900;
+    color: var(--accent-red);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    opacity: 0.25;
+    transform: rotate(-3deg);
+    pointer-events: none;
+  }
+
+  .classified h2 {
+    font-family: var(--mono);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .classified h2 a { color: inherit; }
+  .classified h2 a:hover { color: var(--accent-red); text-decoration: none; }
+
+  .classified-meta {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #8a7a5a;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .classified p {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: #444;
+  }
+
+  .redacted {
+    background: #222;
+    color: #222;
+    padding: 0.05em 0.4em;
+    margin: 0 0.1em;
+    user-select: none;
+  }
+
+  .stamp {
+    display: inline-block;
+    font-family: var(--sans);
+    font-weight: 900;
+    font-size: 0.7rem;
+    color: var(--accent-red);
+    border: 2px solid var(--accent-red);
+    padding: 0.1rem 0.6rem;
+    transform: rotate(-4deg);
+    margin-top: 0.75rem;
+    letter-spacing: 0.15em;
+    opacity: 0.7;
+  }
+
+  /* ═══════════════════════════════════════════
+     PULL QUOTE (between classified and terminal)
+     ═══════════════════════════════════════════ */
+  .pull-quote {
+    grid-column: 2;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    line-height: 1.35;
+    color: var(--accent-red);
+    border-left: 4px solid var(--accent-red);
+    padding: 0.5rem 0 0.5rem 1.25rem;
+    transform: rotate(-0.7deg);
+    position: relative;
+  }
+
+  .pull-quote cite {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    font-style: normal;
+    color: var(--accent-gray);
+    margin-top: 0.35rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════════
+     ROW 2: Opinion + Parsing + Keylogger
+     ═══════════════════════════════════════════ */
+  .row-2 {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 0 2rem;
+  }
+
+  /* left sub-grid: opinion then bottom pair */
+  .col-left-2 {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 1.5rem;
+    border-right: 1px solid var(--text);
+    padding-right: 2rem;
+  }
+
+  /* right sub-grid: terminal then two small cards */
+  .col-right-2 {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 1.5rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     3. TERMINAL — Claude + System Initiative
+     ═══════════════════════════════════════════ */
+  .terminal {
+    background: #1d1f21;
+    border-radius: 8px 8px 4px 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+  }
+
+  .terminal-titlebar {
+    background: #3c3c3c;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .terminal-dot.red { background: #ff5f56; }
+  .terminal-dot.yellow { background: #ffbd2e; }
+  .terminal-dot.green { background: #27c93f; }
+
+  .terminal-title {
+    flex: 1;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: #999;
+    letter-spacing: 0.05em;
+  }
+
+  .terminal-body {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .terminal h2 {
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #27c93f;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .terminal h2 a { color: #27c93f; }
+  .terminal h2 a:hover { color: #5fd65f; text-decoration: none; }
+
+  .terminal-meta {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #777;
+    margin-bottom: 0.75rem;
+  }
+
+  .terminal p {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: #a0c0a0;
+  }
+
+  .terminal .prompt-line {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: #777;
+    margin-top: 0.75rem;
+  }
+
+  .terminal .prompt-line em {
+    color: #e0c46c;
+    font-style: normal;
+  }
+
+  .terminal-pullquote {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: #e0c46c;
+    border-left: 2px solid #555;
+    padding-left: 0.75rem;
+    margin-top: 0.75rem;
+    font-style: italic;
+  }
+
+  /* ═══════════════════════════════════════════
+     4. OPINION — Terraform with Glitter
+     ═══════════════════════════════════════════ */
+  .opinion {
+    border-top: 3px solid var(--text);
+    padding-top: 1rem;
+  }
+
+  .opinion-tag {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--accent-red);
+    margin-bottom: 0.35rem;
+  }
+
+  .opinion h2 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+
+  .opinion h2 a { color: inherit; }
+  .opinion h2 a:hover { color: var(--accent-red); text-decoration: none; }
+
+  .opinion-meta {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--accent-gray);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.4rem;
+  }
+
+  .opinion p {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    text-align: justify;
+    hyphens: auto;
+    color: #333;
+  }
+
+  .opinion p::first-letter {
+    float: left;
+    font-size: 3rem;
+    line-height: 0.75;
+    font-weight: 900;
+    margin-right: 0.08em;
+    margin-top: 0.08em;
+    color: var(--text);
+    font-family: var(--serif);
+  }
+
+  .opinion-tags {
+    margin-top: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent-gray);
+  }
+
+  /* ═══════════════════════════════════════════
+     PULL QUOTE 2 (between opinion and lower cards)
+     ═══════════════════════════════════════════ */
+  .pull-quote-wide {
+    grid-column: 1 / -1;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.3rem, 2.5vw, 2rem);
+    line-height: 1.3;
+    text-align: center;
+    color: var(--text);
+    padding: 1rem 2rem;
+    border-top: 2px solid var(--text);
+    border-bottom: 2px solid var(--text);
+    position: relative;
+    transform: rotate(0.4deg);
+    margin: 0.5rem 0;
+  }
+
+  .pull-quote-wide::before {
+    content: '\201C';
+    font-size: 4rem;
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    color: var(--accent-red);
+    opacity: 0.3;
+    font-style: normal;
+    line-height: 1;
+  }
+
+  .pull-quote-wide cite {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    font-style: normal;
+    color: var(--accent-gray);
+    margin-top: 0.4rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════════
+     BOTTOM GRID: parsing + keylogger | lore + virt + hexo/vscode
+     ═══════════════════════════════════════════ */
+  .row-3 {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     5. DATA TABLE — AI Parsing
+     ═══════════════════════════════════════════ */
+  .data-card {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    font-family: var(--mono);
+    position: relative;
+  }
+
+  .data-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-teal);
+  }
+
+  .data-card h2 {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+    color: var(--text);
+  }
+
+  .data-card h2 a { color: inherit; }
+  .data-card h2 a:hover { color: var(--accent-teal); }
+
+  .data-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    color: var(--accent-gray);
+    border-bottom: 1px solid #eee;
+    padding: 0.2rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .data-card p {
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: #555;
+    margin-top: 0.5rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     6. NOTEBOOK — I Made a Keylogger
+     ═══════════════════════════════════════════ */
+  .notebook {
+    background:
+      repeating-linear-gradient(
+        transparent,
+        transparent 27px,
+        #c8d4e0 27px,
+        #c8d4e0 28px
+      );
+    background-color: #fff;
+    border: 1px solid #bbb;
+    padding: 1.25rem 1.25rem 1.5rem 2.5rem;
+    position: relative;
+    transform: rotate(1.5deg);
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.1);
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% 92%,
+      97% 93%, 94% 91%, 90% 93%,
+      86% 90%, 82% 93%, 78% 91%,
+      74% 93%, 70% 90%, 66% 93%,
+      62% 91%, 58% 93%, 54% 90%,
+      50% 93%, 46% 91%, 42% 93%,
+      38% 90%, 34% 93%, 30% 91%,
+      26% 93%, 22% 90%, 18% 93%,
+      14% 91%, 10% 93%, 6% 90%,
+      3% 93%, 0% 91%
+    );
+    padding-bottom: 3rem;
+  }
+
+  .notebook::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 2rem;
+    bottom: 0;
+    width: 2px;
+    background: #e0a0a0;
+    opacity: 0.5;
+  }
+
+  .notebook h2 {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+    color: var(--text);
+  }
+
+  .notebook h2 a { color: inherit; }
+  .notebook h2 a:hover { color: var(--accent-red); text-decoration: none; }
+
+  .notebook-meta {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    color: var(--accent-gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .notebook p {
+    font-family: var(--serif);
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: #444;
+  }
+
+  .notebook .margin-note {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.25rem;
+    font-family: var(--mono);
+    font-size: 0.45rem;
+    color: var(--accent-red);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  /* ═══════════════════════════════════════════
+     7. BLUEPRINT — Virtualization
+     ═══════════════════════════════════════════ */
+  .blueprint {
+    background:
+      linear-gradient(rgba(21, 35, 110, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(21, 35, 110, 0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-color: #0d1b4a;
+    border: 2px solid #2a4494;
+    padding: 1.25rem;
+    color: #a0c4ff;
+  }
+
+  .blueprint h2 {
+    font-family: var(--mono);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+    color: #e0e8ff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .blueprint h2 a { color: #e0e8ff; }
+  .blueprint h2 a:hover { color: #fff; text-decoration: none; }
+
+  .blueprint-meta {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    color: #6688bb;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #2a4494;
+    padding-bottom: 0.35rem;
+  }
+
+  .blueprint p {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: #8ab4e8;
+  }
+
+  .blueprint-corner {
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    color: #4466aa;
+    text-align: right;
+    margin-top: 0.5rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* ═══════════════════════════════════════════
+     8. CODE EDITOR — Hexo & VSCode
+     ═══════════════════════════════════════════ */
+  .editor {
+    background: #1e1e1e;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.2);
+  }
+
+  .editor-titlebar {
+    background: #323233;
+    padding: 0.35rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #999;
+  }
+
+  .editor-tab {
+    background: #1e1e1e;
+    padding: 0.2rem 0.75rem;
+    border-radius: 3px 3px 0 0;
+    color: #ccc;
+    font-size: 0.6rem;
+  }
+
+  .editor-tab-inactive {
+    background: transparent;
+    padding: 0.2rem 0.75rem;
+    color: #666;
+    font-size: 0.6rem;
+  }
+
+  .editor-body {
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .editor-gutter {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #555;
+    line-height: 1.55;
+    text-align: right;
+    user-select: none;
+    padding-top: 0.1rem;
+  }
+
+  .editor-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .editor h2 {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #569cd6;
+    margin-bottom: 0.35rem;
+    line-height: 1.3;
+  }
+
+  .editor h2 a { color: #569cd6; }
+  .editor h2 a:hover { color: #9cdcfe; text-decoration: none; }
+
+  .editor-meta {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    color: #6a9955;
+    margin-bottom: 0.5rem;
+  }
+
+  .editor p {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: #d4d4d4;
+  }
+
+  .editor .syn-keyword { color: #c586c0; }
+  .editor .syn-string { color: #ce9178; }
+  .editor .syn-func { color: #dcdcaa; }
+
+  /* ═══════════════════════════════════════════
+     9. VINTAGE — The Lore
+     ═══════════════════════════════════════════ */
+  .vintage {
+    grid-column: 1 / -1;
+    background: #f4e8d1;
+    border: 1px solid #d4c4a4;
+    padding: 1.5rem 2rem;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    box-shadow: inset 0 0 60px rgba(180, 160, 120, 0.15);
+  }
+
+  .vintage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(180, 150, 100, 0.08), transparent 60%),
+      radial-gradient(ellipse at 80% 30%, rgba(160, 140, 90, 0.06), transparent 50%);
+    pointer-events: none;
+  }
+
+  .vintage-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    border-bottom: 1px solid #c4b494;
+    padding-bottom: 0.5rem;
+  }
+
+  .vintage h2 {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #5a4a2a;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .vintage h2 a { color: #5a4a2a; }
+  .vintage h2 a:hover { color: var(--accent-red); text-decoration: none; }
+
+  .vintage-meta {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #9a8a6a;
+    letter-spacing: 0.12em;
+  }
+
+  .vintage-col {
+    position: relative;
+    z-index: 1;
+  }
+
+  .vintage-col p {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #5a4a2a;
+    letter-spacing: 0.02em;
+  }
+
+  .vintage-tags {
+    grid-column: 1 / -1;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    color: #9a8a6a;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: right;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .broadsheet-footer {
+    grid-column: 1 / -1;
+    border-top: 4px double var(--text);
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent-gray);
+  }
+
+  .footer-name {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .footer-links a {
+    color: var(--accent-teal);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+  }
+
+  .footer-links a:hover { text-decoration: underline; }
+
+  .footer-counter {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE — MOBILE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 900px) {
+    .broadsheet { padding: 1rem; }
+
+    .masthead h1 { font-size: clamp(2.5rem, 14vw, 5rem); }
+
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .lead-story {
+      grid-column: 1;
+      grid-row: auto;
+      border-right: none;
+      padding-right: 0;
+      border-bottom: 2px solid var(--text);
+      padding-bottom: 1.5rem;
+    }
+
+    .pull-quote { grid-column: 1; }
+
+    .row-2 {
+      grid-column: 1;
+      grid-template-columns: 1fr;
+    }
+
+    .col-left-2 {
+      border-right: none;
+      padding-right: 0;
+    }
+
+    .pull-quote-wide { grid-column: 1; }
+
+    .row-3 {
+      grid-column: 1;
+      grid-template-columns: 1fr;
+    }
+
+    .notebook { transform: rotate(0.8deg); }
+
+    .vintage {
+      grid-column: 1;
+      grid-template-columns: 1fr;
+    }
+
+    .vintage-header { grid-column: 1; }
+    .vintage-tags { grid-column: 1; }
+
+    .broadsheet-footer {
+      grid-column: 1;
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .row-3 {
+      grid-template-columns: 1fr;
+    }
+
+    .masthead h1 {
+      font-size: clamp(2rem, 13vw, 3.5rem);
+    }
+
+    .lead-story h2 {
+      font-size: 1.8rem;
+    }
+
+    .classified { padding: 1.25rem 1rem; }
+
+    .pull-quote-wide {
+      font-size: 1.1rem;
+      padding: 0.75rem 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="broadsheet">
+
+  <!-- ═══ MASTHEAD ═══ -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <span>Est. 2022</span>
+      <span>All the infrastructure news that's fit to rant</span>
+      <span>No. 55</span>
+    </div>
+    <h1>keeb.dev</h1>
+    <div class="masthead-rule">dispatches from the terminal</div>
+    <div class="dateline">
+      <span>Thursday, February 6, 2026</span>
+      <span>Volume IV, Issue 55</span>
+      <span>keeb, editor</span>
+    </div>
+  </header>
+
+  <!-- ═══ MAIN GRID ═══ -->
+  <main class="grid">
+
+    <!-- 1. LEAD STORY -->
+    <article class="lead-story">
+      <div class="kicker">Breaking &mdash; Infrastructure</div>
+      <h2><a href="/2026/02/05/ai-native-infrastructure/">AI-Native Infrastructure is a Lie</a></h2>
+      <div class="lead-meta">February 5, 2026 &bull; By keeb</div>
+      <p class="lead-excerpt">Every cloud vendor is now &lsquo;AI-native.&rsquo; Every startup claims &lsquo;AI-first infrastructure.&rsquo; But strip away the marketing veneer and what do you find? The same VMs, the same load balancers, the same YAML files wearing a trenchcoat. AI-native infrastructure doesn&rsquo;t exist yet. We&rsquo;re still duct-taping language models onto decade-old orchestration patterns and calling it progress.</p>
+      <div class="lead-tags">
+        <span>ai</span>
+        <span>infrastructure</span>
+        <span>rant</span>
+      </div>
+    </article>
+
+    <!-- 2. CLASSIFIED -->
+    <article class="classified">
+      <div class="classified-meta">Document 2026-02-03 // Eyes Only</div>
+      <h2><a href="/2026/02/03/mcp-is-dead/">MCP Is Dead. Long Live Tool-Authoring AI.</a></h2>
+      <p>The Model Context Protocol was supposed to be the <span class="redacted">universal</span> adapter. Connect any AI to any tool. One protocol to <span class="redacted">rule them all</span>. Instead, we got a protocol that treats AI as a passive consumer of tools humans pre-built. The real future isn&rsquo;t AI <em>using</em> tools&mdash;it&rsquo;s AI <span class="redacted">creating</span> them.</p>
+      <div class="stamp">DECLASSIFIED</div>
+    </article>
+
+    <!-- PULL QUOTE -->
+    <blockquote class="pull-quote">
+      &ldquo;MCP treats AI as a tool consumer when AI should be a tool author&rdquo;
+      <cite>&mdash; MCP Is Dead</cite>
+    </blockquote>
+
+    <!-- ═══ ROW 2 ═══ -->
+    <div class="row-2">
+      <div class="col-left-2">
+
+        <!-- 4. OPINION -->
+        <article class="opinion">
+          <div class="opinion-tag">Opinion</div>
+          <h2><a href="/2025/09/25/terraform-with-glitter/">HashiCorp&rsquo;s &ldquo;AI Agents&rdquo; Are Just Terraform With Glitter</a></h2>
+          <div class="opinion-meta">September 25, 2025 &bull; Tags: iac, terraform, ai</div>
+          <p>HashiCorp wants you to believe something significant happened at HashiConf this week. They rolled out Project Infragraph, promised AI agents, and sprinkled their Cloud Platform with new integrations and beta servers. It sounds promising, until you scratch the surface. This isn&rsquo;t a revolution. It&rsquo;s the same drift, same brittle state files, same pipelines.</p>
+          <div class="opinion-tags">iac &middot; terraform &middot; ai</div>
+        </article>
+
+      </div>
+      <div class="col-right-2">
+
+        <!-- 3. TERMINAL -->
+        <article class="terminal">
+          <div class="terminal-titlebar">
+            <span class="terminal-dot red"></span>
+            <span class="terminal-dot yellow"></span>
+            <span class="terminal-dot green"></span>
+            <span class="terminal-title">keeb@dev ~ / blog</span>
+          </div>
+          <div class="terminal-body">
+            <h2><a href="/2025/09/29/claude-system-initiative/">Using Claude Sonnet 4.5 with System Initiative</a></h2>
+            <div class="terminal-meta">$ cat --date 2025-09-29 --tags ai,system-initiative</div>
+            <p>System Initiative&rsquo;s approach to infrastructure treats AI as a first-class collaborator. The digital twin model means you can simulate changes before they hit production. No more crossed fingers on apply.</p>
+            <div class="terminal-pullquote">&ldquo;humans describe intent, AI handles implementation&rdquo;</div>
+            <div class="prompt-line">$ <em>_</em></div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- PULL QUOTE WIDE -->
+    <blockquote class="pull-quote-wide">
+      this isn&rsquo;t a revolution. It&rsquo;s Terraform and Vault with AI glitter on top
+      <cite>&mdash; HashiCorp&rsquo;s &ldquo;AI Agents&rdquo; Are Just Terraform With Glitter</cite>
+    </blockquote>
+
+    <!-- ═══ ROW 3: FOUR COLUMNS ═══ -->
+    <div class="row-3">
+
+      <!-- 5. DATA CARD -->
+      <article class="data-card">
+        <h2><a href="/2025/09/26/local-ai-parsing/">AI is great at parsing</a></h2>
+        <div class="data-row"><span>Date</span><span>2025-09-26</span></div>
+        <div class="data-row"><span>Tags</span><span>ai, automation, media</span></div>
+        <div class="data-row"><span>Model</span><span>local / ollama</span></div>
+        <div class="data-row"><span>Accuracy</span><span>~95%</span></div>
+        <p>I&rsquo;ve been writing a media management service for years. At the heart of every good catalogue is the ability to sort and store arbitrary inputs. I got tired of manually sorting thousands of files. So I taught a local AI to do it for me.</p>
+      </article>
+
+      <!-- 6. NOTEBOOK -->
+      <article class="notebook">
+        <span class="margin-note">windows</span>
+        <h2><a href="/2022/06/12/I-made-a-keylogger/">I made a keylogger</a></h2>
+        <div class="notebook-meta">June 12, 2022</div>
+        <p>It&rsquo;s true. But it&rsquo;s for a good reason, promise. One of the best things about tiling window managers is the ability to launch a terminal from anywhere by pressing a simple key combination.</p>
+      </article>
+
+      <!-- 7. BLUEPRINT -->
+      <article class="blueprint">
+        <h2><a href="/2023/07/03/Virtualization-from-scratch-Setting-up-a-new-host/">Virtualization from Scratch</a></h2>
+        <div class="blueprint-meta">July 3, 2023 // qemu &middot; virtualization &middot; linux</div>
+        <p>You really should use something like Proxmox. If you&rsquo;re opting to use KVM, virt-manager is a decent wrapper. Disclaimers aside, I like to explore how something really works under the hood.</p>
+        <div class="blueprint-corner">DWG-007 // REV.A</div>
+      </article>
+
+      <!-- 8. CODE EDITOR -->
+      <article class="editor">
+        <div class="editor-titlebar">
+          <span class="editor-tab">blog.md</span>
+          <span class="editor-tab-inactive">_config.yml</span>
+        </div>
+        <div class="editor-body">
+          <div class="editor-gutter">1<br>2<br>3<br>4<br>5<br>6<br>7</div>
+          <div class="editor-content">
+            <h2><a href="/2022/05/28/Hexo-VSCode/"><span class="syn-keyword">Hexo</span> & <span class="syn-func">VSCode</span></a></h2>
+            <div class="editor-meta">// date: 2022-05-28 &bull; tags: meta, hexo, dev</div>
+            <p><span class="syn-keyword">Hexo</span> is the static site generator used to generate this blog. What I like about <span class="syn-keyword">hexo</span> is that it&rsquo;s easy to <span class="syn-func">install</span> and <span class="syn-func">setup</span>. Themes are just a simple <span class="syn-string">drop</span> into the themes directory.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- 9. VINTAGE — THE LORE -->
+    <article class="vintage">
+      <div class="vintage-header">
+        <h2><a href="/2022/05/28/The-lore/">The Lore</a></h2>
+        <span class="vintage-meta">May 28, 2022 &mdash; An Origin Story</span>
+      </div>
+      <div class="vintage-col">
+        <p>From the earliest days I can remember, I have been in love with technology. My first real computer memory was playing Mad Dog McCree, published in 1993 for MS-DOS. I was 8 years old, and I had no idea what I was doing, but I was having fun.</p>
+      </div>
+      <div class="vintage-col">
+        <p>Sucked into this new found hobby, chatting away with anyone and everyone on AOL. Figuring out how &lsquo;progs&rsquo; worked consumed me. Decompiling FateX for the first time, hundreds of Visual Basic .frm files cascading across the screen.</p>
+      </div>
+      <div class="vintage-col">
+        <p>Armed with my new handle, and a bit more knowledge, it was time to get back to work. Through AOL I learned to rebuild computers, automate tasks, read and write code. Born and raised on the internet. Thanks, AOL.</p>
+      </div>
+      <div class="vintage-tags">hacking &middot; people &middot; journey</div>
+    </article>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="broadsheet-footer">
+      <span class="footer-name">keeb.dev</span>
+      <div class="footer-links">
+        <a href="https://github.com/keeb">github.com/keeb</a>
+        <a href="https://keeb.dev">keeb.dev</a>
+      </div>
+      <span class="footer-counter">Visitor No. &mdash; You know who you are</span>
+    </footer>
+
+  </main>
+</div>
+</body>
+</html>

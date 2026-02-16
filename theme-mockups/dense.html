@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev — Terminal Session</title>
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 13px;
+}
+
+body {
+  font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace;
+  background: #1d1f21;
+  color: #c9cacc;
+  line-height: 1.4;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Subtle scanlines */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  z-index: 9999;
+}
+
+.container {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 0.5rem 1rem 2rem 1rem;
+}
+
+a {
+  color: #d480aa;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+strong {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+blockquote {
+  color: #ccffb6;
+  border-left: 2px solid #ccffb6;
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+}
+
+code {
+  color: #d480aa;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ASCII Header — scaled down */
+.ascii-header {
+  padding: 1rem 0 0.25rem 0;
+}
+
+.ascii-header pre {
+  color: #c9cacc;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Blinking cursor */
+#terminal-cursor,
+.cursor-blink {
+  color: #d480aa;
+  animation: cursor-blink 1s infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Prompt styling */
+.prompt {
+  color: #d480aa;
+  white-space: nowrap;
+}
+
+.prompt-user {
+  color: #d480aa;
+}
+
+.prompt-path {
+  color: #908d8d;
+}
+
+.prompt-char {
+  color: #d480aa;
+}
+
+/* Section spacing — tight */
+.section {
+  margin: 0.5rem 0;
+}
+
+.section-gap {
+  margin-top: 1rem;
+}
+
+/* Post listing — ls -la style */
+.ls-listing {
+  margin: 0.25rem 0;
+}
+
+.ls-line {
+  display: flex;
+  gap: 0;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.ls-perms {
+  color: #666;
+  width: 11ch;
+  flex-shrink: 0;
+}
+
+.ls-date {
+  color: #908d8d;
+  width: 12ch;
+  flex-shrink: 0;
+}
+
+.ls-file a {
+  color: #d480aa;
+  text-decoration: none;
+}
+
+.ls-file a:hover {
+  text-decoration: underline;
+}
+
+/* Whoami output */
+.whoami-output {
+  color: #c9cacc;
+  margin: 0.1rem 0;
+}
+
+/* Avatar inline */
+.avatar-ref {
+  color: #666;
+  font-size: 13px;
+}
+
+.avatar-inline {
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.5ch;
+}
+
+/* Cat output — featured post */
+.cat-output {
+  margin: 0.25rem 0;
+}
+
+.cat-output p {
+  margin: 0.5rem 0;
+}
+
+.cat-title {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.cat-meta {
+  color: #908d8d;
+}
+
+/* Footer prompt */
+.footer-prompt {
+  margin-top: 1rem;
+  padding-bottom: 2rem;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ASCII Header — scaled down -->
+  <div class="ascii-header">
+<pre id="ascii-art" style="font-family: 'Menlo', 'Meslo LG', 'Courier New', monospace; line-height: normal; font-size: clamp(0.25rem, 0.7vw, 0.55rem); overflow-x: auto;">
+      ..                                  ..              ..                     _
+&lt; .z@8"`                            . uW8"              dF                      u
+ !@88E                              `t888              '88bu.                  88Nu.   u.
+ '888E   u         .u         .u     8888   .          '*88888bu        .u    '88888.o888c
+  888E u@8NL    ud8888.    ud8888.   9888.z88N           ^"*8888N    ud8888.   ^8888  8888
+  888E`"88*"  :888'8888. :888'8888.  9888  888E         beWE "888L :888'8888.   8888  8888
+  888E .dN.   d888 '88%" d888 '88%"  9888  888E         888E  888E d888 '88%"   8888  8888
+  888E~8888   8888.+"    8888.+"     9888  888E         888E  888E 8888.+"      8888  8888
+  888E '888&amp;  8888L      8888L       9888  888E    .    888E  888F 8888L       .8888b.888P
+  888E  9888. '8888c. .+ '8888c. .+ .8888  888"  .@8c  .888N..888  '8888c. .+   ^Y8888*""
+'"888*" 4888"  "88888%    "88888%    `%888*%"   '%888"  `"888*""    "88888%       `Y"
+   ""    ""      "YP'       "YP'        "`        ^*       ""         "YP'                 <span id="terminal-cursor">&block;</span>
+</pre>
+  </div>
+
+  <!-- whoami -->
+  <div class="section">
+    <div><span class="prompt-user">keeb@dev</span><span class="prompt-path">:~</span><span class="prompt-char">$ </span>whoami</div>
+    <div class="whoami-output"><img src="avatar.webp" alt="avatar" class="avatar-inline">hacker, builder, breaker of things</div>
+  </div>
+
+  <!-- ls -la ~/writing/ -->
+  <div class="section section-gap">
+    <div><span class="prompt-user">keeb@dev</span><span class="prompt-path">:~</span><span class="prompt-char">$ </span>ls -la ~/writing/</div>
+    <div class="ls-listing">
+      <div class="ls-line"><span class="ls-perms">drwxr-xr-x</span><span class="ls-date">2026-02-03</span><span class="ls-file"><a href="#">mcp-is-dead.md</a></span></div>
+      <div class="ls-line"><span class="ls-perms">drwxr-xr-x</span><span class="ls-date">2026-02-03</span><span class="ls-file"><a href="#">ai-native-infrastructure.md</a></span></div>
+      <div class="ls-line"><span class="ls-perms">-rw-r--r--</span><span class="ls-date">2025-09-29</span><span class="ls-file"><a href="#">claude-sonnet-4.5-system-initiative.md</a></span></div>
+      <div class="ls-line"><span class="ls-perms">-rw-r--r--</span><span class="ls-date">2025-09-26</span><span class="ls-file"><a href="#">ai-is-great-at-parsing.md</a></span></div>
+      <div class="ls-line"><span class="ls-perms">-rw-r--r--</span><span class="ls-date">2025-09-25</span><span class="ls-file"><a href="#">terraform-with-glitter.md</a></span></div>
+      <div class="ls-line"><span class="ls-perms">-rw-r--r--</span><span class="ls-date">2023-07-03</span><span class="ls-file"><a href="#">virtualization-from-scratch.md</a></span></div>
+      <div class="ls-line"><span class="ls-perms">-rw-r--r--</span><span class="ls-date">2022-06-12</span><span class="ls-file"><a href="#">i-made-a-keylogger.md</a></span></div>
+      <div class="ls-line"><span class="ls-perms">-rw-r--r--</span><span class="ls-date">2022-05-28</span><span class="ls-file"><a href="#">hexo-and-vscode.md</a></span></div>
+      <div class="ls-line"><span class="ls-perms">-rw-r--r--</span><span class="ls-date">2022-05-28</span><span class="ls-file"><a href="#">the-lore.md</a></span></div>
+    </div>
+  </div>
+
+  <!-- cat hexo-and-vscode.md -->
+  <div class="section section-gap">
+    <div><span class="prompt-user">keeb@dev</span><span class="prompt-path">:~</span><span class="prompt-char">$ </span>cat hexo-and-vscode.md</div>
+    <div class="cat-output">
+      <p class="cat-title">Hexo &amp; VSCode</p>
+      <p class="cat-meta">2022-05-28</p>
+      <p><a href="https://github.com/hexojs/hexo">Hexo</a> is the static site generator used to generate this blog, along with a modified version of the cactus theme. What I like about hexo is that it's easy to install and setup &mdash; <code>npm install hexo-cli -g</code>, <code>hexo init blog</code>, <code>hexo server</code> &mdash; and start writing. Themes are just a simple drop into the themes directory, update the <code>_config.yml</code>, and you're off and running.</p>
+      <p>After more than 25 years using <code>vim</code> and carrying around my lightly modified <code>.vimrc</code> everywhere, I started to explore using IDEs. For this project I have been using VSCode because I appreciate the live preview of Markdown as I type. One habit that hasn't shaken, however, is that I really like to develop on Linux and I prefer to develop remotely. My code is just one <code>ssh</code> command away.</p>
+      <blockquote>The best dev environment is one where the distance between thought and published output is as close to zero as possible.</blockquote>
+      <p>The core of the setup is a <code>docker-compose.yml</code> that mounts the source directory into a container running <code>hexo server</code>. VSCode connects to the container workspace, so you get full IntelliSense for the theme's EJS templates and access to the integrated terminal for running Hexo commands directly. Hot reload works out of the box &mdash; save a file and the browser tab refreshes within a second.</p>
+    </div>
+  </div>
+
+  <!-- Waiting prompt -->
+  <div class="footer-prompt">
+    <span class="prompt-user">keeb@dev</span><span class="prompt-path">:~</span><span class="prompt-char">$ </span><span class="cursor-blink">&block;</span>
+  </div>
+
+</div>
+
+</body>
+</html>

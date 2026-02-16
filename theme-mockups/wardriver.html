@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>keeb.dev — wardriver</title>
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-alt: #0d0d14;
+      --bg-raised: #10101a;
+      --wifi-green: #00ff88;
+      --danger-red: #ff3366;
+      --amber: #ffaa00;
+      --scan-blue: #4488ff;
+      --dimmed: #445566;
+      --text: #b0c8d8;
+      --text-bright: #d0e8f0;
+      --font-mono: 'Courier New', 'Courier', monospace;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::selection {
+      background: rgba(0, 255, 136, 0.2);
+      color: var(--text-bright);
+    }
+
+    a {
+      color: var(--wifi-green);
+      text-decoration: none;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+
+    a:hover {
+      color: #33ffaa;
+      text-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+    }
+
+    /* ===== Global Scanline Overlay ===== */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 136, 0.015) 2px,
+        rgba(0, 255, 136, 0.015) 4px
+      );
+    }
+
+    /* ===== Section Base ===== */
+    .section {
+      width: 100%;
+      position: relative;
+      border-bottom: 1px solid rgba(0, 255, 136, 0.08);
+    }
+
+    .section::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.3) 20%, rgba(0, 255, 136, 0.3) 80%, transparent);
+    }
+
+    /* ===== Section 1: Header — 5% left offset ===== */
+    .section-header {
+      background: linear-gradient(180deg, #0d0d18 0%, var(--bg) 100%);
+      padding: 3rem 0 2.5rem;
+    }
+
+    .section-header .section-content {
+      padding-left: 5%;
+      padding-right: 20%;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    /* Avatar with HUD brackets */
+    .avatar-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      flex-shrink: 0;
+    }
+
+    .avatar-wrap img {
+      width: 120px;
+      height: 120px;
+      border-radius: 4px;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Scanline animation over avatar */
+    .avatar-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 136, 0.06) 2px,
+        rgba(0, 255, 136, 0.06) 4px
+      );
+      border-radius: 4px;
+      animation: avatar-scan 3s linear infinite;
+    }
+
+    @keyframes avatar-scan {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 120px; }
+    }
+
+    /* HUD corner brackets */
+    .hud-bracket {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      z-index: 3;
+    }
+
+    .hud-bracket--tl {
+      top: -6px;
+      left: -6px;
+      border-top: 2px solid var(--wifi-green);
+      border-left: 2px solid var(--wifi-green);
+    }
+
+    .hud-bracket--tr {
+      top: -6px;
+      right: -6px;
+      border-top: 2px solid var(--wifi-green);
+      border-right: 2px solid var(--wifi-green);
+    }
+
+    .hud-bracket--bl {
+      bottom: -6px;
+      left: -6px;
+      border-bottom: 2px solid var(--wifi-green);
+      border-left: 2px solid var(--wifi-green);
+    }
+
+    .hud-bracket--br {
+      bottom: -6px;
+      right: -6px;
+      border-bottom: 2px solid var(--wifi-green);
+      border-right: 2px solid var(--wifi-green);
+    }
+
+    .header-text h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--wifi-green);
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+      line-height: 1.2;
+    }
+
+    .header-text h1 span.separator {
+      color: var(--dimmed);
+      margin: 0 0.3em;
+    }
+
+    .scanning-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--wifi-green);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .scanning-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--wifi-green);
+      animation: blink 1.2s ease-in-out infinite;
+      box-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.15; }
+    }
+
+    .gps-coords {
+      position: absolute;
+      top: 1.5rem;
+      right: 3%;
+      font-size: 0.7rem;
+      color: var(--dimmed);
+      letter-spacing: 0.1em;
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    /* Signal strength CSS arcs */
+    .signal-icon {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      margin-top: 0.75rem;
+    }
+
+    .signal-icon .arc {
+      width: 4px;
+      background: var(--wifi-green);
+      border-radius: 1px;
+    }
+
+    .signal-icon .arc:nth-child(1) { height: 6px; }
+    .signal-icon .arc:nth-child(2) { height: 11px; }
+    .signal-icon .arc:nth-child(3) { height: 16px; }
+    .signal-icon .arc:nth-child(4) { height: 21px; }
+    .signal-icon .arc:nth-child(5) { height: 26px; opacity: 0.3; }
+
+    .network-count {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--dimmed);
+      letter-spacing: 0.12em;
+    }
+
+    .network-count span {
+      color: var(--wifi-green);
+      font-weight: bold;
+    }
+
+    /* ===== Section 2: Featured Post — 15% left, 5% right ===== */
+    .section-featured {
+      background: var(--bg-alt);
+      padding: 3rem 0;
+    }
+
+    .section-featured .section-content {
+      padding-left: 15%;
+      padding-right: 5%;
+    }
+
+    .target-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .target-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: var(--danger-red);
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--danger-red);
+      text-shadow: 0 0 8px rgba(255, 51, 102, 0.4);
+      animation: pulse-border 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { border-color: var(--danger-red); }
+      50% { border-color: rgba(255, 51, 102, 0.4); }
+    }
+
+    .target-title {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      text-transform: uppercase;
+    }
+
+    .featured-post h2 {
+      font-size: 1.5rem;
+      color: var(--text-bright);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    .featured-post h2 a {
+      color: var(--text-bright);
+    }
+
+    .featured-post h2 a:hover {
+      color: var(--wifi-green);
+    }
+
+    .signal-meta {
+      font-size: 0.7rem;
+      color: var(--dimmed);
+      letter-spacing: 0.12em;
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .signal-meta .meta-item {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .signal-meta .meta-label {
+      color: var(--dimmed);
+    }
+
+    .signal-meta .meta-value {
+      color: var(--wifi-green);
+    }
+
+    .signal-meta .meta-value.strong {
+      color: var(--wifi-green);
+      text-shadow: 0 0 4px rgba(0, 255, 136, 0.3);
+    }
+
+    .featured-date {
+      font-size: 0.7rem;
+      color: var(--dimmed);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .featured-body {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .featured-body p {
+      margin-bottom: 1.2rem;
+    }
+
+    /* ===== Section 3: Scan Results — 40% from left ===== */
+    .section-scan-results {
+      background: var(--bg);
+      padding: 3rem 0;
+    }
+
+    .section-scan-results .section-content {
+      padding-left: 40%;
+      padding-right: 3%;
+    }
+
+    .scan-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .scan-header h2 {
+      font-size: 1.1rem;
+      color: var(--wifi-green);
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+
+    .scan-counter {
+      font-size: 0.75rem;
+      color: var(--amber);
+      letter-spacing: 0.15em;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+
+    .scan-card {
+      position: relative;
+      padding: 1rem 1.2rem;
+      margin-bottom: 0.75rem;
+      background: rgba(16, 16, 26, 0.6);
+      border-left: 3px solid var(--wifi-green);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .scan-card:hover {
+      background: rgba(0, 255, 136, 0.04);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.08), inset 0 0 15px rgba(0, 255, 136, 0.02);
+    }
+
+    .scan-card:hover .connecting-text {
+      opacity: 1;
+    }
+
+    .scan-card.signal-strong { border-left-color: var(--wifi-green); }
+    .scan-card.signal-medium { border-left-color: var(--amber); }
+    .scan-card.signal-weak { border-left-color: var(--danger-red); }
+    .scan-card.signal-critical {
+      border-left-color: var(--danger-red);
+      animation: critical-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes critical-pulse {
+      0%, 100% { border-left-color: var(--danger-red); }
+      50% { border-left-color: rgba(255, 51, 102, 0.4); }
+    }
+
+    .scan-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .scan-ssid {
+      font-size: 0.85rem;
+      color: var(--text-bright);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .scan-ssid-label {
+      color: var(--dimmed);
+      font-weight: 400;
+      margin-right: 0.4rem;
+    }
+
+    .scan-bssid {
+      font-size: 0.65rem;
+      color: var(--dimmed);
+      letter-spacing: 0.06em;
+      margin-top: 0.15rem;
+    }
+
+    .scan-signal-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .signal-label {
+      font-size: 0.7rem;
+      color: var(--dimmed);
+      letter-spacing: 0.08em;
+    }
+
+    .signal-bars {
+      display: flex;
+      gap: 2px;
+    }
+
+    .signal-bars .bar {
+      width: 8px;
+      height: 14px;
+      border-radius: 1px;
+    }
+
+    .signal-bars .bar.filled.green { background: var(--wifi-green); box-shadow: 0 0 3px rgba(0, 255, 136, 0.4); }
+    .signal-bars .bar.filled.amber { background: var(--amber); box-shadow: 0 0 3px rgba(255, 170, 0, 0.4); }
+    .signal-bars .bar.filled.red { background: var(--danger-red); box-shadow: 0 0 3px rgba(255, 51, 102, 0.4); }
+    .signal-bars .bar.empty { background: rgba(68, 85, 102, 0.3); }
+
+    .signal-dbm {
+      font-size: 0.7rem;
+      color: var(--text);
+      letter-spacing: 0.06em;
+    }
+
+    .signal-strength-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+
+    .signal-strength-label.strong { color: var(--wifi-green); }
+    .signal-strength-label.medium { color: var(--amber); }
+    .signal-strength-label.weak { color: var(--danger-red); }
+    .signal-strength-label.critical { color: var(--danger-red); text-shadow: 0 0 6px rgba(255, 51, 102, 0.5); }
+
+    .scan-details {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.3rem;
+      font-size: 0.65rem;
+      color: var(--dimmed);
+      letter-spacing: 0.08em;
+      flex-wrap: wrap;
+    }
+
+    .connecting-text {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.8rem;
+      font-size: 0.6rem;
+      color: var(--wifi-green);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    /* ===== Section 4: Signal Analysis — edge-to-edge ===== */
+    .section-signal {
+      background: var(--bg-alt);
+      padding: 2.5rem 0;
+    }
+
+    .section-signal .section-content {
+      padding-left: 2%;
+      padding-right: 2%;
+    }
+
+    .signal-section-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .signal-section-header h2 {
+      font-size: 0.9rem;
+      color: var(--scan-blue);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .signal-bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .signal-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .signal-bar-label {
+      width: 260px;
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .signal-bar-track {
+      flex: 1;
+      height: 20px;
+      background: rgba(68, 85, 102, 0.15);
+      position: relative;
+      border-radius: 1px;
+      overflow: hidden;
+    }
+
+    .signal-bar-fill {
+      height: 100%;
+      border-radius: 1px;
+      position: relative;
+      transition: width 0.6s ease;
+    }
+
+    .signal-bar-fill.level-critical {
+      background: linear-gradient(90deg, var(--wifi-green) 0%, var(--amber) 50%, var(--danger-red) 100%);
+      box-shadow: 0 0 8px rgba(255, 51, 102, 0.3);
+    }
+
+    .signal-bar-fill.level-strong {
+      background: linear-gradient(90deg, var(--wifi-green) 0%, var(--wifi-green) 80%, var(--amber) 100%);
+      box-shadow: 0 0 6px rgba(0, 255, 136, 0.2);
+    }
+
+    .signal-bar-fill.level-medium {
+      background: linear-gradient(90deg, var(--wifi-green) 0%, var(--amber) 100%);
+    }
+
+    .signal-bar-fill.level-weak {
+      background: linear-gradient(90deg, var(--amber) 0%, var(--danger-red) 100%);
+    }
+
+    .signal-bar-value {
+      width: 70px;
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      color: var(--dimmed);
+      letter-spacing: 0.06em;
+    }
+
+    /* ===== Section 5: Archive — alternating offsets ===== */
+    .section-archive {
+      background: var(--bg);
+      padding: 3rem 0;
+    }
+
+    .archive-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .archive-header h2 {
+      font-size: 0.9rem;
+      color: var(--dimmed);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .archive-entry {
+      padding: 0.8rem 1.5rem;
+      margin-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(68, 85, 102, 0.1);
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      transition: background 0.3s;
+      flex-wrap: wrap;
+    }
+
+    .archive-entry:hover {
+      background: rgba(0, 255, 136, 0.02);
+    }
+
+    /* Alternating left/right offsets */
+    .archive-entry:nth-child(odd) {
+      padding-left: 8%;
+      padding-right: 35%;
+    }
+
+    .archive-entry:nth-child(even) {
+      padding-left: 35%;
+      padding-right: 8%;
+    }
+
+    .archive-date {
+      font-size: 0.7rem;
+      color: var(--dimmed);
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .archive-title {
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .archive-title a {
+      color: var(--text);
+    }
+
+    .archive-title a:hover {
+      color: var(--wifi-green);
+    }
+
+    .archive-signal {
+      font-size: 0.65rem;
+      color: var(--dimmed);
+      flex-shrink: 0;
+      letter-spacing: 0.06em;
+    }
+
+    /* ===== Section 6: Footer — centered ===== */
+    .section-footer {
+      background: var(--bg-alt);
+      padding: 2.5rem 0;
+      text-align: center;
+    }
+
+    .section-footer .section-content {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .footer-scan-line {
+      font-size: 0.7rem;
+      color: var(--dimmed);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-copy {
+      font-size: 0.7rem;
+      color: rgba(68, 85, 102, 0.6);
+      letter-spacing: 0.08em;
+    }
+
+    .footer-signal {
+      display: flex;
+      justify-content: center;
+      gap: 3px;
+      margin-top: 1rem;
+    }
+
+    .footer-signal .bar {
+      width: 3px;
+      height: 12px;
+      background: var(--dimmed);
+      border-radius: 1px;
+      opacity: 0.3;
+    }
+
+    .footer-signal .bar.active {
+      background: var(--wifi-green);
+      opacity: 0.6;
+      animation: footer-pulse 2s ease-in-out infinite;
+    }
+
+    .footer-signal .bar:nth-child(2) { animation-delay: 0.2s; }
+    .footer-signal .bar:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes footer-pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ===== HUD Corner Brackets on Sections ===== */
+    .hud-section {
+      position: relative;
+    }
+
+    .hud-section::before,
+    .hud-section::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+    }
+
+    .hud-section::before {
+      top: 8px;
+      left: 8px;
+      border-top: 1px solid rgba(0, 255, 136, 0.2);
+      border-left: 1px solid rgba(0, 255, 136, 0.2);
+    }
+
+    .hud-section::after {
+      bottom: 8px;
+      right: 8px;
+      border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+      border-right: 1px solid rgba(0, 255, 136, 0.2);
+    }
+
+    /* ===== Responsive: below 900px ===== */
+    @media (max-width: 900px) {
+      .section-header .section-content {
+        padding-left: 5%;
+        padding-right: 5%;
+      }
+
+      .section-featured .section-content {
+        padding-left: 8%;
+        padding-right: 5%;
+      }
+
+      .section-scan-results .section-content {
+        padding-left: 15%;
+        padding-right: 5%;
+      }
+
+      .archive-entry:nth-child(odd) {
+        padding-left: 5%;
+        padding-right: 15%;
+      }
+
+      .archive-entry:nth-child(even) {
+        padding-left: 15%;
+        padding-right: 5%;
+      }
+
+      .signal-bar-label {
+        width: 160px;
+      }
+
+      .gps-coords {
+        position: static;
+        margin-top: 0.5rem;
+        text-align: left;
+      }
+    }
+
+    /* ===== Responsive: below 600px ===== */
+    @media (max-width: 600px) {
+      .section-header .section-content,
+      .section-featured .section-content,
+      .section-scan-results .section-content,
+      .section-signal .section-content {
+        padding-left: 5%;
+        padding-right: 5%;
+      }
+
+      .archive-entry:nth-child(odd),
+      .archive-entry:nth-child(even) {
+        padding-left: 5%;
+        padding-right: 5%;
+      }
+
+      .header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .header-text h1 {
+        font-size: 1.4rem;
+      }
+
+      .featured-post h2 {
+        font-size: 1.2rem;
+      }
+
+      .signal-bar-label {
+        width: 100px;
+        font-size: 0.6rem;
+      }
+
+      .scan-card {
+        padding: 0.75rem 0.8rem;
+      }
+
+      .scan-details {
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .signal-meta {
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .signal-bar-row {
+        flex-wrap: wrap;
+      }
+
+      .signal-bar-label {
+        width: 100%;
+        text-align: left;
+      }
+
+      .signal-bar-track {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Section 1: Header ===== -->
+  <section class="section section-header hud-section">
+    <div class="gps-coords">
+      LAT: 37.7749 // LON: -122.4194<br>
+      ALT: 16m // HDOP: 0.8
+    </div>
+    <div class="section-content">
+      <div class="header-row">
+        <div class="avatar-wrap">
+          <div class="hud-bracket hud-bracket--tl"></div>
+          <div class="hud-bracket hud-bracket--tr"></div>
+          <div class="hud-bracket hud-bracket--bl"></div>
+          <div class="hud-bracket hud-bracket--br"></div>
+          <img src="avatar.webp" alt="keeb avatar">
+        </div>
+        <div class="header-text">
+          <h1>WARDRIVER <span class="separator">//</span> keeb.dev</h1>
+          <div class="scanning-indicator">
+            <span class="scanning-dot"></span>
+            SCANNING...
+          </div>
+          <div class="signal-icon">
+            <div class="arc"></div>
+            <div class="arc"></div>
+            <div class="arc"></div>
+            <div class="arc"></div>
+            <div class="arc"></div>
+          </div>
+          <div class="network-count">NETWORKS FOUND: <span>9</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Section 2: Featured Post ===== -->
+  <section class="section section-featured hud-section">
+    <div class="section-content">
+      <div class="featured-post">
+        <div class="target-header">
+          <span class="target-label">TARGET ACQUIRED</span>
+          <span class="target-title">SIGNAL ANALYSIS</span>
+        </div>
+
+        <h2><a href="#">Claude Sonnet 4.5 &amp; System Initiative</a></h2>
+
+        <div class="featured-date">FIRST SEEN: 2025-09-29 // LAST SEEN: 2025-09-29</div>
+
+        <div class="signal-meta">
+          <div class="meta-item">
+            <span class="meta-label">SIGNAL:</span>
+            <span class="meta-value strong">-42dBm</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">CHANNEL:</span>
+            <span class="meta-value">6</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">ENCRYPTION:</span>
+            <span class="meta-value">WPA3</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">BAND:</span>
+            <span class="meta-value">5GHz</span>
+          </div>
+        </div>
+
+        <div class="featured-body">
+          <p>Claude Sonnet 4.5 represents a fundamental shift in what AI can do for infrastructure tooling. With its expanded context window, dramatically improved reasoning about interconnected systems, and the ability to hold entire architectures in working memory, Sonnet 4.5 is not just a better autocomplete for Terraform files. It is a genuine reasoning partner for infrastructure-as-code. System Initiative, the platform that reimagines infrastructure management through a reactive, graph-based model, is uniquely positioned to leverage this kind of capability. When your infrastructure is already a living, interconnected data structure rather than a pile of flat config files, an AI that can reason about complex systems becomes exponentially more useful.</p>
+
+          <p>The core shift here is from writing code to describing intent. Traditional infrastructure-as-code asks you to be a translator: you understand what you want your system to look like, and then you laboriously encode that understanding into HCL, YAML, or whatever configuration dialect your toolchain demands. Sonnet 4.5 collapses that translation layer. You describe the desired state, the constraints, the tradeoffs you care about, and the model generates not just the configuration but the reasoning behind each choice. System Initiative's reactive model means those AI-generated decisions can be immediately validated against the live graph of your infrastructure, catching misconfigurations before they ever hit a plan or apply stage.</p>
+
+          <p>Speed matters more than people realize in this context. Previous models could reason about infrastructure, but the latency made the interaction feel like filing a support ticket with yourself. Sonnet 4.5's response times bring the interaction into conversational territory, which enables something genuinely new: real-time infrastructure copiloting. You can iterate on a networking topology, explore what-if scenarios for scaling decisions, and debug dependency chains at the speed of thought rather than the speed of batch processing. System Initiative's live collaboration model amplifies this further, letting the AI participate as another member of the infrastructure team rather than an offline oracle.</p>
+
+          <p>What makes this pairing especially compelling is the feedback loop. System Initiative already treats infrastructure as a reactive graph where changes propagate and validate automatically. Plug in a model that can reason about those propagation chains, predict cascading failures, and suggest mitigations in real time, and you get something that starts to feel like infrastructure with genuine self-awareness. Not in the science fiction sense, but in the practical sense of a system that understands its own topology well enough to participate in its own maintenance.</p>
+
+          <p>The implication for the industry is clear: the gap between "infrastructure expert" and "person who can manage infrastructure" is about to narrow dramatically. When reasoning models become fast enough and capable enough to serve as real-time copilots for platforms like System Initiative, the barrier to entry for managing complex distributed systems drops. That is not a threat to infrastructure engineers; it is a force multiplier. The hard problems, the ones that require genuine architectural taste and operational judgment, remain human problems. But the mechanical translation work, the syntax wrestling, the tribal knowledge about which flags to set on which resources? That is increasingly the machine's job.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Section 3: Scan Results ===== -->
+  <section class="section section-scan-results hud-section">
+    <div class="section-content">
+      <div class="scan-header">
+        <h2>// SCAN RESULTS</h2>
+        <span class="scan-counter">NETWORKS FOUND: 9</span>
+      </div>
+
+      <!-- MCP Is Dead — -25dBm CRITICAL -->
+      <div class="scan-card signal-critical">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> MCP Is Dead</div>
+        </div>
+        <div class="scan-bssid">BSSID: FF:33:66:AA:09:25</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+          </div>
+          <span class="signal-dbm">-25dBm</span>
+          <span class="signal-strength-label critical">[CRITICAL]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: WPA3</span>
+          <span>FIRST SEEN: 2025-11-15</span>
+          <span>CHANNEL: 149</span>
+        </div>
+      </div>
+
+      <!-- AI-Native Infrastructure — -28dBm STRONG -->
+      <div class="scan-card signal-strong">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> AI-Native Infrastructure</div>
+        </div>
+        <div class="scan-bssid">BSSID: 00:FF:88:DD:08:17</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar empty"></div>
+          </div>
+          <span class="signal-dbm">-28dBm</span>
+          <span class="signal-strength-label strong">[STRONG]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: WPA3</span>
+          <span>FIRST SEEN: 2025-10-22</span>
+          <span>CHANNEL: 36</span>
+        </div>
+      </div>
+
+      <!-- Claude Sonnet 4.5 & System Initiative — -30dBm STRONG -->
+      <div class="scan-card signal-strong">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> Claude Sonnet 4.5 &amp; System Initiative</div>
+        </div>
+        <div class="scan-bssid">BSSID: C1:A0:D3:45:07:29</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+          </div>
+          <span class="signal-dbm">-30dBm</span>
+          <span class="signal-strength-label strong">[STRONG]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: WPA3</span>
+          <span>FIRST SEEN: 2025-09-29</span>
+          <span>CHANNEL: 6</span>
+        </div>
+      </div>
+
+      <!-- AI is great at parsing — -40dBm GOOD -->
+      <div class="scan-card signal-strong">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> AI is great at parsing</div>
+        </div>
+        <div class="scan-bssid">BSSID: A1:B2:C3:D4:06:14</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+          </div>
+          <span class="signal-dbm">-40dBm</span>
+          <span class="signal-strength-label strong">[GOOD]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: WPA2</span>
+          <span>FIRST SEEN: 2025-03-14</span>
+          <span>CHANNEL: 11</span>
+        </div>
+      </div>
+
+      <!-- Terraform with Glitter — -42dBm GOOD -->
+      <div class="scan-card signal-strong">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> Terraform with Glitter</div>
+        </div>
+        <div class="scan-bssid">BSSID: 7E:RA:F0:RM:05:08</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled amber"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+          </div>
+          <span class="signal-dbm">-42dBm</span>
+          <span class="signal-strength-label strong">[GOOD]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: WPA2</span>
+          <span>FIRST SEEN: 2024-09-08</span>
+          <span>CHANNEL: 44</span>
+        </div>
+      </div>
+
+      <!-- Virtualization from scratch — -55dBm FAIR -->
+      <div class="scan-card signal-medium">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> Virtualization from scratch</div>
+        </div>
+        <div class="scan-bssid">BSSID: V1:RT:UA:L1:04:22</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled green"></div>
+            <div class="bar filled amber"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+          </div>
+          <span class="signal-dbm">-55dBm</span>
+          <span class="signal-strength-label medium">[FAIR]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: WPA2</span>
+          <span>FIRST SEEN: 2023-04-22</span>
+          <span>CHANNEL: 1</span>
+        </div>
+      </div>
+
+      <!-- I made a keylogger — -60dBm WEAK -->
+      <div class="scan-card signal-medium">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> I made a keylogger</div>
+        </div>
+        <div class="scan-bssid">BSSID: KE:YL:0G:GR:02:14</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled amber"></div>
+            <div class="bar filled amber"></div>
+            <div class="bar filled amber"></div>
+            <div class="bar filled amber"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+          </div>
+          <span class="signal-dbm">-60dBm</span>
+          <span class="signal-strength-label medium">[WEAK]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: WEP</span>
+          <span>FIRST SEEN: 2022-08-14</span>
+          <span>CHANNEL: 6</span>
+        </div>
+      </div>
+
+      <!-- The Lore — -65dBm WEAK -->
+      <div class="scan-card signal-weak">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> The Lore</div>
+        </div>
+        <div class="scan-bssid">BSSID: AA:BB:CC:DD:01:28</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled amber"></div>
+            <div class="bar filled amber"></div>
+            <div class="bar filled red"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+          </div>
+          <span class="signal-dbm">-65dBm</span>
+          <span class="signal-strength-label weak">[WEAK]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: WPA2</span>
+          <span>FIRST SEEN: 2022-05-28</span>
+          <span>CHANNEL: 3</span>
+        </div>
+      </div>
+
+      <!-- Hexo & VSCode — -68dBm WEAKEST -->
+      <div class="scan-card signal-weak">
+        <span class="connecting-text">CONNECTING...</span>
+        <div class="scan-row">
+          <div class="scan-ssid"><span class="scan-ssid-label">SSID:</span> Hexo &amp; VSCode</div>
+        </div>
+        <div class="scan-bssid">BSSID: HE:X0:VS:C0:03:07</div>
+        <div class="scan-signal-row">
+          <span class="signal-label">SIGNAL:</span>
+          <div class="signal-bars">
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar filled red"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+            <div class="bar empty"></div>
+          </div>
+          <span class="signal-dbm">-68dBm</span>
+          <span class="signal-strength-label weak">[WEAKEST]</span>
+        </div>
+        <div class="scan-details">
+          <span>ENCRYPTION: OPEN</span>
+          <span>FIRST SEEN: 2022-07-07</span>
+          <span>CHANNEL: 11</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== Section 4: Signal Analysis ===== -->
+  <section class="section section-signal hud-section">
+    <div class="section-content">
+      <div class="signal-section-header">
+        <h2>// SIGNAL ANALYSIS // STRENGTH COMPARISON</h2>
+      </div>
+
+      <div class="signal-bar-chart">
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">MCP Is Dead</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-critical" style="width: 97%;"></div>
+          </div>
+          <div class="signal-bar-value">-25dBm</div>
+        </div>
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">AI-Native Infrastructure</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-critical" style="width: 93%;"></div>
+          </div>
+          <div class="signal-bar-value">-28dBm</div>
+        </div>
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">Claude Sonnet 4.5 &amp; System Initiative</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-strong" style="width: 88%;"></div>
+          </div>
+          <div class="signal-bar-value">-30dBm</div>
+        </div>
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">AI is great at parsing</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-strong" style="width: 75%;"></div>
+          </div>
+          <div class="signal-bar-value">-40dBm</div>
+        </div>
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">Terraform with Glitter</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-strong" style="width: 72%;"></div>
+          </div>
+          <div class="signal-bar-value">-42dBm</div>
+        </div>
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">Virtualization from scratch</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-medium" style="width: 55%;"></div>
+          </div>
+          <div class="signal-bar-value">-55dBm</div>
+        </div>
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">I made a keylogger</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-medium" style="width: 48%;"></div>
+          </div>
+          <div class="signal-bar-value">-60dBm</div>
+        </div>
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">The Lore</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-weak" style="width: 42%;"></div>
+          </div>
+          <div class="signal-bar-value">-65dBm</div>
+        </div>
+        <div class="signal-bar-row">
+          <div class="signal-bar-label">Hexo &amp; VSCode</div>
+          <div class="signal-bar-track">
+            <div class="signal-bar-fill level-weak" style="width: 38%;"></div>
+          </div>
+          <div class="signal-bar-value">-68dBm</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Section 5: Archive ===== -->
+  <section class="section section-archive hud-section">
+    <div class="section-content">
+      <div class="archive-header">
+        <h2>// SCAN HISTORY // ALL NETWORKS</h2>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2025-11-15</span>
+        <span class="archive-title"><a href="#">MCP Is Dead</a></span>
+        <span class="archive-signal" style="color: var(--danger-red);">-25dBm</span>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2025-10-22</span>
+        <span class="archive-title"><a href="#">AI-Native Infrastructure</a></span>
+        <span class="archive-signal" style="color: var(--wifi-green);">-28dBm</span>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2025-09-29</span>
+        <span class="archive-title"><a href="#">Claude Sonnet 4.5 &amp; System Initiative</a></span>
+        <span class="archive-signal" style="color: var(--wifi-green);">-30dBm</span>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2025-03-14</span>
+        <span class="archive-title"><a href="#">AI is great at parsing</a></span>
+        <span class="archive-signal" style="color: var(--wifi-green);">-40dBm</span>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2024-09-08</span>
+        <span class="archive-title"><a href="#">Terraform with Glitter</a></span>
+        <span class="archive-signal" style="color: var(--wifi-green);">-42dBm</span>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2023-04-22</span>
+        <span class="archive-title"><a href="#">Virtualization from scratch</a></span>
+        <span class="archive-signal" style="color: var(--amber);">-55dBm</span>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2022-08-14</span>
+        <span class="archive-title"><a href="#">I made a keylogger</a></span>
+        <span class="archive-signal" style="color: var(--amber);">-60dBm</span>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2022-07-07</span>
+        <span class="archive-title"><a href="#">Hexo &amp; VSCode</a></span>
+        <span class="archive-signal" style="color: var(--danger-red);">-68dBm</span>
+      </div>
+
+      <div class="archive-entry">
+        <span class="archive-date">2022-05-28</span>
+        <span class="archive-title"><a href="#">The Lore</a></span>
+        <span class="archive-signal" style="color: var(--danger-red);">-65dBm</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== Section 6: Footer ===== -->
+  <section class="section section-footer">
+    <div class="section-content">
+      <div class="footer-scan-line">// SCAN COMPLETE // 9 NETWORKS CATALOGUED</div>
+      <div class="footer-signal">
+        <div class="bar active"></div>
+        <div class="bar active"></div>
+        <div class="bar active"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <div class="footer-copy">WARDRIVER v2.4 // keeb.dev // 2025</div>
+    </div>
+  </section>
+
+</body>
+</html>

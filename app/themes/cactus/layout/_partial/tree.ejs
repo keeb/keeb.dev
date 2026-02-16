@@ -1,0 +1,48 @@
+<div class="tree">
+  <div class="tree-dir-line"><span class="tree-dir">keeb.dev/</span></div>
+  <div class="tree-dir-line"><span class="tree-branch">├── </span><span class="tree-dir">writing/</span></div>
+<%
+  var posts = site.posts.sort('date', 'asc').toArray();
+  // Group by year
+  var years = {};
+  posts.forEach(function(post) {
+    var y = date(post.date, 'YYYY');
+    if (!years[y]) years[y] = [];
+    years[y].push(post);
+  });
+  var yearKeys = Object.keys(years).sort();
+  var lastYearIdx = yearKeys.length - 1;
+
+  yearKeys.forEach(function(year, yi) {
+    var isLastYear = (yi === lastYearIdx);
+    var yearBranch = isLastYear ? '└── ' : '├── ';
+    var yearPrefix = isLastYear ? '    ' : '│   ';
+    var yearPosts = years[year];
+    var lastPostIdx = yearPosts.length - 1;
+%>
+  <div class="tree-dir-line"><span class="tree-branch">│   <%= yearBranch %></span><span class="tree-dir"><%= year %>/</span></div>
+<%
+    yearPosts.forEach(function(post, pi) {
+      var isLastPost = (pi === lastPostIdx);
+      var postBranch = isLastPost ? '└── ' : '├── ';
+      var filename = post.slug.toLowerCase() + '.md';
+      var postDate = date(post.date, 'YYYY-MM-DD');
+      var isActive = (page && page.path === post.path);
+      var tags = '';
+      if (post.tags && post.tags.length) {
+        var tagArr = [];
+        post.tags.forEach(function(tag) { tagArr.push(tag.name); });
+        tags = '[' + tagArr.join(', ') + ']';
+      }
+%>
+  <div class="tree-entry<%= isActive ? ' active' : '' %>">
+    <span class="tree-branch"><%= yearPrefix %><%= postBranch %></span>
+    <span class="tree-date"><%= postDate %></span>
+    <a href="<%- url_for(post.path) %>" class="tree-file-link"><%= filename %></a>
+    <span class="tree-tags"><%= tags %></span>
+  </div>
+<%
+    });
+  });
+%>
+</div>

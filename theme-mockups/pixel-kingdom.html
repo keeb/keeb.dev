@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keeb.dev - Pixel Kingdom</title>
+<style>
+  /* ========================================
+     PIXEL KINGDOM THEME - keeb.dev
+     An 8-bit RPG interface for a hacker blog
+     ======================================== */
+
+  @font-face {
+    font-family: 'PixelFont';
+    src: local('Courier New'), local('Consolas'), local('monospace');
+  }
+
+  :root {
+    --deep-blue: #0a0e27;
+    --mid-blue: #1a1f4e;
+    --accent-blue: #3b5dc9;
+    --light-blue: #6ec6ff;
+    --deep-purple: #2d1b69;
+    --mid-purple: #5b3a8c;
+    --light-purple: #9775c7;
+    --gold: #f0c040;
+    --dark-gold: #c8981e;
+    --bright-gold: #ffe066;
+    --emerald: #38b764;
+    --dark-emerald: #257953;
+    --light-emerald: #63e28b;
+    --pixel-white: #e8e8e8;
+    --pixel-gray: #8b8b8b;
+    --pixel-dark: #050510;
+    --hp-red: #d44040;
+    --mp-blue: #4080d4;
+
+    --pixel-border-light: #6ec6ff;
+    --pixel-border-dark: #1a1f4e;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--pixel-dark);
+    color: var(--pixel-white);
+    font-family: 'Courier New', Consolas, monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0, 0, 0, 0.08) 3px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+  }
+
+  img {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+
+  /* ---- PIXEL BORDER UTILITY ---- */
+  .pixel-border {
+    border: 4px solid var(--accent-blue);
+    box-shadow:
+      inset -4px -4px 0px 0px var(--deep-blue),
+      inset 4px 4px 0px 0px var(--light-blue),
+      0px 0px 0px 4px var(--deep-blue),
+      8px 8px 0px 0px rgba(0, 0, 0, 0.3);
+  }
+
+  .pixel-border-gold {
+    border: 4px solid var(--gold);
+    box-shadow:
+      inset -4px -4px 0px 0px var(--dark-gold),
+      inset 4px 4px 0px 0px var(--bright-gold),
+      0px 0px 0px 4px var(--deep-blue),
+      8px 8px 0px 0px rgba(0, 0, 0, 0.3);
+  }
+
+  .pixel-border-purple {
+    border: 4px solid var(--mid-purple);
+    box-shadow:
+      inset -4px -4px 0px 0px var(--deep-purple),
+      inset 4px 4px 0px 0px var(--light-purple),
+      0px 0px 0px 4px var(--deep-blue),
+      8px 8px 0px 0px rgba(0, 0, 0, 0.3);
+  }
+
+  .pixel-border-green {
+    border: 4px solid var(--emerald);
+    box-shadow:
+      inset -4px -4px 0px 0px var(--dark-emerald),
+      inset 4px 4px 0px 0px var(--light-emerald),
+      0px 0px 0px 4px var(--deep-blue),
+      8px 8px 0px 0px rgba(0, 0, 0, 0.3);
+  }
+
+  /* ---- ANIMATIONS ---- */
+  @keyframes blink-cursor {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes bob-delay {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes float-stars {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-20px) rotate(180deg); opacity: 0.6; }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 8px var(--gold), 0 0 16px var(--dark-gold); }
+    50% { text-shadow: 0 0 16px var(--gold), 0 0 32px var(--dark-gold), 0 0 48px rgba(240, 192, 64, 0.3); }
+  }
+
+  @keyframes slide-in {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes quest-sparkle {
+    0%, 100% { color: var(--gold); }
+    50% { color: var(--bright-gold); }
+  }
+
+  /* ---- BACKGROUND STARFIELD ---- */
+  .starfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--pixel-white);
+    animation: float-stars 4s ease-in-out infinite;
+  }
+
+  /* ---- MAIN CONTAINER ---- */
+  .game-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px;
+    position: relative;
+  }
+
+  /* ---- TITLE SCREEN HEADER ---- */
+  .title-screen {
+    background: linear-gradient(180deg, var(--deep-blue) 0%, var(--deep-purple) 50%, var(--mid-blue) 100%);
+    padding: 32px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .title-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(2px 2px at 80% 20%, rgba(255,255,255,0.2), transparent),
+      radial-gradient(2px 2px at 50% 70%, rgba(255,255,255,0.25), transparent),
+      radial-gradient(2px 2px at 10% 80%, rgba(255,255,255,0.15), transparent),
+      radial-gradient(2px 2px at 90% 60%, rgba(255,255,255,0.2), transparent),
+      radial-gradient(2px 2px at 35% 15%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(2px 2px at 65% 90%, rgba(255,255,255,0.15), transparent),
+      radial-gradient(2px 2px at 45% 45%, rgba(255,255,255,0.2), transparent);
+    pointer-events: none;
+  }
+
+  .title-characters {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 40px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .character {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .character-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    padding: 2px 12px;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .hero-label {
+    color: var(--light-blue);
+    border: 2px solid var(--accent-blue);
+  }
+
+  .npc-label {
+    color: var(--light-emerald);
+    border: 2px solid var(--emerald);
+  }
+
+  .hero-avatar {
+    width: 120px;
+    height: 120px;
+    animation: bob 3s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .npc-avatar {
+    width: 96px;
+    height: 96px;
+    animation: bob-delay 3s ease-in-out infinite;
+    animation-delay: 1.5s;
+    position: relative;
+    z-index: 2;
+  }
+
+  .npc-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .hero-shadow, .npc-shadow {
+    width: 60px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    margin-top: 8px;
+    clip-path: ellipse(50% 50%);
+  }
+
+  .npc-shadow {
+    width: 48px;
+  }
+
+  .title-text {
+    position: relative;
+    z-index: 2;
+  }
+
+  .title-text h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--gold);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    animation: pulse-glow 3s ease-in-out infinite;
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+
+  .title-text h1 .dot {
+    color: var(--light-blue);
+  }
+
+  .title-subtitle {
+    font-size: 0.85rem;
+    color: var(--light-purple);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .press-start {
+    margin-top: 24px;
+    font-size: 0.75rem;
+    color: var(--pixel-gray);
+    letter-spacing: 3px;
+    animation: blink-cursor 1.2s step-end infinite;
+  }
+
+  /* ---- GAME MENU NAVIGATION ---- */
+  .game-nav {
+    background: var(--deep-blue);
+    padding: 8px;
+    margin-bottom: 24px;
+  }
+
+  .nav-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--mid-blue);
+    color: var(--pixel-white);
+    font-family: inherit;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid var(--accent-blue);
+    transition: all 0.1s;
+    position: relative;
+  }
+
+  .nav-item:hover {
+    background: var(--accent-blue);
+    color: var(--bright-gold);
+    border-color: var(--gold);
+  }
+
+  .nav-item:hover .nav-pointer {
+    opacity: 1;
+  }
+
+  .nav-pointer {
+    color: var(--gold);
+    opacity: 0;
+    font-size: 1rem;
+    transition: opacity 0.1s;
+  }
+
+  .nav-item:hover .nav-pointer {
+    animation: blink-cursor 0.6s step-end infinite;
+  }
+
+  .nav-icon {
+    font-size: 1rem;
+  }
+
+  /* ---- SECTION HEADERS ---- */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 4px solid var(--mid-blue);
+  }
+
+  .section-header h2 {
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .section-header .header-icon {
+    font-size: 1.3rem;
+  }
+
+  .section-header .header-line {
+    flex: 1;
+    height: 4px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--mid-blue) 0px,
+      var(--mid-blue) 8px,
+      transparent 8px,
+      transparent 12px
+    );
+  }
+
+  /* ---- QUEST LOG (POST LIST) ---- */
+  .quest-log {
+    background: var(--deep-blue);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .quest-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    background: var(--mid-blue);
+    border-bottom: 2px solid var(--accent-blue);
+  }
+
+  .quest-log-header span {
+    font-size: 0.7rem;
+    color: var(--pixel-gray);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .quest-list {
+    list-style: none;
+  }
+
+  .quest-entry {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 8px;
+    border-bottom: 2px solid rgba(59, 93, 201, 0.2);
+    transition: all 0.15s;
+    cursor: pointer;
+    animation: slide-in 0.3s ease-out both;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .quest-entry:nth-child(1) { animation-delay: 0.05s; }
+  .quest-entry:nth-child(2) { animation-delay: 0.1s; }
+  .quest-entry:nth-child(3) { animation-delay: 0.15s; }
+  .quest-entry:nth-child(4) { animation-delay: 0.2s; }
+  .quest-entry:nth-child(5) { animation-delay: 0.25s; }
+  .quest-entry:nth-child(6) { animation-delay: 0.3s; }
+  .quest-entry:nth-child(7) { animation-delay: 0.35s; }
+  .quest-entry:nth-child(8) { animation-delay: 0.4s; }
+  .quest-entry:nth-child(9) { animation-delay: 0.45s; }
+
+  .quest-entry:hover {
+    background: rgba(59, 93, 201, 0.15);
+    padding-left: 16px;
+  }
+
+  .quest-entry:hover .quest-pointer {
+    opacity: 1;
+  }
+
+  .quest-entry:last-child {
+    border-bottom: none;
+  }
+
+  .quest-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 52px;
+    gap: 2px;
+  }
+
+  .quest-difficulty {
+    display: flex;
+    gap: 2px;
+  }
+
+  .diff-pip {
+    width: 8px;
+    height: 8px;
+    background: var(--pixel-gray);
+  }
+
+  .diff-pip.active-easy { background: var(--emerald); }
+  .diff-pip.active-medium { background: var(--gold); }
+  .diff-pip.active-hard { background: var(--hp-red); }
+  .diff-pip.active-legendary { background: var(--light-purple); box-shadow: 0 0 4px var(--light-purple); }
+
+  .quest-xp {
+    font-size: 0.6rem;
+    color: var(--light-emerald);
+    letter-spacing: 1px;
+  }
+
+  .quest-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .quest-title {
+    font-size: 0.95rem;
+    color: var(--pixel-white);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .quest-pointer {
+    color: var(--gold);
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-size: 0.9rem;
+  }
+
+  .quest-entry:hover .quest-title {
+    color: var(--bright-gold);
+  }
+
+  .quest-date {
+    font-size: 0.7rem;
+    color: var(--pixel-gray);
+    letter-spacing: 1px;
+  }
+
+  .quest-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .quest-tag {
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 2px solid;
+  }
+
+  .tag-main { color: var(--gold); border-color: var(--dark-gold); background: rgba(240, 192, 64, 0.1); }
+  .tag-side { color: var(--light-blue); border-color: var(--accent-blue); background: rgba(59, 93, 201, 0.1); }
+  .tag-legendary { color: var(--light-purple); border-color: var(--mid-purple); background: rgba(91, 58, 140, 0.1); animation: quest-sparkle 2s ease-in-out infinite; }
+  .tag-epic { color: var(--light-emerald); border-color: var(--emerald); background: rgba(56, 183, 100, 0.1); }
+  .tag-new { color: var(--hp-red); border-color: var(--hp-red); background: rgba(212, 64, 64, 0.1); }
+
+  .quest-status-label {
+    font-size: 0.55rem;
+    color: var(--emerald);
+    letter-spacing: 1px;
+  }
+
+  /* ---- SCROLL / POST CONTENT ---- */
+  .scroll-section {
+    margin-bottom: 24px;
+  }
+
+  .scroll-container {
+    background: linear-gradient(180deg, #1a1535 0%, #0f0d20 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scroll-top-edge, .scroll-bottom-edge {
+    height: 16px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--dark-gold) 0px,
+      var(--dark-gold) 16px,
+      var(--gold) 16px,
+      var(--gold) 32px
+    );
+    position: relative;
+  }
+
+  .scroll-top-edge::after, .scroll-bottom-edge::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--deep-purple);
+  }
+
+  .scroll-top-edge::after { bottom: 0; }
+  .scroll-bottom-edge::after { top: 0; }
+
+  .scroll-body {
+    padding: 32px 28px;
+    border-left: 8px solid var(--dark-gold);
+    border-right: 8px solid var(--dark-gold);
+    position: relative;
+  }
+
+  .scroll-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 8px;
+    right: 8px;
+    bottom: 0;
+    border-left: 2px solid rgba(240, 192, 64, 0.15);
+    border-right: 2px solid rgba(240, 192, 64, 0.15);
+    pointer-events: none;
+  }
+
+  .scroll-title {
+    font-size: 1.5rem;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-align: center;
+    text-shadow: 0 0 8px rgba(240, 192, 64, 0.3);
+  }
+
+  .scroll-meta {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px dashed rgba(240, 192, 64, 0.3);
+  }
+
+  .scroll-meta span {
+    font-size: 0.7rem;
+    color: var(--pixel-gray);
+    letter-spacing: 2px;
+  }
+
+  .scroll-content {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--pixel-white);
+    letter-spacing: 0.5px;
+  }
+
+  .scroll-content p {
+    margin-bottom: 16px;
+    text-indent: 2em;
+  }
+
+  .scroll-content p:first-child::first-letter {
+    font-size: 2.2rem;
+    float: left;
+    color: var(--gold);
+    line-height: 1;
+    margin-right: 8px;
+    margin-top: 4px;
+    text-shadow: 2px 2px 0px var(--dark-gold);
+  }
+
+  .scroll-content .highlight-text {
+    color: var(--light-blue);
+    background: rgba(59, 93, 201, 0.15);
+    padding: 0 4px;
+    border-bottom: 2px solid var(--accent-blue);
+  }
+
+  .scroll-content code {
+    font-family: inherit;
+    color: var(--light-emerald);
+    background: rgba(56, 183, 100, 0.1);
+    padding: 2px 6px;
+    border: 1px solid rgba(56, 183, 100, 0.3);
+  }
+
+  .scroll-xp-reward {
+    margin-top: 24px;
+    padding: 12px 16px;
+    background: rgba(56, 183, 100, 0.1);
+    border: 2px solid var(--emerald);
+    text-align: center;
+  }
+
+  .scroll-xp-reward span {
+    font-size: 0.8rem;
+    color: var(--light-emerald);
+    letter-spacing: 2px;
+  }
+
+  /* ---- NPC DIALOGUE BOX ---- */
+  .npc-dialogue {
+    background: var(--deep-blue);
+    margin-bottom: 24px;
+    padding: 20px;
+    position: relative;
+  }
+
+  .npc-dialogue-inner {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .npc-dialogue-avatar {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border: 2px solid var(--emerald);
+  }
+
+  .npc-dialogue-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .npc-dialogue-content {
+    flex: 1;
+  }
+
+  .npc-dialogue-name {
+    font-size: 0.75rem;
+    color: var(--light-emerald);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid rgba(56, 183, 100, 0.3);
+  }
+
+  .npc-dialogue-text {
+    font-size: 0.85rem;
+    color: var(--pixel-white);
+    line-height: 1.7;
+    letter-spacing: 0.5px;
+  }
+
+  .npc-dialogue-text .cursor-blink {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: var(--pixel-white);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink-cursor 1s step-end infinite;
+  }
+
+  /* ---- CHARACTER STATS PANEL ---- */
+  .stats-panel {
+    background: var(--deep-blue);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--pixel-gray);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .stat-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stat-bar {
+    flex: 1;
+    height: 12px;
+    background: var(--pixel-dark);
+    border: 2px solid var(--mid-blue);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: width 1s ease-out;
+  }
+
+  .stat-bar-fill.hp { background: var(--hp-red); }
+  .stat-bar-fill.mp { background: var(--mp-blue); }
+  .stat-bar-fill.xp { background: var(--emerald); }
+  .stat-bar-fill.atk { background: var(--gold); }
+
+  .stat-value {
+    font-size: 0.7rem;
+    color: var(--pixel-white);
+    min-width: 48px;
+    text-align: right;
+    letter-spacing: 1px;
+  }
+
+  /* ---- GAME STATUS FOOTER ---- */
+  .game-footer {
+    background: var(--deep-blue);
+    margin-top: 8px;
+  }
+
+  .footer-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 4px solid var(--mid-blue);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .footer-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+  }
+
+  .footer-stat .stat-icon {
+    font-size: 0.9rem;
+  }
+
+  .footer-hp-label { color: var(--hp-red); }
+  .footer-mp-label { color: var(--mp-blue); }
+  .footer-gold-label { color: var(--gold); }
+  .footer-lvl-label { color: var(--light-emerald); }
+
+  .footer-bar {
+    width: 80px;
+    height: 8px;
+    background: var(--pixel-dark);
+    border: 1px solid;
+    position: relative;
+  }
+
+  .footer-bar .fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+  }
+
+  .footer-main {
+    padding: 16px;
+    text-align: center;
+  }
+
+  .footer-main p {
+    font-size: 0.7rem;
+    color: var(--pixel-gray);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .footer-main .copyright {
+    font-size: 0.6rem;
+    color: rgba(139, 139, 139, 0.5);
+    letter-spacing: 1px;
+  }
+
+  .footer-command {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: var(--pixel-dark);
+    border-top: 2px solid var(--mid-blue);
+  }
+
+  .footer-command span {
+    font-size: 0.7rem;
+    color: var(--accent-blue);
+    letter-spacing: 1px;
+  }
+
+  .footer-command .cmd-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 12px;
+    background: var(--accent-blue);
+    animation: blink-cursor 1s step-end infinite;
+  }
+
+  /* ---- DECORATIVE ELEMENTS ---- */
+  .pixel-divider {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0;
+    color: var(--pixel-gray);
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+  }
+
+  .pixel-divider::before, .pixel-divider::after {
+    content: '';
+    flex: 1;
+    height: 4px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--mid-blue) 0px,
+      var(--mid-blue) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+  }
+
+  /* Corner decorations for pixel-border panels */
+  .corner-deco {
+    position: relative;
+  }
+
+  .corner-deco::before,
+  .corner-deco::after {
+    content: '+';
+    position: absolute;
+    color: var(--accent-blue);
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 2;
+  }
+
+  .corner-deco::before { top: -2px; left: 4px; }
+  .corner-deco::after { top: -2px; right: 4px; }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 700px) {
+    .game-container {
+      padding: 8px;
+    }
+
+    .title-text h1 {
+      font-size: 2rem;
+      letter-spacing: 4px;
+    }
+
+    .title-characters {
+      gap: 20px;
+    }
+
+    .hero-avatar {
+      width: 88px;
+      height: 88px;
+    }
+
+    .npc-avatar {
+      width: 72px;
+      height: 72px;
+    }
+
+    .quest-entry {
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+    }
+
+    .quest-meta {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: center;
+      padding-left: 64px;
+      gap: 8px;
+    }
+
+    .scroll-body {
+      padding: 20px 16px;
+    }
+
+    .scroll-title {
+      font-size: 1.2rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .nav-item {
+      padding: 8px 12px;
+      font-size: 0.75rem;
+    }
+
+    .footer-top-bar {
+      justify-content: center;
+    }
+
+    .npc-dialogue-inner {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .title-text h1 {
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+    }
+
+    .title-characters {
+      gap: 12px;
+    }
+
+    .hero-avatar {
+      width: 72px;
+      height: 72px;
+    }
+
+    .npc-avatar {
+      width: 56px;
+      height: 56px;
+    }
+
+    .quest-meta {
+      padding-left: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+
+  <!-- ============ TITLE SCREEN ============ -->
+  <header class="title-screen pixel-border-gold">
+    <div class="title-characters">
+      <div class="character">
+        <span class="character-label hero-label">Hero</span>
+        <div class="hero-avatar">
+          <img src="avatar.webp" alt="keeb - Blue pixel art hacker with crown">
+        </div>
+        <div class="hero-shadow"></div>
+      </div>
+      <div class="character">
+        <span class="character-label npc-label">Ally</span>
+        <div class="npc-avatar">
+          <img src="supreme_commander.png" alt="Supreme Commander - Green pixel art commander">
+        </div>
+        <div class="npc-shadow"></div>
+      </div>
+    </div>
+    <div class="title-text">
+      <h1>keeb<span class="dot">.</span>dev</h1>
+      <p class="title-subtitle">Hacker's Quest Chronicle</p>
+    </div>
+    <p class="press-start">[ Press Start ]</p>
+  </header>
+
+  <!-- ============ GAME MENU NAVIGATION ============ -->
+  <nav class="game-nav pixel-border">
+    <div class="nav-inner">
+      <a href="#quests" class="nav-item">
+        <span class="nav-pointer">&#9654;</span>
+        <span class="nav-icon">&#9876;</span>
+        <span>Quests</span>
+      </a>
+      <a href="#scroll" class="nav-item">
+        <span class="nav-pointer">&#9654;</span>
+        <span class="nav-icon">&#9997;</span>
+        <span>Scroll</span>
+      </a>
+      <a href="#stats" class="nav-item">
+        <span class="nav-pointer">&#9654;</span>
+        <span class="nav-icon">&#9733;</span>
+        <span>Stats</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-pointer">&#9654;</span>
+        <span class="nav-icon">&#9881;</span>
+        <span>Config</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-pointer">&#9654;</span>
+        <span class="nav-icon">&#128279;</span>
+        <span>Links</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ============ QUEST LOG (BLOG POSTS) ============ -->
+  <section id="quests" class="quest-log pixel-border">
+    <div class="section-header">
+      <span class="header-icon">&#9876;</span>
+      <h2>Quest Log</h2>
+      <span class="header-line"></span>
+    </div>
+
+    <div class="quest-log-header">
+      <span>Mission</span>
+      <span>Status</span>
+    </div>
+
+    <ul class="quest-list">
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-legendary"></span>
+            <span class="diff-pip active-legendary"></span>
+            <span class="diff-pip active-legendary"></span>
+            <span class="diff-pip active-legendary"></span>
+            <span class="diff-pip active-legendary"></span>
+          </div>
+          <span class="quest-xp">+500 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> MCP Is Dead</span>
+          <span class="quest-date">2026-02-03 // Legendary Quest</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-new">New!</span>
+          <span class="quest-status-label">Active</span>
+        </div>
+      </li>
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-legendary"></span>
+            <span class="diff-pip active-legendary"></span>
+            <span class="diff-pip active-legendary"></span>
+            <span class="diff-pip active-legendary"></span>
+            <span class="diff-pip active-legendary"></span>
+          </div>
+          <span class="quest-xp">+500 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> AI-Native Infrastructure</span>
+          <span class="quest-date">2026-02-03 // Legendary Quest</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-legendary">Legendary</span>
+          <span class="quest-status-label">Active</span>
+        </div>
+      </li>
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip"></span>
+          </div>
+          <span class="quest-xp">+350 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> Claude Sonnet 4.5 &amp; System Initiative</span>
+          <span class="quest-date">2025-09-29 // Elite Quest</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-epic">Epic</span>
+          <span class="quest-status-label">Complete</span>
+        </div>
+      </li>
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-medium"></span>
+            <span class="diff-pip active-medium"></span>
+            <span class="diff-pip active-medium"></span>
+            <span class="diff-pip"></span>
+            <span class="diff-pip"></span>
+          </div>
+          <span class="quest-xp">+200 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> AI is great at parsing</span>
+          <span class="quest-date">2025-09-26 // Standard Quest</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-main">Main</span>
+          <span class="quest-status-label">Complete</span>
+        </div>
+      </li>
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-medium"></span>
+            <span class="diff-pip active-medium"></span>
+            <span class="diff-pip active-medium"></span>
+            <span class="diff-pip active-medium"></span>
+            <span class="diff-pip"></span>
+          </div>
+          <span class="quest-xp">+300 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> Terraform with Glitter</span>
+          <span class="quest-date">2025-09-25 // Crafting Quest</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-main">Main</span>
+          <span class="quest-status-label">Complete</span>
+        </div>
+      </li>
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+          </div>
+          <span class="quest-xp">+450 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> Virtualization from scratch</span>
+          <span class="quest-date">2023-07-03 // Dungeon Raid</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-epic">Epic</span>
+          <span class="quest-status-label">Complete</span>
+        </div>
+      </li>
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip active-hard"></span>
+            <span class="diff-pip"></span>
+            <span class="diff-pip"></span>
+          </div>
+          <span class="quest-xp">+250 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> I made a keylogger</span>
+          <span class="quest-date">2022-06-12 // Stealth Mission</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-side">Side</span>
+          <span class="quest-status-label">Complete</span>
+        </div>
+      </li>
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-easy"></span>
+            <span class="diff-pip active-easy"></span>
+            <span class="diff-pip"></span>
+            <span class="diff-pip"></span>
+            <span class="diff-pip"></span>
+          </div>
+          <span class="quest-xp">+100 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> Hexo &amp; VSCode</span>
+          <span class="quest-date">2022-05-28 // Tutorial Quest</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-side">Side</span>
+          <span class="quest-status-label">Complete</span>
+        </div>
+      </li>
+
+      <li class="quest-entry">
+        <div class="quest-status">
+          <div class="quest-difficulty">
+            <span class="diff-pip active-easy"></span>
+            <span class="diff-pip"></span>
+            <span class="diff-pip"></span>
+            <span class="diff-pip"></span>
+            <span class="diff-pip"></span>
+          </div>
+          <span class="quest-xp">+50 XP</span>
+        </div>
+        <div class="quest-info">
+          <span class="quest-title"><span class="quest-pointer">&#9654;</span> The Lore</span>
+          <span class="quest-date">2022-05-28 // Prologue</span>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-tag tag-main">Main</span>
+          <span class="quest-status-label">Complete</span>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- ============ NPC DIALOGUE ============ -->
+  <section class="npc-dialogue pixel-border-green">
+    <div class="npc-dialogue-inner">
+      <div class="npc-dialogue-avatar">
+        <img src="supreme_commander.png" alt="Supreme Commander">
+      </div>
+      <div class="npc-dialogue-content">
+        <p class="npc-dialogue-name">Supreme Commander</p>
+        <p class="npc-dialogue-text">
+          "Greetings, traveler. I've been watching your progress through the
+          digital realms. Your skills in infrastructure and code are impressive.
+          Read the scroll below -- it contains wisdom about making Terraform
+          sparkle. May your deployments be swift and your errors few."<span class="cursor-blink"></span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCROLL (POST CONTENT) ============ -->
+  <section id="scroll" class="scroll-section">
+    <div class="section-header">
+      <span class="header-icon">&#9997;</span>
+      <h2>Ancient Scroll</h2>
+      <span class="header-line"></span>
+    </div>
+
+    <div class="scroll-container pixel-border-gold">
+      <div class="scroll-top-edge"></div>
+      <div class="scroll-body">
+        <h3 class="scroll-title">Terraform with Glitter</h3>
+        <div class="scroll-meta">
+          <span>&#9733; Crafting Quest &mdash; 2025-09-25 &mdash; +300 XP &#9733;</span>
+        </div>
+        <div class="scroll-content">
+          <p>
+            Infrastructure as code doesn't have to be a dreary march through
+            endless YAML files and inscrutable provider documentation. What if
+            we could make <code>terraform apply</code> feel less like filing
+            taxes and more like casting a spell? That's exactly the quest I set
+            out on -- to bring a little <span class="highlight-text">glitter</span>
+            to the world of infrastructure provisioning.
+          </p>
+          <p>
+            The idea is simple: wrap Terraform's powerful declarative engine in
+            layers of developer experience that actually spark joy. Custom
+            modules that read like poetry. Output formatting that celebrates
+            your successes with color and flair. Error messages that guide you
+            like a friendly NPC rather than punishing you like a final boss.
+            When infrastructure becomes fun, teams move faster, make fewer
+            mistakes, and actually enjoy the process of building reliable
+            systems.
+          </p>
+          <p>
+            By combining thoughtful abstractions, expressive naming conventions,
+            and a dash of personality in our tooling, we can transform the
+            infrastructure workflow from a chore into a craft. Because every
+            <code>plan</code> should feel like unrolling a treasure map, and
+            every successful <code>apply</code> should feel like leveling up.
+          </p>
+        </div>
+        <div class="scroll-xp-reward">
+          <span>&#9733; Quest Complete! +300 XP Earned &#9733;</span>
+        </div>
+      </div>
+      <div class="scroll-bottom-edge"></div>
+    </div>
+  </section>
+
+  <!-- ============ CHARACTER STATS ============ -->
+  <section id="stats" class="stats-panel pixel-border-purple">
+    <div class="section-header">
+      <span class="header-icon">&#9733;</span>
+      <h2>Hero Stats</h2>
+      <span class="header-line"></span>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-label">HP (Uptime)</span>
+        <div class="stat-bar-container">
+          <div class="stat-bar">
+            <div class="stat-bar-fill hp" style="width: 92%;"></div>
+          </div>
+          <span class="stat-value">92/100</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">MP (Motivation)</span>
+        <div class="stat-bar-container">
+          <div class="stat-bar">
+            <div class="stat-bar-fill mp" style="width: 78%;"></div>
+          </div>
+          <span class="stat-value">78/100</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">XP (Experience)</span>
+        <div class="stat-bar-container">
+          <div class="stat-bar">
+            <div class="stat-bar-fill xp" style="width: 65%;"></div>
+          </div>
+          <span class="stat-value">2700/4200</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">ATK (Deploy Power)</span>
+        <div class="stat-bar-container">
+          <div class="stat-bar">
+            <div class="stat-bar-fill atk" style="width: 85%;"></div>
+          </div>
+          <span class="stat-value">85/100</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="pixel-divider">* * *</div>
+
+  <!-- ============ GAME STATUS FOOTER ============ -->
+  <footer class="game-footer pixel-border">
+    <div class="footer-top-bar">
+      <div class="footer-stat">
+        <span class="footer-hp-label">HP</span>
+        <div class="footer-bar" style="border-color: var(--hp-red);">
+          <div class="fill" style="width: 92%; background: var(--hp-red);"></div>
+        </div>
+      </div>
+      <div class="footer-stat">
+        <span class="footer-mp-label">MP</span>
+        <div class="footer-bar" style="border-color: var(--mp-blue);">
+          <div class="fill" style="width: 78%; background: var(--mp-blue);"></div>
+        </div>
+      </div>
+      <div class="footer-stat">
+        <span class="footer-gold-label">&#9733; 2700 G</span>
+      </div>
+      <div class="footer-stat">
+        <span class="footer-lvl-label">LVL 42</span>
+      </div>
+    </div>
+    <div class="footer-main">
+      <p>keeb.dev // Hacker's Quest Chronicle</p>
+      <p class="copyright">SAVE FILE: 2026-02-06 // ALL QUESTS &amp; PROGRESS PRESERVED</p>
+    </div>
+    <div class="footer-command">
+      <span>&gt; </span>
+      <span class="cmd-cursor"></span>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEEB.DEV — Audio Tracker / Mixer</title>
+<style>
+  /* ========================================
+     AUDIO TRACKER / MIXER THEME
+     Waveform Edition
+     ======================================== */
+
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes rotateGradient {
+    0%   { --angle: 0deg; }
+    100% { --angle: 360deg; }
+  }
+
+  @keyframes eqBar1  { 0%,100%{height:25%} 30%{height:85%} 60%{height:45%} 80%{height:95%} }
+  @keyframes eqBar2  { 0%,100%{height:40%} 20%{height:70%} 50%{height:100%} 75%{height:30%} }
+  @keyframes eqBar3  { 0%,100%{height:60%} 25%{height:30%} 55%{height:90%} 85%{height:50%} }
+  @keyframes eqBar4  { 0%,100%{height:35%} 35%{height:95%} 65%{height:20%} 90%{height:75%} }
+  @keyframes eqBar5  { 0%,100%{height:50%} 15%{height:80%} 45%{height:35%} 70%{height:100%} }
+  @keyframes eqBar6  { 0%,100%{height:70%} 30%{height:25%} 60%{height:85%} 80%{height:40%} }
+  @keyframes eqBar7  { 0%,100%{height:30%} 20%{height:90%} 50%{height:55%} 75%{height:80%} }
+  @keyframes eqBar8  { 0%,100%{height:55%} 25%{height:40%} 45%{height:95%} 70%{height:25%} }
+  @keyframes eqBar9  { 0%,100%{height:45%} 35%{height:75%} 55%{height:20%} 85%{height:90%} }
+  @keyframes eqBar10 { 0%,100%{height:65%} 20%{height:35%} 50%{height:80%} 80%{height:50%} }
+
+  @keyframes vuPulse {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes ledBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @keyframes waveMove {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes nowPlayingPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* ---- RESET & BASE ---- */
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 15px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Courier New', monospace;
+    background: #0d0618;
+    color: #d0c8e8;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ---- LAYOUT ---- */
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+  }
+
+  .sidebar {
+    width: 340px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: #130a22;
+    border-left: 1px solid #ff00aa;
+    box-shadow: -2px 0 20px rgba(255, 0, 170, 0.1);
+  }
+
+  /* Scrollbar styling */
+  .sidebar::-webkit-scrollbar,
+  .main-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  .sidebar::-webkit-scrollbar-track,
+  .main-content::-webkit-scrollbar-track {
+    background: #0d0618;
+  }
+  .sidebar::-webkit-scrollbar-thumb,
+  .main-content::-webkit-scrollbar-thumb {
+    background: #8844ff;
+    border-radius: 3px;
+  }
+
+  /* ---- CHANNEL STRIP BASE ---- */
+  .channel-strip {
+    padding: 1.2rem 1.4rem;
+    border-bottom: 1px solid #ff00aa;
+    box-shadow: 0 1px 8px rgba(255, 0, 170, 0.08);
+    position: relative;
+  }
+
+  .channel-strip::before {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #ff00aa;
+    box-shadow: 0 0 6px rgba(255, 0, 170, 0.4);
+  }
+
+  .strip-label {
+    font-size: 0.65rem;
+    color: #6a5a8a;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .strip-label::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #ff00aa;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #ff00aa;
+  }
+
+  /* ---- IDENTITY STRIP ---- */
+  .identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 1.6rem;
+  }
+
+  .avatar-wrapper {
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    padding: 4px;
+    background: conic-gradient(from var(--angle), #ff00aa, #00ffcc, #8844ff, #ff00aa);
+    animation: rotateGradient 8s infinite linear;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 20px rgba(136, 68, 255, 0.3);
+  }
+
+  .avatar-wrapper img {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: block;
+    object-fit: cover;
+    border: 3px solid #0d0618;
+  }
+
+  .site-title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #ff00aa;
+    text-shadow: 0 0 10px rgba(255, 0, 170, 0.5);
+    letter-spacing: 2px;
+    margin-bottom: 0.2rem;
+  }
+
+  .channel-subtitle {
+    font-size: 0.7rem;
+    color: #6a5a8a;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+
+  /* ---- NAV STRIP ---- */
+  .nav-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(136, 68, 255, 0.08);
+    border: 1px solid rgba(136, 68, 255, 0.2);
+    color: #d0c8e8;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .nav-btn:hover {
+    background: rgba(255, 0, 170, 0.15);
+    border-color: #ff00aa;
+    color: #ff00aa;
+    box-shadow: 0 0 10px rgba(255, 0, 170, 0.2);
+  }
+
+  .nav-btn .led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00ffcc;
+    box-shadow: 0 0 6px #00ffcc;
+    flex-shrink: 0;
+  }
+
+  .nav-btn:hover .led {
+    background: #ff00aa;
+    box-shadow: 0 0 8px #ff00aa;
+    animation: ledBlink 0.6s infinite;
+  }
+
+  .nav-btn .channel-num {
+    color: #6a5a8a;
+    font-size: 0.7rem;
+    margin-left: auto;
+  }
+
+  /* ---- EQUALIZER STRIP ---- */
+  .eq-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    height: 80px;
+    padding: 0.5rem 0;
+  }
+
+  .eq-bar {
+    width: 22px;
+    border-radius: 2px 2px 0 0;
+    position: relative;
+    min-height: 20%;
+  }
+
+  .eq-bar:nth-child(1)  { background: #00ffcc; animation: eqBar1  0.8s ease-in-out infinite; }
+  .eq-bar:nth-child(2)  { background: #00eebb; animation: eqBar2  1.0s ease-in-out infinite 0.1s; }
+  .eq-bar:nth-child(3)  { background: #22ddbb; animation: eqBar3  1.2s ease-in-out infinite 0.05s; }
+  .eq-bar:nth-child(4)  { background: #44ccaa; animation: eqBar4  0.9s ease-in-out infinite 0.15s; }
+  .eq-bar:nth-child(5)  { background: #6688cc; animation: eqBar5  1.1s ease-in-out infinite 0.2s; }
+  .eq-bar:nth-child(6)  { background: #8866dd; animation: eqBar6  1.3s ease-in-out infinite 0.08s; }
+  .eq-bar:nth-child(7)  { background: #aa44ee; animation: eqBar7  0.85s ease-in-out infinite 0.12s; }
+  .eq-bar:nth-child(8)  { background: #cc22dd; animation: eqBar8  1.4s ease-in-out infinite 0.18s; }
+  .eq-bar:nth-child(9)  { background: #dd11cc; animation: eqBar9  1.15s ease-in-out infinite 0.07s; }
+  .eq-bar:nth-child(10) { background: #ff00aa; animation: eqBar10 1.5s ease-in-out infinite 0.25s; }
+
+  .eq-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* ---- FREQUENCY STRIP (Tags) ---- */
+  .freq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .freq-tag {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    background: rgba(136, 68, 255, 0.06);
+    border-left: 3px solid #8844ff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .freq-tag:hover {
+    background: rgba(136, 68, 255, 0.15);
+    border-left-color: #00ffcc;
+  }
+
+  .freq-tag .tag-name {
+    color: #d0c8e8;
+  }
+
+  .freq-tag .tag-freq {
+    color: #00ffcc;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+  }
+
+  /* ---- PLAYLIST STRIP ---- */
+  .playlist {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .track {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+
+  .track:hover {
+    background: rgba(136, 68, 255, 0.1);
+    border-left-color: #8844ff;
+  }
+
+  .track.now-playing {
+    background: rgba(255, 0, 170, 0.2);
+    border-left: 3px solid #ff00aa;
+    color: #ff00aa;
+  }
+
+  .track.now-playing .track-num {
+    color: #ff00aa;
+    animation: nowPlayingPulse 2s infinite;
+  }
+
+  .track-num {
+    color: #6a5a8a;
+    font-size: 0.7rem;
+    min-width: 22px;
+  }
+
+  .track-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .track-dur {
+    color: #6a5a8a;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  /* ---- VU METER ---- */
+  .vu-meter {
+    height: 6px;
+    background: linear-gradient(90deg, #00ff44 0%, #00ff44 40%, #ffcc00 60%, #ff4400 85%, #ff0044 100%);
+    background-size: 200% 100%;
+    animation: vuPulse 3s ease-in-out infinite;
+    border-radius: 3px;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 8px rgba(0, 255, 68, 0.3);
+    position: relative;
+  }
+
+  .vu-meter::after {
+    content: 'VU';
+    position: absolute;
+    right: 8px;
+    top: -16px;
+    font-size: 0.6rem;
+    color: #6a5a8a;
+    letter-spacing: 2px;
+  }
+
+  /* ---- WAVEFORM DECORATIONS ---- */
+  .waveform-deco {
+    height: 40px;
+    position: relative;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .waveform-deco .wave-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    animation: waveMove 4s linear infinite;
+  }
+
+  .waveform-deco .wave-line svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .waveform-deco.wave-teal .wave-line svg path {
+    stroke: #00ffcc;
+    fill: none;
+    stroke-width: 2;
+    opacity: 0.5;
+  }
+
+  .waveform-deco.wave-magenta .wave-line svg path {
+    stroke: #ff00aa;
+    fill: none;
+    stroke-width: 2;
+    opacity: 0.4;
+  }
+
+  .waveform-deco.wave-purple .wave-line svg path {
+    stroke: #8844ff;
+    fill: none;
+    stroke-width: 1.5;
+    opacity: 0.3;
+  }
+
+  /* ---- NOW PLAYING HEADER ---- */
+  .now-playing-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .now-playing-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 0, 170, 0.15);
+    border: 1px solid #ff00aa;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: #ff00aa;
+    text-transform: uppercase;
+    animation: nowPlayingPulse 2s infinite;
+  }
+
+  .now-playing-badge .dot {
+    width: 8px;
+    height: 8px;
+    background: #ff00aa;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #ff00aa;
+  }
+
+  .track-info {
+    font-size: 0.75rem;
+    color: #6a5a8a;
+    letter-spacing: 1px;
+  }
+
+  /* ---- POST STYLES ---- */
+  .post {
+    max-width: 800px;
+  }
+
+  .post-title {
+    font-size: 2rem;
+    color: #00ffcc;
+    text-shadow: 0 0 12px rgba(0, 255, 204, 0.3);
+    margin: 0.5rem 0 0.3rem;
+    line-height: 1.3;
+  }
+
+  .post-meta {
+    font-size: 0.8rem;
+    color: #6a5a8a;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .post-meta .meta-sep {
+    color: #8844ff;
+  }
+
+  .post p {
+    margin-bottom: 1.2rem;
+    color: #d0c8e8;
+  }
+
+  .post h2 {
+    color: #00ffcc;
+    font-size: 1.3rem;
+    margin: 2rem 0 0.8rem;
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+    border-bottom: 1px solid rgba(0, 255, 204, 0.15);
+    padding-bottom: 0.4rem;
+  }
+
+  .post h3 {
+    color: #00ffcc;
+    font-size: 1.1rem;
+    margin: 1.5rem 0 0.6rem;
+    opacity: 0.85;
+  }
+
+  .post a {
+    color: #ff00aa;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 0, 170, 0.3);
+    transition: all 0.2s;
+  }
+
+  .post a:hover {
+    color: #00ffcc;
+    border-bottom-color: #00ffcc;
+    text-shadow: 0 0 6px rgba(0, 255, 204, 0.3);
+  }
+
+  .post strong {
+    color: #ff00aa;
+    font-weight: bold;
+  }
+
+  .post em {
+    color: #d0c8e8;
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  /* Code blocks */
+  .post pre {
+    background: #1a0e2e;
+    border: 1px solid rgba(136, 68, 255, 0.25);
+    border-left: 3px solid #8844ff;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .post pre::before {
+    content: attr(data-lang);
+    position: absolute;
+    top: 0.4rem;
+    right: 0.8rem;
+    font-size: 0.6rem;
+    color: #6a5a8a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .post code {
+    font-family: 'Courier New', monospace;
+    color: #d0c8e8;
+  }
+
+  .post pre code {
+    color: #d0c8e8;
+  }
+
+  .post pre .kw   { color: #ff00aa; }
+  .post pre .fn   { color: #00ffcc; }
+  .post pre .str  { color: #8844ff; }
+  .post pre .cmt  { color: #6a5a8a; font-style: italic; }
+  .post pre .var  { color: #d0c8e8; }
+  .post pre .num  { color: #00ffcc; }
+
+  .post p code {
+    background: #1a0e2e;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid rgba(136, 68, 255, 0.2);
+    font-size: 0.88em;
+    color: #00ffcc;
+  }
+
+  /* ---- FOOTER / MASTER OUT ---- */
+  .master-out {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(136, 68, 255, 0.2);
+    text-align: center;
+    font-size: 0.7rem;
+    color: #6a5a8a;
+    letter-spacing: 2px;
+  }
+
+  .master-out .out-label {
+    display: inline-block;
+    border: 1px solid #6a5a8a;
+    padding: 0.2rem 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 900px) {
+    .layout {
+      flex-direction: column-reverse;
+    }
+
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: relative;
+      border-left: none;
+      border-bottom: 2px solid #ff00aa;
+      box-shadow: 0 2px 20px rgba(255, 0, 170, 0.1);
+    }
+
+    .identity {
+      flex-direction: row;
+      text-align: left;
+      gap: 1rem;
+      padding-top: 1.2rem;
+    }
+
+    .avatar-wrapper {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 0;
+    }
+
+    .avatar-wrapper img {
+      width: 56px;
+      height: 56px;
+    }
+
+    .eq-container {
+      flex-direction: row;
+      height: 50px;
+    }
+
+    .nav-strip {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      flex: 1;
+      min-width: 100px;
+      justify-content: center;
+    }
+
+    .nav-btn .channel-num {
+      display: none;
+    }
+
+    .main-content {
+      padding: 1.5rem;
+    }
+
+    .playlist-strip {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  }
+
+  @media (max-width: 600px) {
+    html {
+      font-size: 14px;
+    }
+
+    .main-content {
+      padding: 1rem;
+    }
+
+    .post-title {
+      font-size: 1.5rem;
+    }
+
+    .eq-container {
+      height: 35px;
+      gap: 4px;
+    }
+
+    .eq-bar {
+      width: 14px;
+    }
+
+    .freq-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+
+    .freq-tag {
+      flex: 1;
+      min-width: 130px;
+      font-size: 0.7rem;
+    }
+
+    .track {
+      font-size: 0.72rem;
+      padding: 0.35rem 0.4rem;
+    }
+
+    .track-dur {
+      display: none;
+    }
+
+    .waveform-deco {
+      height: 25px;
+    }
+
+    .nav-btn {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.6rem;
+      letter-spacing: 1px;
+    }
+
+    .identity .site-title {
+      font-size: 1.2rem;
+    }
+
+    .channel-subtitle {
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ======================== MAIN CONTENT (LEFT) ======================== -->
+  <div class="main-content">
+
+    <!-- VU Meter -->
+    <div class="vu-meter"></div>
+
+    <!-- Now Playing Header -->
+    <div class="now-playing-header">
+      <div class="now-playing-badge">
+        <span class="dot"></span>
+        NOW PLAYING
+      </div>
+      <span class="track-info">Track 02 of 09 &mdash; 2022-06-12</span>
+    </div>
+
+    <!-- Waveform decoration top -->
+    <div class="waveform-deco wave-teal">
+      <div class="wave-line">
+        <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
+          <path d="M0,20 C25,5 50,35 75,20 C100,5 125,35 150,20 C175,5 200,35 225,20 C250,5 275,35 300,20 C325,5 350,35 375,20 C400,5 425,35 450,20 C475,5 500,35 525,20 C550,5 575,35 600,20 C625,5 650,35 675,20 C700,5 725,35 750,20 C775,5 800,35 825,20 C850,5 875,35 900,20 C925,5 950,35 975,20 C1000,5 1025,35 1050,20 C1075,5 1100,35 1125,20 C1150,5 1175,35 1200,20"/>
+        </svg>
+      </div>
+    </div>
+    <div class="waveform-deco wave-purple" style="margin-top: -1rem;">
+      <div class="wave-line" style="animation-duration: 6s;">
+        <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
+          <path d="M0,20 C30,8 60,32 90,20 C120,8 150,32 180,20 C210,8 240,32 270,20 C300,8 330,32 360,20 C390,8 420,32 450,20 C480,8 510,32 540,20 C570,8 600,32 630,20 C660,8 690,32 720,20 C750,8 780,32 810,20 C840,8 870,32 900,20 C930,8 960,32 990,20 C1020,8 1050,32 1080,20 C1110,8 1140,32 1170,20 C1200,8 1200,20 1200,20"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Post Content -->
+    <article class="post">
+      <h1 class="post-title">I made a keylogger</h1>
+      <div class="post-meta">
+        <span>2022-06-12</span>
+        <span class="meta-sep">|</span>
+        <span>security</span>
+        <span class="meta-sep">|</span>
+        <span>python</span>
+        <span class="meta-sep">|</span>
+        <span>Track 02</span>
+      </div>
+
+      <p>
+        There is an old argument in security circles that goes something like this: you cannot
+        defend against what you do not understand. I decided to take that principle literally and
+        build a keylogger from scratch. Not to deploy it, not to steal anyone's credentials, but
+        to understand precisely how these tools operate at the lowest levels of the operating system.
+        The exercise turned out to be one of the most instructive things I have ever done in the
+        security space, and it fundamentally changed how I think about endpoint protection.
+      </p>
+
+      <p>
+        At their core, keyloggers exploit the way operating systems handle input events. On most
+        platforms, keyboard input passes through a well-defined pipeline: the physical keypress
+        generates a hardware interrupt, the OS kernel translates that into a scan code, and the
+        input subsystem dispatches the event to the focused application. The critical insight is
+        that this pipeline offers multiple interception points. On Windows, the <code>SetWindowsHookEx</code>
+        API lets you install a low-level keyboard hook that receives every keystroke before any
+        application sees it. On Linux, you can read directly from <code>/dev/input/event*</code> devices
+        if you have sufficient permissions, or use the <code>Xlib</code> record extension to capture
+        X11 input events. Each approach has trade-offs in terms of privilege requirements,
+        detectability, and the fidelity of captured data.
+      </p>
+
+      <p>
+        I chose Python for the implementation because the goal was education, not stealth. Python's
+        <code>pynput</code> library abstracts across platforms and provides a clean listener API that
+        hooks into the OS input subsystem. The entire functional keylogger fits in about thirty
+        lines of code, which is both impressive and terrifying. Here is the essential structure:
+      </p>
+
+      <pre data-lang="python"><code><span class="kw">from</span> <span class="var">pynput</span> <span class="kw">import</span> <span class="var">keyboard</span>
+<span class="kw">import</span> <span class="var">logging</span>
+<span class="kw">import</span> <span class="var">datetime</span>
+
+<span class="cmt"># Configure output — in a real scenario this would</span>
+<span class="cmt"># be exfiltrated, but we just log to a local file</span>
+<span class="var">logging</span>.<span class="fn">basicConfig</span>(
+    <span class="var">filename</span>=<span class="str">"keylog.txt"</span>,
+    <span class="var">level</span>=<span class="var">logging</span>.<span class="var">DEBUG</span>,
+    <span class="var">format</span>=<span class="str">'%(asctime)s — %(message)s'</span>
+)
+
+<span class="kw">def</span> <span class="fn">on_press</span>(<span class="var">key</span>):
+    <span class="kw">try</span>:
+        <span class="var">logging</span>.<span class="fn">info</span>(<span class="str">f'Key: </span>{<span class="var">key</span>.<span class="var">char</span>}<span class="str">'</span>)
+    <span class="kw">except</span> <span class="var">AttributeError</span>:
+        <span class="cmt"># Special keys (shift, ctrl, etc.)</span>
+        <span class="var">logging</span>.<span class="fn">info</span>(<span class="str">f'Special: </span>{<span class="var">key</span>}<span class="str">'</span>)
+
+<span class="cmt"># Start the listener — this hooks into the OS</span>
+<span class="cmt"># input event pipeline via platform-specific APIs</span>
+<span class="kw">with</span> <span class="var">keyboard</span>.<span class="fn">Listener</span>(<span class="var">on_press</span>=<span class="fn">on_press</span>) <span class="kw">as</span> <span class="var">listener</span>:
+    <span class="var">listener</span>.<span class="fn">join</span>()</code></pre>
+
+      <p>
+        What startled me most was not the simplicity of the code but what I learned about the
+        gaps in conventional defenses. Most antivirus engines at the time flagged known keylogger
+        signatures but completely missed novel implementations. The <code>pynput</code> library
+        itself is a legitimate accessibility tool, so its presence on a system raises no alarms.
+        Running the keylogger required no elevated privileges on most desktop configurations I tested.
+        This exercise made me realize that behavioral detection &mdash; monitoring for processes that
+        install input hooks or open raw input devices &mdash; is far more valuable than signature-based
+        scanning. It also drove me to configure proper application whitelisting and input event
+        auditing on my own machines.
+      </p>
+
+      <p>
+        Building offensive tools in a controlled environment is, in my view, one of the most
+        effective ways to develop defensive intuition. You stop thinking of attacks as abstract
+        threats described in CVE reports and start understanding them as concrete sequences of
+        API calls and system interactions. The keylogger project took an afternoon to build and
+        a lifetime to appreciate. If you work in security and have never written one, I would
+        strongly encourage the exercise &mdash; just keep it in your lab, delete it when you are done,
+        and never, ever point it at someone else's machine.
+      </p>
+    </article>
+
+    <!-- Waveform decoration bottom -->
+    <div class="waveform-deco wave-magenta">
+      <div class="wave-line">
+        <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
+          <path d="M0,20 C20,2 40,38 60,20 C80,2 100,38 120,20 C140,2 160,38 180,20 C200,2 220,38 240,20 C260,2 280,38 300,20 C320,2 340,38 360,20 C380,2 400,38 420,20 C440,2 460,38 480,20 C500,2 520,38 540,20 C560,2 580,38 600,20 C620,2 640,38 660,20 C680,2 700,38 720,20 C740,2 760,38 780,20 C800,2 820,38 840,20 C860,2 880,38 900,20 C920,2 940,38 960,20 C980,2 1000,38 1020,20 C1040,2 1060,38 1080,20 C1100,2 1120,38 1140,20 C1160,2 1180,38 1200,20"/>
+        </svg>
+      </div>
+    </div>
+    <div class="waveform-deco wave-teal" style="margin-top: -1.2rem;">
+      <div class="wave-line" style="animation-duration: 5s; animation-direction: reverse;">
+        <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
+          <path d="M0,20 C35,10 70,30 105,20 C140,10 175,30 210,20 C245,10 280,30 315,20 C350,10 385,30 420,20 C455,10 490,30 525,20 C560,10 595,30 630,20 C665,10 700,30 735,20 C770,10 805,30 840,20 C875,10 910,30 945,20 C980,10 1015,30 1050,20 C1085,10 1120,30 1155,20 C1190,10 1200,20 1200,20"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="master-out">
+      <div class="out-label">MASTER OUT</div>
+      <p>keeb.dev &mdash; all channels routed &mdash; 2022&ndash;2026</p>
+    </footer>
+  </div>
+
+  <!-- ======================== RIGHT SIDEBAR ======================== -->
+  <aside class="sidebar">
+
+    <!-- IDENTITY STRIP -->
+    <div class="channel-strip identity">
+      <div class="strip-label">IDENTITY</div>
+      <div class="avatar-wrapper">
+        <img src="avatar.webp" alt="keeb avatar">
+      </div>
+      <div class="site-title">keeb.dev</div>
+      <div class="channel-subtitle">CHANNEL 01</div>
+    </div>
+
+    <!-- NAV STRIP -->
+    <div class="channel-strip">
+      <div class="strip-label">NAVIGATION</div>
+      <nav class="nav-strip">
+        <a class="nav-btn" href="#">
+          <span class="led"></span>
+          HOME
+          <span class="channel-num">CH.01</span>
+        </a>
+        <a class="nav-btn" href="#">
+          <span class="led"></span>
+          POSTS
+          <span class="channel-num">CH.02</span>
+        </a>
+        <a class="nav-btn" href="#">
+          <span class="led"></span>
+          ARCHIVE
+          <span class="channel-num">CH.03</span>
+        </a>
+        <a class="nav-btn" href="#">
+          <span class="led"></span>
+          ABOUT
+          <span class="channel-num">CH.04</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- EQUALIZER STRIP -->
+    <div class="channel-strip">
+      <div class="strip-label">EQUALIZER</div>
+      <div class="eq-container">
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+      </div>
+    </div>
+
+    <!-- FREQUENCY STRIP (Tags) -->
+    <div class="channel-strip">
+      <div class="strip-label">FREQUENCY</div>
+      <div class="freq-list">
+        <div class="freq-tag">
+          <span class="tag-name">infrastructure</span>
+          <span class="tag-freq">440Hz</span>
+        </div>
+        <div class="freq-tag">
+          <span class="tag-name">security</span>
+          <span class="tag-freq">880Hz</span>
+        </div>
+        <div class="freq-tag">
+          <span class="tag-name">AI</span>
+          <span class="tag-freq">1760Hz</span>
+        </div>
+        <div class="freq-tag">
+          <span class="tag-name">devops</span>
+          <span class="tag-freq">220Hz</span>
+        </div>
+        <div class="freq-tag">
+          <span class="tag-name">python</span>
+          <span class="tag-freq">660Hz</span>
+        </div>
+        <div class="freq-tag">
+          <span class="tag-name">tooling</span>
+          <span class="tag-freq">330Hz</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYLIST STRIP -->
+    <div class="channel-strip playlist-strip">
+      <div class="strip-label">PLAYLIST</div>
+      <div class="playlist">
+        <div class="track">
+          <span class="track-num">01.</span>
+          <span class="track-title">The Lore</span>
+          <span class="track-dur">[05:28]</span>
+        </div>
+        <div class="track now-playing">
+          <span class="track-num">02.</span>
+          <span class="track-title">I made a keylogger</span>
+          <span class="track-dur">[06:12]</span>
+        </div>
+        <div class="track">
+          <span class="track-num">03.</span>
+          <span class="track-title">Hexo &amp; VSCode</span>
+          <span class="track-dur">[05:28]</span>
+        </div>
+        <div class="track">
+          <span class="track-num">04.</span>
+          <span class="track-title">Virtualization from scratch</span>
+          <span class="track-dur">[07:03]</span>
+        </div>
+        <div class="track">
+          <span class="track-num">05.</span>
+          <span class="track-title">Terraform with Glitter</span>
+          <span class="track-dur">[09:25]</span>
+        </div>
+        <div class="track">
+          <span class="track-num">06.</span>
+          <span class="track-title">AI is great at parsing</span>
+          <span class="track-dur">[09:26]</span>
+        </div>
+        <div class="track">
+          <span class="track-num">07.</span>
+          <span class="track-title">Claude Sonnet 4.5 &amp; System Initiative</span>
+          <span class="track-dur">[09:29]</span>
+        </div>
+        <div class="track">
+          <span class="track-num">08.</span>
+          <span class="track-title">AI-Native Infrastructure</span>
+          <span class="track-dur">[02:03]</span>
+        </div>
+        <div class="track">
+          <span class="track-num">09.</span>
+          <span class="track-title">MCP Is Dead</span>
+          <span class="track-dur">[02:03]</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+</div>
+
+</body>
+</html>
